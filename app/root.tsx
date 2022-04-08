@@ -8,7 +8,6 @@ import {
   ScrollRestoration,
   NavLink as Link,
 } from "@remix-run/react";
-import { Transition } from "@headlessui/react";
 import cn from "clsx";
 
 import styles from "./styles/tailwind.css";
@@ -103,10 +102,9 @@ const PieIcon = ({ className }: { className: string }) => (
     xmlns="http://www.w3.org/2000/svg"
   >
     <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
+      fillRule="evenodd"
+      clipRule="evenodd"
       d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM13 13L13 19.93C16.61 19.48 19.48 16.61 19.93 13L13 13ZM12 4C16.07 4 19.44 7.06 19.93 11L4.07 11C4.56 7.06 7.93 4 12 4ZM11 13L4.07 13C4.52 16.61 7.39 19.48 11 19.93L11 13Z"
-      fill-opacity="0.36"
     />
   </svg>
 );
@@ -115,7 +113,7 @@ const NavLink = ({
   to,
   children,
 }: {
-  to: "/" | "pool";
+  to: "/" | "pools";
   children: React.ReactNode;
 }) => {
   const Icon = to === "/" ? SplitIcon : PieIcon;
@@ -222,11 +220,11 @@ export default function App() {
         <Links />
       </head>
       <body className="bg-gray-900 text-white">
+        <div className="flex items-center justify-center h-16 px-8 z-10 border-b border-gray-800">
+          <TreasureLogoIcon className="w-8 h-8" />
+        </div>
         <div className="overflow-hidden relative">
           <DotPattern />
-          <div className="flex items-center justify-center h-16 px-8 z-10 border-b border-gray-800">
-            <TreasureLogoIcon className="w-8 h-8" />
-          </div>
           <div className="flex flex-col min-h-[calc(100vh-64px)] max-w-5xl m-auto p-8">
             <Outlet />
           </div>
@@ -235,7 +233,7 @@ export default function App() {
               <div className="absolute left-1/2 transform -translate-x-1/2 w-full max-w-2xl backdrop-blur-md bg-gray-800 bg-opacity-80 rounded-xl shadow-xl z-10 p-2">
                 <nav className="flex gap-1">
                   <NavLink to="/">Swap</NavLink>
-                  <NavLink to="pool">Pool</NavLink>
+                  <NavLink to="pools">Pool</NavLink>
                 </nav>
               </div>
             </div>
