@@ -69,12 +69,12 @@ const DotPattern = () => (
         <path
           d="M345.705 125.696L471.401 0H345.705L220.009 125.696L345.705 251.391L220.009 377.017L345.705 502.712H471.401L345.705 377.017L471.401 251.391L345.705 125.696Z"
           fill="currentColor"
-          className="text-gray-800"
+          className="text-[#1B1C22]"
         />
         <path
           d="M234.321 251.391L108.625 125.696L234.321 0H108.625L-17 125.696L108.625 251.391L-17 377.017L108.625 502.712H234.321L108.625 377.017L234.321 251.391Z"
           fill="currentColor"
-          className="text-gray-800"
+          className="text-[#1B1C22]"
         />
       </svg>
       <svg
@@ -120,18 +120,18 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="bg-gray-900 text-white">
+      <body className="bg-[#191A21] text-white">
         <div className="flex items-center justify-center h-16 px-8 z-10 border-b border-gray-800 relative">
           <TreasureLogoIcon className="w-8 h-8" />
         </div>
         <div className="overflow-hidden relative">
           <DotPattern />
-          <div className="flex flex-col min-h-[calc(100vh-64px)] max-w-6xl m-auto p-8 relative">
+          <div className="flex flex-col min-h-[calc(100vh-64px)] max-w-6xl m-auto p-8 relative mb-24">
             <Outlet />
           </div>
-          <header className="px-2 fixed left-0 right-0 bottom-[5.5rem] sm:bottom-36 z-10">
+          <header className="px-2 fixed left-0 right-0 bottom-[5.5rem] sm:bottom-28 z-10">
             <div className="relative">
-              <div className="absolute left-1/2 transform -translate-x-1/2 w-full max-w-2xl backdrop-blur-md bg-gray-800 bg-opacity-80 rounded-xl shadow-xl z-10 p-2">
+              <div className="absolute left-1/2 transform -translate-x-1/2 w-full max-w-2xl backdrop-blur-md bg-gray-800 bg-opacity-80 rounded-xl z-10 p-2 shadow-xl shadow-gray-800/30">
                 <nav className="flex gap-1">
                   <NavLink to="/">Swap</NavLink>
                   <NavLink to="pools">Pool</NavLink>

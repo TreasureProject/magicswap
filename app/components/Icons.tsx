@@ -94,6 +94,17 @@ export const StarIcon = ({ className }: { className: string }) => (
   </svg>
 );
 
+export const ArrowDownwardIcon = createIcon({
+  path: (
+    <path
+      d="M20 12L18.59 10.59L13 16.17V4H11V16.17L5.42 10.58L4 12L12 20L20 12Z"
+      fill="white"
+      fillOpacity="0.54"
+    />
+  ),
+  displayName: "ArrowDownwardIcon",
+});
+
 export const ArrowForwardIcon = createIcon({
   path: (
     <path
