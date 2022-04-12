@@ -126,7 +126,7 @@ export default function App() {
         </div>
         <div className="overflow-hidden relative">
           <DotPattern />
-          <div className="flex flex-col min-h-[calc(100vh-64px)] max-w-6xl m-auto p-8 relative mb-24">
+          <div className="flex flex-col min-h-[calc(100vh-64px)] max-w-7xl m-auto p-8 relative mb-24">
             <Outlet />
           </div>
           <header className="px-2 fixed left-0 right-0 bottom-[5.5rem] sm:bottom-28 z-10">
