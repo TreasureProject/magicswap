@@ -1,7 +1,9 @@
+import { curveBasis } from "@visx/curve";
 import { LinearGradient } from "@visx/gradient";
 import { scaleLinear } from "@visx/scale";
 import { LinePath } from "@visx/shape";
-import { useMemo, useId } from "react";
+import { useMemo } from "react";
+import { useId } from "@reach/auto-id";
 import AutoSizer from "react-virtualized-auto-sizer";
 
 export const Graph = ({
@@ -53,6 +55,7 @@ export const Graph = ({
         />
         <LinePath
           data={data}
+          curve={curveBasis}
           x={(d) => xScale(d.x) ?? 0}
           y={(d) => yScale(d.y) ?? 0}
           stroke={`url('#gradient-${id}')`}

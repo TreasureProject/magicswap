@@ -1,11 +1,12 @@
-import { json, LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/cloudflare";
+import { json } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
 import {
   ArrowDownwardIcon,
   ArrowForwardIcon,
   StarIcon,
 } from "~/components/Icons";
-import { GetTokenPriceQuery } from "~/graphql/generated";
+import type { GetTokenPriceQuery } from "~/graphql/generated";
 import { sdk } from "~/utils/api.server";
 import { ArrowSmDownIcon, ArrowSmUpIcon } from "@heroicons/react/solid";
 import { LineGraph } from "../components/Graph";
@@ -132,6 +133,22 @@ const TokenInput = ({
               {
                 x: 1.2,
                 y: 0.5,
+              },
+              {
+                x: 1.6,
+                y: 0.2,
+              },
+              {
+                x: 2.0,
+                y: 0.9,
+              },
+              {
+                x: 2.4,
+                y: 0.6,
+              },
+              {
+                x: 2.8,
+                y: 0.7,
               },
             ]}
           />
