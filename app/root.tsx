@@ -129,7 +129,6 @@ export default function App() {
           <div className="flex flex-col min-h-[calc(100vh-64px)] max-w-6xl m-auto p-8 relative mb-24">
             <Outlet />
           </div>
-          å
           <header className="px-2 fixed left-0 right-0 bottom-[5.5rem] sm:bottom-28 z-10">
             <div className="relative">
               <div className="absolute left-1/2 transform -translate-x-1/2 w-full max-w-2xl backdrop-blur-md bg-gray-800 bg-opacity-80 rounded-xl z-10 p-2 shadow-xl shadow-gray-800/30">
