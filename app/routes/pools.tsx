@@ -78,6 +78,7 @@ export default function Pools() {
                       <div>
                         <Link
                           to={`/pools/${pair.id}/manage`}
+                          prefetch="intent"
                           className="focus:outline-none"
                         >
                           <span
