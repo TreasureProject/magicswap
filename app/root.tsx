@@ -31,7 +31,7 @@ const NavLink = ({
   const Icon = to === "/" ? SplitIcon : PieIcon;
 
   return (
-    <Link to={to} className="flex-1">
+    <Link to={to} className="flex-1" prefetch="intent">
       {({ isActive }) => (
         <div
           className={cn(
