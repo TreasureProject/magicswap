@@ -5,7 +5,6 @@ import {
   Meta,
   Outlet,
   Scripts,
-  ScrollRestoration,
   NavLink as Link,
 } from "@remix-run/react";
 import cn from "clsx";
@@ -140,7 +139,7 @@ export default function App() {
             </div>
           </header>
         </div>
-        <ScrollRestoration />
+        {/* <ScrollRestoration /> */}
         <Scripts />
         <LiveReload />
       </body>
