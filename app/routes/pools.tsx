@@ -63,11 +63,12 @@ export default function Pools() {
                       {({ isActive }) => (
                         <div
                           className={cn(
-                            "px-6 py-5 flex items-center space-x-3",
+                            "px-6 py-5 flex items-center space-x-3 border-l-2 group",
                             {
-                              "bg-gray-900 border-gray-600 text-gray-600 border-l-4":
+                              "border-red-600 text-red-600 bg-red-500/10":
                                 isActive,
-                              "hover:bg-gray-900": !isActive,
+                              "hover:border-gray-300 border-transparent":
+                                !isActive,
                             }
                           )}
                         >
@@ -77,28 +78,36 @@ export default function Pools() {
                                 <img
                                   src="https://via.placeholder.com/400"
                                   alt="placeholder"
-                                  className="w-8 h-8 rounded-full ring-2 z-10 ring-gray-800"
+                                  className={cn(
+                                    "w-8 h-8 rounded-full ring-1 z-10",
+                                    {
+                                      "ring-red-400": isActive,
+                                      "ring-gray-800": !isActive,
+                                    }
+                                  )}
                                 />
                                 <img
                                   src="https://via.placeholder.com/400"
                                   alt="placeholder"
-                                  className="w-8 h-8 rounded-full ring-2 ring-gray-800"
+                                  className={cn("w-8 h-8 rounded-full ring-1", {
+                                    "ring-red-400": isActive,
+                                    "ring-gray-800": !isActive,
+                                  })}
                                 />
                               </div>
                               <p
-                                className={cn(
-                                  "text-sm text-gray-400 font-medium",
-                                  {
-                                    "text-gray-200": isActive,
-                                  }
-                                )}
+                                className={cn("text-sm font-medium", {
+                                  "text-red-500": isActive,
+                                  "text-gray-400 group-hover:text-gray-200":
+                                    !isActive,
+                                })}
                               >
                                 {pair.name}
                               </p>
                             </div>
                             <p
                               className={cn("font-bold", {
-                                "text-gray-50": isActive,
+                                "text-red-500": isActive,
                               })}
                             >
                               {getApr(pair.volumeUSD, pair.reserveUSD)}%
