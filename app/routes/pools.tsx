@@ -1,75 +1,25 @@
 import { SearchIcon } from "@heroicons/react/solid";
-import { Link, Outlet } from "@remix-run/react";
+import { json, LoaderFunction } from "@remix-run/cloudflare";
+import { Link, Outlet, useLoaderData } from "@remix-run/react";
+import { GetPairsQuery } from "~/graphql/generated";
+import { sdk } from "~/utils/api.server";
+import { getApr } from "~/utils/price";
 
-const pairs = [
-  {
-    pair: "MAGIC-SMOL",
-    apy: "256%",
-    id: 1,
-  },
-  {
-    pair: "MAGIC-SMOL",
-    apy: "256%",
-    id: 2,
-  },
-  {
-    pair: "MAGIC-SMOL",
-    apy: "256%",
-    id: 3,
-  },
-  {
-    pair: "MAGIC-SMOL",
-    apy: "256%",
-    id: 4,
-  },
-  {
-    pair: "MAGIC-SMOL",
-    apy: "256%",
-    id: 5,
-  },
-  {
-    pair: "MAGIC-SMOL",
-    apy: "256%",
-    id: 6,
-  },
-  {
-    pair: "MAGIC-SMOL",
-    apy: "256%",
-    id: 7,
-  },
-  {
-    pair: "MAGIC-SMOL",
-    apy: "256%",
-    id: 8,
-  },
-  {
-    pair: "MAGIC-SMOL",
-    apy: "256%",
-    id: 9,
-  },
-  {
-    pair: "MAGIC-SMOL",
-    apy: "256%",
-    id: 10,
-  },
-  {
-    pair: "MAGIC-SMOL",
-    apy: "256%",
-    id: 11,
-  },
-  {
-    pair: "MAGIC-SMOL",
-    apy: "256%",
-    id: 12,
-  },
-  {
-    pair: "MAGIC-SMOL",
-    apy: "256%",
-    id: 13,
-  },
-];
+type LoaderData = {
+  pairs: GetPairsQuery["pairs"];
+};
+
+
+export const loader: LoaderFunction = async () => {
+  const { pairs } = await sdk.getPairs({
+    where: { token0: "0x539bde0d7dbd336b79148aa742883198bbf60342" },
+  });
+
+  return json<LoaderData>({ pairs });
+};
 
 export default function Pools() {
+  const { pairs } = useLoaderData<LoaderData>();
   return (
     <div className="my-12 flex flex-1 flex-col">
       <h2 className="text-xl font-medium">Pools</h2>
@@ -122,7 +72,7 @@ export default function Pools() {
                           />
                         </div>
                         <p className="text-sm text-gray-400 font-medium">
-                          {pair.pair}
+                          {pair.name}
                         </p>
                       </div>
                       <div>
@@ -135,7 +85,7 @@ export default function Pools() {
                             aria-hidden="true"
                           ></span>
                         </Link>
-                        <p className="font-bold">{pair.apy}</p>
+                        <p className="font-bold">{getApr(pair.volumeUSD, pair.reserveUSD)}%</p>
                       </div>
                     </div>
                   </li>
