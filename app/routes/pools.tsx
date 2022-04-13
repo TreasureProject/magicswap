@@ -1,14 +1,15 @@
 import { SearchIcon } from "@heroicons/react/solid";
-import { json, LoaderFunction } from "@remix-run/cloudflare";
-import { Link, Outlet, useLoaderData } from "@remix-run/react";
-import { GetPairsQuery } from "~/graphql/generated";
+import type { LoaderFunction } from "@remix-run/cloudflare";
+import { json } from "@remix-run/cloudflare";
+import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import type { GetPairsQuery } from "~/graphql/generated";
 import { sdk } from "~/utils/api.server";
 import { getApr } from "~/utils/price";
+import cn from "clsx";
 
 type LoaderData = {
   pairs: GetPairsQuery["pairs"];
 };
-
 
 export const loader: LoaderFunction = async () => {
   const { pairs } = await sdk.getPairs({
@@ -53,42 +54,59 @@ export default function Pools() {
             <div className="flex-1 overflow-auto">
               <ul>
                 {pairs.map((pair) => (
-                  <li
-                    key={pair.id}
-                    className="relative px-6 py-5 flex items-center space-x-3 hover:bg-gray-900 focus-within:ring-2 focus-within:ring-inset focus-within:ring-red-500"
-                  >
-                    <div className="flex justify-between w-full items-center">
-                      <div className="flex items-center space-x-4">
-                        <div className="flex -space-x-4">
-                          <img
-                            src="https://via.placeholder.com/400"
-                            alt="placeholder"
-                            className="w-8 h-8 rounded-full ring-2 z-10"
-                          />
-                          <img
-                            src="https://via.placeholder.com/400"
-                            alt="placeholder"
-                            className="w-8 h-8 rounded-full ring-2"
-                          />
-                        </div>
-                        <p className="text-sm text-gray-400 font-medium">
-                          {pair.name}
-                        </p>
-                      </div>
-                      <div>
-                        <Link
-                          to={`/pools/${pair.id}/manage`}
-                          prefetch="intent"
-                          className="focus:outline-none"
+                  <li key={pair.id}>
+                    <NavLink
+                      to={`/pools/${pair.id}/manage`}
+                      prefetch="intent"
+                      className="focus:outline-none"
+                    >
+                      {({ isActive }) => (
+                        <div
+                          className={cn(
+                            "px-6 py-5 flex items-center space-x-3",
+                            {
+                              "bg-gray-900 border-gray-600 text-gray-600 border-l-4":
+                                isActive,
+                              "hover:bg-gray-900": !isActive,
+                            }
+                          )}
                         >
-                          <span
-                            className="absolute inset-0"
-                            aria-hidden="true"
-                          ></span>
-                        </Link>
-                        <p className="font-bold">{getApr(pair.volumeUSD, pair.reserveUSD)}%</p>
-                      </div>
-                    </div>
+                          <div className="flex justify-between w-full items-center">
+                            <div className="flex items-center space-x-4">
+                              <div className="flex -space-x-4">
+                                <img
+                                  src="https://via.placeholder.com/400"
+                                  alt="placeholder"
+                                  className="w-8 h-8 rounded-full ring-2 z-10 ring-gray-800"
+                                />
+                                <img
+                                  src="https://via.placeholder.com/400"
+                                  alt="placeholder"
+                                  className="w-8 h-8 rounded-full ring-2 ring-gray-800"
+                                />
+                              </div>
+                              <p
+                                className={cn(
+                                  "text-sm text-gray-400 font-medium",
+                                  {
+                                    "text-gray-200": isActive,
+                                  }
+                                )}
+                              >
+                                {pair.name}
+                              </p>
+                            </div>
+                            <p
+                              className={cn("font-bold", {
+                                "text-gray-50": isActive,
+                              })}
+                            >
+                              {getApr(pair.volumeUSD, pair.reserveUSD)}%
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </NavLink>
                   </li>
                 ))}
               </ul>
