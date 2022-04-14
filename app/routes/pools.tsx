@@ -1,6 +1,8 @@
-import { SearchIcon } from "@heroicons/react/solid";
+import * as React from "react";
+import { PlusSmIcon, SearchIcon } from "@heroicons/react/solid";
 import type { LoaderFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
+import type { ShouldReloadFunction } from "@remix-run/react";
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import type { GetPairsQuery } from "~/graphql/generated";
 import { sdk } from "~/utils/api.server";
@@ -19,13 +21,30 @@ export const loader: LoaderFunction = async () => {
   return json<LoaderData>({ pairs });
 };
 
+// Changing query params on pools/:poolId/manage route automatically reloads all parent loaders, but we don't have to do that here.
+export const unstable_shouldReload: ShouldReloadFunction = () => false;
+
 export default function Pools() {
   const { pairs } = useLoaderData<LoaderData>();
+  const [mobileFiltersOpen, setMobileFiltersOpen] = React.useState(false);
   return (
     <div className="my-12 flex flex-1 flex-col">
       <h2 className="text-xl font-medium">Pools</h2>
-      <div className="mt-6 grid flex-1 grid-cols-6 gap-x-4">
-        <div className="col-span-2 flex flex-col bg-gray-800 h-[calc(100vh-256px)]">
+      <aside>
+        <h2 className="sr-only">Pool List</h2>
+        <button
+          className="inline-flex items-center lg:hidden mt-6"
+          onClick={() => setMobileFiltersOpen(true)}
+        >
+          <span className="text-sm font-medium text-gray-500">Pool List</span>
+          <PlusSmIcon
+            className="flex-shrink-0 ml-1 h-5 w-5 text-gray-400"
+            aria-hidden="true"
+          />
+        </button>
+      </aside>
+      <div className="lg:mt-6 mt-2 grid flex-1 grid-cols-6 gap-x-4">
+        <div className="hidden lg:flex lg:col-span-2 flex-col bg-gray-800 h-[calc(100vh-256px)] rounded-md overflow-hidden">
           <div className="p-6">
             <label htmlFor="liquidity-pools" className="sr-only">
               Liquidity Pool
@@ -122,7 +141,7 @@ export default function Pools() {
             </div>
           </div>
         </div>
-        <div className="col-span-4 bg-gray-800">
+        <div className="col-span-6 lg:col-span-4 bg-gray-800 rounded-md overflow-hidden">
           <Outlet />
         </div>
       </div>
