@@ -44,6 +44,10 @@ export default function Pools() {
 
   const selectedPool = pairs.find((p) => p.id === poolId);
 
+  React.useEffect(() => {
+    setMobileFiltersOpen(false);
+  }, [location.pathname]);
+
   const [mobileFiltersOpen, setMobileFiltersOpen] = React.useState(false);
   return (
     <div className="my-12 flex flex-1 flex-col">
@@ -115,72 +119,7 @@ export default function Pools() {
                 <div className="flex-1 overflow-auto">
                   <ul>
                     {pairs.map((pair) => (
-                      <li key={pair.id}>
-                        <NavLink
-                          to={`/pools/${pair.id}/manage`}
-                          prefetch="intent"
-                          className="focus:outline-none"
-                        >
-                          {({ isActive }) => (
-                            <div
-                              className={cn(
-                                "px-6 py-5 flex items-center space-x-3 border-l-2 group",
-                                {
-                                  "border-red-600 text-red-600 bg-red-500/10":
-                                    isActive,
-                                  "hover:border-gray-300 border-transparent":
-                                    !isActive,
-                                }
-                              )}
-                            >
-                              <div className="flex justify-between w-full items-center">
-                                <div className="flex items-center space-x-4">
-                                  <div className="flex -space-x-4">
-                                    <img
-                                      src="https://via.placeholder.com/400"
-                                      alt="placeholder"
-                                      className={cn(
-                                        "w-8 h-8 rounded-full ring-1 z-10",
-                                        {
-                                          "ring-red-400": isActive,
-                                          "ring-gray-800": !isActive,
-                                        }
-                                      )}
-                                    />
-                                    <img
-                                      src="https://via.placeholder.com/400"
-                                      alt="placeholder"
-                                      className={cn(
-                                        "w-8 h-8 rounded-full ring-1",
-                                        {
-                                          "ring-red-400": isActive,
-                                          "ring-gray-800": !isActive,
-                                        }
-                                      )}
-                                    />
-                                  </div>
-                                  <p
-                                    className={cn("text-sm font-medium", {
-                                      "text-red-500": isActive,
-                                      "text-gray-400 group-hover:text-gray-200":
-                                        !isActive,
-                                    })}
-                                  >
-                                    {pair.name}
-                                  </p>
-                                </div>
-                                <p
-                                  className={cn("font-bold", {
-                                    "text-red-500": isActive,
-                                  })}
-                                >
-                                  {getApr(pair.volumeUSD, pair.reserveUSD)}%
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </NavLink>
-                      </li>
+                      <PoolLink pair={pair} lastPath={lastPath} key={pair.id} />
                     ))}
                   </ul>
                 </div>
@@ -294,74 +233,9 @@ export default function Pools() {
             </div>
             <div className="flex-1 overflow-auto">
               <ul>
-                {pairs.map((pair) => {
-                  const isActive = pair.id === poolId;
-                  return (
-                    <li key={pair.id}>
-                      <Link
-                        to={`/pools/${pair.id}/${
-                          lastPath === "pools" ? "manage" : lastPath
-                        }`}
-                        prefetch="intent"
-                        className="focus:outline-none"
-                      >
-                        <div
-                          className={cn(
-                            "px-6 py-5 flex items-center border-l-2 group",
-                            {
-                              "border-red-600 text-red-600 bg-red-500/10":
-                                isActive,
-                              "hover:border-gray-300 border-transparent":
-                                !isActive,
-                            }
-                          )}
-                        >
-                          <div className="flex justify-between w-full items-center">
-                            <div className="flex items-center space-x-4">
-                              <div className="flex -space-x-4">
-                                <img
-                                  src="https://via.placeholder.com/400"
-                                  alt="placeholder"
-                                  className={cn(
-                                    "w-8 h-8 rounded-full ring-1 z-10",
-                                    {
-                                      "ring-red-400": isActive,
-                                      "ring-gray-800": !isActive,
-                                    }
-                                  )}
-                                />
-                                <img
-                                  src="https://via.placeholder.com/400"
-                                  alt="placeholder"
-                                  className={cn("w-8 h-8 rounded-full ring-1", {
-                                    "ring-red-400": isActive,
-                                    "ring-gray-800": !isActive,
-                                  })}
-                                />
-                              </div>
-                              <p
-                                className={cn("text-sm font-medium", {
-                                  "text-red-500": isActive,
-                                  "text-gray-400 group-hover:text-gray-200":
-                                    !isActive,
-                                })}
-                              >
-                                {pair.name}
-                              </p>
-                            </div>
-                            <p
-                              className={cn("font-bold", {
-                                "text-red-500": isActive,
-                              })}
-                            >
-                              {getApr(pair.volumeUSD, pair.reserveUSD)}%
-                            </p>
-                          </div>
-                        </div>
-                      </Link>
-                    </li>
-                  );
-                })}
+                {pairs.map((pair) => (
+                  <PoolLink pair={pair} lastPath={lastPath} key={pair.id} />
+                ))}
               </ul>
             </div>
           </div>
@@ -373,3 +247,68 @@ export default function Pools() {
     </div>
   );
 }
+
+const PoolLink = ({
+  pair,
+  lastPath,
+}: {
+  pair: NonNullable<GetPairsQuery["pairs"]>[number];
+  lastPath: string;
+}) => {
+  const { poolId } = useParams();
+  const isActive = pair.id === poolId;
+  return (
+    <li key={pair.id}>
+      <Link
+        to={`/pools/${pair.id}/${lastPath === "pools" ? "manage" : lastPath}`}
+        prefetch="intent"
+        className="focus:outline-none"
+      >
+        <div
+          className={cn("px-6 py-5 flex items-center border-l-2 group", {
+            "border-red-600 text-red-600 bg-red-500/10": isActive,
+            "hover:border-gray-300 border-transparent": !isActive,
+          })}
+        >
+          <div className="flex justify-between w-full items-center">
+            <div className="flex items-center space-x-4">
+              <div className="flex -space-x-4">
+                <img
+                  src="https://via.placeholder.com/400"
+                  alt="placeholder"
+                  className={cn("w-8 h-8 rounded-full ring-1 z-10", {
+                    "ring-red-400": isActive,
+                    "ring-gray-800": !isActive,
+                  })}
+                />
+                <img
+                  src="https://via.placeholder.com/400"
+                  alt="placeholder"
+                  className={cn("w-8 h-8 rounded-full ring-1", {
+                    "ring-red-400": isActive,
+                    "ring-gray-800": !isActive,
+                  })}
+                />
+              </div>
+              <p
+                className={cn("text-sm font-medium", {
+                  "text-red-500": isActive,
+                  "text-gray-400 group-hover:text-gray-200": !isActive,
+                })}
+              >
+                {pair.name}
+              </p>
+            </div>
+            <p
+              className={cn("font-bold", {
+                "text-red-500": isActive,
+              })}
+            >
+              {getApr(pair.volumeUSD, pair.reserveUSD)}%
+            </p>
+          </div>
+        </div>
+      </Link>
+    </li>
+  );
+};
