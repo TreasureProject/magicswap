@@ -1,18 +1,27 @@
 import * as React from "react";
-import { PlusSmIcon, SearchIcon, XIcon } from "@heroicons/react/solid";
+import { ChevronDownIcon, SearchIcon, XIcon } from "@heroicons/react/solid";
 import type { LoaderFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import type { ShouldReloadFunction } from "@remix-run/react";
+import { Link } from "@remix-run/react";
+import { useLocation } from "@remix-run/react";
+import { useParams } from "@remix-run/react";
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import type { GetPairsQuery } from "~/graphql/generated";
 import { sdk } from "~/utils/api.server";
 import { getApr } from "~/utils/price";
 import cn from "clsx";
 import { Dialog, Transition } from "@headlessui/react";
+import { SlashIcon } from "~/components/Icons";
 
 type LoaderData = {
   pairs: GetPairsQuery["pairs"];
 };
+
+const tabs = [
+  { name: "Manage Liquidity", href: "manage" },
+  { name: "Analytics", href: "analytics" },
+];
 
 export const loader: LoaderFunction = async () => {
   const { pairs } = await sdk.getPairs({
@@ -27,6 +36,14 @@ export const unstable_shouldReload: ShouldReloadFunction = () => false;
 
 export default function Pools() {
   const { pairs } = useLoaderData<LoaderData>();
+  const { poolId } = useParams();
+  const location = useLocation();
+  const splitPaths = location.pathname.split("/");
+
+  const lastPath = splitPaths[splitPaths.length - 1];
+
+  const selectedPool = pairs.find((p) => p.id === poolId);
+
   const [mobileFiltersOpen, setMobileFiltersOpen] = React.useState(false);
   return (
     <div className="my-12 flex flex-1 flex-col">
@@ -172,21 +189,83 @@ export default function Pools() {
           </Transition.Child>
         </Dialog>
       </Transition.Root>
-      <h2 className="text-xl font-medium">Pools</h2>
-      <aside>
-        <h2 className="sr-only">Pool List</h2>
-        <button
-          className="inline-flex items-center lg:hidden mt-6"
-          onClick={() => setMobileFiltersOpen(true)}
-        >
-          <span className="text-sm font-medium text-gray-500">Pool List</span>
-          <PlusSmIcon
-            className="flex-shrink-0 ml-1 h-5 w-5 text-gray-400"
-            aria-hidden="true"
-          />
-        </button>
-      </aside>
-      <div className="lg:mt-6 mt-2 grid flex-1 grid-cols-6 gap-x-4">
+
+      <div className="lg:mt-6 mt-2 lg:py-6 pb-2 pt-6 grid grid-cols-6 lg:gap-x-4">
+        <div className="lg:col-span-2 col-span-6 flex items-end">
+          <h2 className="text-2xl font-medium">Pools</h2>
+        </div>
+        {poolId ? (
+          <ol className="items-center col-span-6 lg:col-span-4 sm:space-x-4 space-x-2 justify-center flex mt-8 lg:mt-0">
+            {tabs.map((tab, i) => {
+              const isActive = tab.href === lastPath;
+
+              const notFirstTab = i > 0;
+              return (
+                <li key={tab.name}>
+                  <div className="flex items-center">
+                    {notFirstTab && (
+                      <SlashIcon className="flex-shrink-0 h-10 w-10 text-gray-400" />
+                    )}
+                    <Link
+                      to={`/pools/${poolId}/${tab.href}`}
+                      className={cn(
+                        isActive
+                          ? "border-red-500 text-white"
+                          : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-600",
+                        "ml-4 py-2 font-medium border-b-2 sm:text-xl text-base"
+                      )}
+                    >
+                      {tab.name}
+                    </Link>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        ) : null}
+        <div className="block lg:hidden col-span-6 relative mt-4">
+          <div className="bg-gray-800 rounded-md p-4 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray-100 focus-within:ring-red-500 group block">
+            {selectedPool ? (
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-4">
+                  <div className="flex -space-x-4">
+                    <img
+                      src="https://via.placeholder.com/400"
+                      alt="placeholder"
+                      className="w-8 h-8 rounded-full ring-1 z-10"
+                    />
+                    <img
+                      src="https://via.placeholder.com/400"
+                      alt="placeholder"
+                      className="w-8 h-8 rounded-full ring-1"
+                    />
+                  </div>
+                  <p className="text-xs sm:text-sm font-medium">
+                    {selectedPool.name}
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <p className="font-bold text-sm sm:text-base">
+                    {getApr(selectedPool.volumeUSD, selectedPool.reserveUSD)}%
+                  </p>
+                  <ChevronDownIcon className="h-4 w-4 flex-shrink-0" />
+                </div>
+              </div>
+            ) : (
+              <div>Select a pool</div>
+            )}
+            <button
+              className="absolute inset-0 focus:outline-none w-full h-full"
+              onClick={() => setMobileFiltersOpen(true)}
+            >
+              <span className="sr-only">
+                View details for {selectedPool?.name}
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div className="mt-2 grid flex-1 grid-cols-6 gap-x-4">
         <div className="hidden lg:flex lg:col-span-2 flex-col bg-gray-800 h-[calc(100vh-256px)] rounded-md overflow-hidden">
           <div className="p-6">
             <label htmlFor="liquidity-pools" className="sr-only">
@@ -215,17 +294,20 @@ export default function Pools() {
             </div>
             <div className="flex-1 overflow-auto">
               <ul>
-                {pairs.map((pair) => (
-                  <li key={pair.id}>
-                    <NavLink
-                      to={`/pools/${pair.id}/manage`}
-                      prefetch="intent"
-                      className="focus:outline-none"
-                    >
-                      {({ isActive }) => (
+                {pairs.map((pair) => {
+                  const isActive = pair.id === poolId;
+                  return (
+                    <li key={pair.id}>
+                      <Link
+                        to={`/pools/${pair.id}/${
+                          lastPath === "pools" ? "manage" : lastPath
+                        }`}
+                        prefetch="intent"
+                        className="focus:outline-none"
+                      >
                         <div
                           className={cn(
-                            "px-6 py-5 flex items-center space-x-3 border-l-2 group",
+                            "px-6 py-5 flex items-center border-l-2 group",
                             {
                               "border-red-600 text-red-600 bg-red-500/10":
                                 isActive,
@@ -276,10 +358,10 @@ export default function Pools() {
                             </p>
                           </div>
                         </div>
-                      )}
-                    </NavLink>
-                  </li>
-                ))}
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>

@@ -32,6 +32,7 @@ export const TreasureLogoIcon = ({ className }: { className: string }) => (
     viewBox="0 0 1486.2 1573.3"
     fill="#E3003D"
     className={className}
+    aria-hidden="true"
   >
     <g id="Treasure_x5F_Logomark_x5F_On_x5F_Light_00000042697129003240641870000006852363279536445082_">
       <path
@@ -76,6 +77,20 @@ export const TreasureLogoIcon = ({ className }: { className: string }) => (
   </svg>
 );
 
+export const SlashIcon = ({ className }: { className: string }) => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    aria-hidden="true"
+  >
+    <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z"></path>
+  </svg>
+);
+
 export const StarIcon = ({ className }: { className: string }) => (
   <svg
     width="41"
@@ -84,6 +99,7 @@ export const StarIcon = ({ className }: { className: string }) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
+    aria-hidden="true"
   >
     <path
       fillRule="evenodd"
