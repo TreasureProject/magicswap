@@ -39,13 +39,14 @@ export const Graph = ({
   const yScale = useMemo(() => {
     const y = data.map((el) => el.y);
     return scaleLinear<number>({
+      // eslint-disable-next-line prefer-spread
       domain: [Math.max.apply(Math, y), Math.min.apply(Math, y)],
       range: [10, height - 10],
     });
   }, [data, height]);
 
   return (
-    <div className="w-full h-full">
+    <div className="h-full w-full">
       <svg width={width} height={height}>
         <LinearGradient
           id={`gradient-${id}`}

@@ -6,7 +6,7 @@ import type { ShouldReloadFunction } from "@remix-run/react";
 import { Link } from "@remix-run/react";
 import { useLocation } from "@remix-run/react";
 import { useParams } from "@remix-run/react";
-import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import { Outlet, useLoaderData } from "@remix-run/react";
 import type { GetPairsQuery } from "~/graphql/generated";
 import { sdk } from "~/utils/api.server";
 import { getApr } from "~/utils/price";
@@ -54,7 +54,7 @@ export default function Pools() {
       <Transition.Root show={mobileFiltersOpen} as={React.Fragment}>
         <Dialog
           as="div"
-          className="fixed inset-0 flex z-40 lg:hidden"
+          className="fixed inset-0 z-40 flex lg:hidden"
           onClose={setMobileFiltersOpen}
         >
           <Transition.Child
@@ -78,13 +78,13 @@ export default function Pools() {
             leaveFrom="translate-x-0"
             leaveTo="translate-x-full"
           >
-            <div className="ml-auto relative max-w-xs w-full h-full bg-gray-800 shadow-xl pt-4 flex flex-col overflow-y-auto">
-              <div className="px-4 flex items-center justify-between">
+            <div className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-gray-800 pt-4 shadow-xl">
+              <div className="flex items-center justify-between px-4">
                 <h2 className="text-lg font-medium text-gray-200">
                   Choose Pool
                 </h2>
                 <button
-                  className="-mr-2 w-10 h-10 p-2 flex items-center justify-center text-gray-400 hover:text-gray-500"
+                  className="-mr-2 flex h-10 w-10 items-center justify-center p-2 text-gray-400 hover:text-gray-500"
                   onClick={() => setMobileFiltersOpen(false)}
                 >
                   <span className="sr-only">Close menu</span>
@@ -100,7 +100,7 @@ export default function Pools() {
                     type="text"
                     name="liquidity-pools"
                     id="liquidity-pools"
-                    className="block w-full rounded-md border-gray-700 bg-gray-900 pr-10 focus:border-gray-500 focus:ring-gray-500 text-sm"
+                    className="block w-full rounded-md border-gray-700 bg-gray-900 pr-10 text-sm focus:border-gray-500 focus:ring-gray-500"
                     placeholder="Search for liquidity pools"
                   />
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
@@ -111,8 +111,8 @@ export default function Pools() {
                   </div>
                 </div>
               </div>
-              <div className="flex min-h-0 flex-1 flex-col mt-4">
-                <div className="sticky top-0 z-10 border-b-[0.5px] border-gray-600 px-6 py-2 text-sm font-medium text-gray-500 flex justify-between">
+              <div className="mt-4 flex min-h-0 flex-1 flex-col">
+                <div className="sticky top-0 z-10 flex justify-between border-b-[0.5px] border-gray-600 px-6 py-2 text-sm font-medium text-gray-500">
                   <h3>Pools</h3>
                   <h3>APR</h3>
                 </div>
@@ -129,12 +129,12 @@ export default function Pools() {
         </Dialog>
       </Transition.Root>
 
-      <div className="lg:mt-6 mt-2 lg:py-6 pb-2 pt-6 grid grid-cols-6 lg:gap-x-4">
-        <div className="lg:col-span-2 col-span-6 flex items-end">
+      <div className="mt-2 grid grid-cols-6 pb-2 pt-6 lg:mt-6 lg:gap-x-4 lg:py-6">
+        <div className="col-span-6 flex items-end lg:col-span-2">
           <h2 className="text-2xl font-medium">Pools</h2>
         </div>
         {poolId ? (
-          <ol className="items-center col-span-6 lg:col-span-4 sm:space-x-4 space-x-2 justify-center flex mt-8 lg:mt-0">
+          <ol className="col-span-6 mt-8 flex items-center justify-center space-x-2 sm:space-x-4 lg:col-span-4 lg:mt-0">
             {tabs.map((tab, i) => {
               const isActive = tab.href === lastPath;
 
@@ -143,15 +143,15 @@ export default function Pools() {
                 <li key={tab.name}>
                   <div className="flex items-center">
                     {notFirstTab && (
-                      <SlashIcon className="flex-shrink-0 h-10 w-10 text-gray-400" />
+                      <SlashIcon className="h-10 w-10 flex-shrink-0 text-gray-400" />
                     )}
                     <Link
                       to={`/pools/${poolId}/${tab.href}`}
                       className={cn(
                         isActive
                           ? "border-red-500 text-white"
-                          : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-600",
-                        "ml-4 py-2 font-medium border-b-2 sm:text-xl text-base"
+                          : "border-transparent text-gray-500 hover:border-gray-600 hover:text-gray-700",
+                        "ml-4 border-b-2 py-2 text-base font-medium sm:text-xl"
                       )}
                     >
                       {tab.name}
@@ -162,29 +162,29 @@ export default function Pools() {
             })}
           </ol>
         ) : null}
-        <div className="block lg:hidden col-span-6 relative mt-4">
-          <div className="bg-gray-800 rounded-md p-4 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray-100 focus-within:ring-red-500 group block">
+        <div className="relative col-span-6 mt-4 block lg:hidden">
+          <div className="group block rounded-md bg-gray-800 p-4 focus-within:ring-2 focus-within:ring-red-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
             {selectedPool ? (
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="flex -space-x-4">
                     <img
                       src="https://via.placeholder.com/400"
                       alt="placeholder"
-                      className="w-8 h-8 rounded-full ring-1 z-10"
+                      className="z-10 h-8 w-8 rounded-full ring-1"
                     />
                     <img
                       src="https://via.placeholder.com/400"
                       alt="placeholder"
-                      className="w-8 h-8 rounded-full ring-1"
+                      className="h-8 w-8 rounded-full ring-1"
                     />
                   </div>
-                  <p className="text-xs sm:text-sm font-medium">
+                  <p className="text-xs font-medium sm:text-sm">
                     {selectedPool.name}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <p className="font-bold text-sm sm:text-base">
+                  <p className="text-sm font-bold sm:text-base">
                     {getApr(selectedPool.volumeUSD, selectedPool.reserveUSD)}%
                   </p>
                   <ChevronDownIcon className="h-4 w-4 flex-shrink-0" />
@@ -194,7 +194,7 @@ export default function Pools() {
               <div>Select a pool</div>
             )}
             <button
-              className="absolute inset-0 focus:outline-none w-full h-full"
+              className="absolute inset-0 h-full w-full focus:outline-none"
               onClick={() => setMobileFiltersOpen(true)}
             >
               <span className="sr-only">
@@ -205,7 +205,7 @@ export default function Pools() {
         </div>
       </div>
       <div className="mt-2 grid flex-1 grid-cols-6 gap-x-4">
-        <div className="hidden lg:flex lg:col-span-2 flex-col bg-gray-800 h-[calc(100vh-256px)] rounded-md overflow-hidden">
+        <div className="hidden h-[calc(100vh-256px)] flex-col overflow-hidden rounded-md bg-gray-800 lg:col-span-2 lg:flex">
           <div className="p-6">
             <label htmlFor="liquidity-pools" className="sr-only">
               Liquidity Pool
@@ -227,7 +227,7 @@ export default function Pools() {
             </div>
           </div>
           <div className="flex min-h-0 flex-1 flex-col">
-            <div className="sticky top-0 z-10 border-b-[0.5px] border-gray-600 px-6 pb-2 text-sm font-medium text-gray-500 flex justify-between">
+            <div className="sticky top-0 z-10 flex justify-between border-b-[0.5px] border-gray-600 px-6 pb-2 text-sm font-medium text-gray-500">
               <h3>Pools</h3>
               <h3>APR</h3>
             </div>
@@ -240,7 +240,7 @@ export default function Pools() {
             </div>
           </div>
         </div>
-        <div className="col-span-6 lg:col-span-4 bg-gray-800 rounded-md overflow-hidden">
+        <div className="col-span-6 overflow-hidden rounded-md bg-gray-800 lg:col-span-4">
           <Outlet />
         </div>
       </div>
@@ -265,18 +265,18 @@ const PoolLink = ({
         className="focus:outline-none"
       >
         <div
-          className={cn("px-6 py-5 flex items-center border-l-2 group", {
-            "border-red-600 text-red-600 bg-red-500/10": isActive,
-            "hover:border-gray-300 border-transparent": !isActive,
+          className={cn("group flex items-center border-l-2 px-6 py-5", {
+            "border-red-600 bg-red-500/10 text-red-600": isActive,
+            "border-transparent hover:border-gray-300": !isActive,
           })}
         >
-          <div className="flex justify-between w-full items-center">
+          <div className="flex w-full items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="flex -space-x-4">
                 <img
                   src="https://via.placeholder.com/400"
                   alt="placeholder"
-                  className={cn("w-8 h-8 rounded-full ring-1 z-10", {
+                  className={cn("z-10 h-8 w-8 rounded-full ring-1", {
                     "ring-red-400": isActive,
                     "ring-gray-800": !isActive,
                   })}
@@ -284,7 +284,7 @@ const PoolLink = ({
                 <img
                   src="https://via.placeholder.com/400"
                   alt="placeholder"
-                  className={cn("w-8 h-8 rounded-full ring-1", {
+                  className={cn("h-8 w-8 rounded-full ring-1", {
                     "ring-red-400": isActive,
                     "ring-gray-800": !isActive,
                   })}
