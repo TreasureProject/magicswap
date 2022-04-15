@@ -10,7 +10,13 @@ export const getEthPrice = gql`
 
 export const getPairs = gql`
   query getPairs($first: Int = 1000, $skip: Int = 0, $where: Pair_filter) {
-    pairs(first: $first, skip: $skip, where: $where, orderBy: volumeUSD, orderDirection: desc) {
+    pairs(
+      first: $first
+      skip: $skip
+      where: $where
+      orderBy: volumeUSD
+      orderDirection: desc
+    ) {
       id
       name
       token0 {

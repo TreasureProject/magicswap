@@ -14,7 +14,8 @@
     "dev:wrangler": "cross-env NODE_ENV=development wrangler pages dev ./public",
     "generate:css": "npx tailwindcss -o ./app/styles/tailwind.css",
     "start": "cross-env NODE_ENV=production npm run dev:wrangler",
-    "codegen": "node -r dotenv/config node_modules/.bin/gql-gen"
+    "codegen": "node -r dotenv/config node_modules/.bin/gql-gen",
+    "lint": "eslint --fix 'app/**/{*.ts,*.tsx}'"
   },
   "dependencies": {
     "@headlessui/react": "^1.5.0",
@@ -50,8 +51,13 @@
     "@types/react": "^17.0.24",
     "@types/react-dom": "^17.0.9",
     "@types/react-virtualized-auto-sizer": "^1.0.1",
-    "eslint": "^8.11.0",
+    "@typescript-eslint/eslint-plugin": "^5.19.0",
+    "@typescript-eslint/parser": "^5.19.0",
+    "eslint": "^8.13.0",
+    "eslint-config-prettier": "^8.5.0",
     "npm-run-all": "^4.1.5",
+    "prettier": "^2.6.2",
+    "prettier-plugin-tailwindcss": "^0.1.8",
     "tailwindcss": "^3.0.23",
     "typescript": "^4.5.5",
     "wrangler": "beta"

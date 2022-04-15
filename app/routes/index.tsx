@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
-import { useLoaderData } from "@remix-run/react";
+// import { useLoaderData } from "@remix-run/react";
 import {
   ArrowDownwardIcon,
   ArrowForwardIcon,
@@ -41,50 +41,50 @@ const TokenInput = ({
   positive: boolean;
 }) => {
   return (
-    <div className="flex-1 p-6 space-y-6 bg-gray-800 rounded-md">
+    <div className="flex-1 space-y-6 rounded-md bg-gray-800 p-6">
       <div>
         <label htmlFor="balance" className="sr-only">
           Balance
         </label>
-        <div className="border-b relative border-gray-600 focus-within:border-red-600">
-          <div className="absolute inset-y-0 left-0 pl-3 pb-4 flex items-center pointer-events-none">
+        <div className="relative border-b border-gray-600 focus-within:border-red-600">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 pb-4">
             <span className="text-gray-500 sm:text-sm">$</span>
           </div>
           <input
             type="text"
             name="balance"
             id="balance"
-            className="block pl-7 pr-12 w-full pb-6 border-0 border-b border-transparent bg-gray-800 focus:border-red-600 focus:ring-0 sm:text-lg lg:text-2xl"
+            className="block w-full border-0 border-b border-transparent bg-gray-800 pl-7 pr-12 pb-6 focus:border-red-600 focus:ring-0 sm:text-lg lg:text-2xl"
             placeholder="0.00"
           />
-          <div className="absolute left-0 pl-3 bottom-2 flex flex-col items-end pointer-events-none">
-            <span className="text-gray-500 text-xs" id="price-currency">
+          <div className="pointer-events-none absolute left-0 bottom-2 flex flex-col items-end pl-3">
+            <span className="text-xs text-gray-500" id="price-currency">
               ~ $123.45
             </span>
           </div>
-          <div className="absolute bottom-2 right-0 pr-3 flex flex-col items-end pointer-events-none">
+          <div className="pointer-events-none absolute bottom-2 right-0 flex flex-col items-end pr-3">
             <span
-              className="text-gray-300 sm:text-sm mb-1 font-bold"
+              className="mb-1 font-bold text-gray-300 sm:text-sm"
               id="price-currency"
             >
               MAGIC
             </span>
-            <span className="text-gray-500 text-xs" id="price-currency">
+            <span className="text-xs text-gray-500" id="price-currency">
               Balance: 123123
             </span>
           </div>
         </div>
       </div>
-      <div className="bg-gray-900 p-4 space-y-4">
-        <div className="flex justify-between items-center">
+      <div className="space-y-4 bg-gray-900 p-4">
+        <div className="flex items-center justify-between">
           <p className="font-bold">MAGIC</p>
           <div className="flex items-baseline">
-            <p className="text-sm lg:text-lg font-normal text-gray-300">
+            <p className="text-sm font-normal text-gray-300 lg:text-lg">
               $3.45 USD
             </p>
             <p
               className={cn(
-                "ml-1 flex items-baseline text-[0.6rem] lg:text-xs font-semibold",
+                "ml-1 flex items-baseline text-[0.6rem] font-semibold lg:text-xs",
                 {
                   "text-red-600": !positive,
                   "text-green-600": positive,
@@ -93,12 +93,12 @@ const TokenInput = ({
             >
               {positive ? (
                 <ArrowSmUpIcon
-                  className="self-center flex-shrink-0 h-3 w-3 lg:h-4 lg:w-4 text-green-500"
+                  className="h-3 w-3 flex-shrink-0 self-center text-green-500 lg:h-4 lg:w-4"
                   aria-hidden="true"
                 />
               ) : (
                 <ArrowSmDownIcon
-                  className="self-center flex-shrink-0 h-3 w-3 lg:h-4 lg:w-4 text-red-500"
+                  className="h-3 w-3 flex-shrink-0 self-center text-red-500 lg:h-4 lg:w-4"
                   aria-hidden="true"
                 />
               )}
@@ -160,23 +160,23 @@ const TokenInput = ({
 };
 
 export default function Index() {
-  const { tokenPrice } = useLoaderData<LoaderData>();
+  // const { tokenPrice } = useLoaderData<LoaderData>();
 
   return (
-    <div className="flex items-center flex-col">
-      <StarIcon className="w-8 h-8" />
+    <div className="flex flex-col items-center">
+      <StarIcon className="h-8 w-8" />
       {/* Make this dynamic */}
-      <h2 className="text-base sm:text-lg font-bold mt-14">
+      <h2 className="mt-14 text-base font-bold sm:text-lg">
         Swap MAGIC to Token
       </h2>
-      <p className="text-gray-500 text-sm sm:text-base">
+      <p className="text-sm text-gray-500 sm:text-base">
         The easiest way to swap your tokens
       </p>
-      <div className="flex flex-col lg:flex-row w-full mt-14">
+      <div className="mt-14 flex w-full flex-col lg:flex-row">
         <TokenInput positive />
-        <div className="basis-24 lg:basis-32 flex items-center justify-center">
-          <ArrowForwardIcon className="w-6 h-6 hidden lg:block" />
-          <ArrowDownwardIcon className="w-6 h-6 block lg:hidden" />
+        <div className="flex basis-24 items-center justify-center lg:basis-32">
+          <ArrowForwardIcon className="hidden h-6 w-6 lg:block" />
+          <ArrowDownwardIcon className="block h-6 w-6 lg:hidden" />
         </div>
         <TokenInput positive={false} />
       </div>

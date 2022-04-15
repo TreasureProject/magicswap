@@ -35,15 +35,15 @@ const NavLink = ({
       {({ isActive }) => (
         <div
           className={cn(
-            "flex-1 flex justify-center items-center space-x-6 px-8 py-4 rounded-lg text-xl",
+            "flex flex-1 items-center justify-center space-x-6 rounded-lg px-8 py-4 text-xl",
             {
               "bg-gray-800 text-white": isActive,
-              "text-gray-500 hover:text-gray-500 hover:bg-gray-800": !isActive,
+              "text-gray-500 hover:bg-gray-800 hover:text-gray-500": !isActive,
             }
           )}
         >
           <Icon
-            className={cn("w-6 h-6", {
+            className={cn("h-6 w-6", {
               "fill-red-500": isActive,
             })}
           />
@@ -58,7 +58,7 @@ const DotPattern = () => (
   <div className="absolute inset-y-0 h-full w-full" aria-hidden="true">
     <div className="relative h-full">
       <svg
-        className="absolute right-full transform top-0 translate-x-1/4 sm:translate-x-1/2 lg:translate-x-full"
+        className="absolute right-full top-0 translate-x-1/4 transform sm:translate-x-1/2 lg:translate-x-full"
         width="472"
         height="503"
         viewBox="0 0 472 503"
@@ -77,7 +77,7 @@ const DotPattern = () => (
         />
       </svg>
       <svg
-        className="absolute left-full transform -translate-y-3/4 -translate-x-1/4 sm:-translate-x-1/2 md:-translate-y-1/2 lg:-translate-x-3/4"
+        className="absolute left-full -translate-y-3/4 -translate-x-1/4 transform sm:-translate-x-1/2 md:-translate-y-1/2 lg:-translate-x-3/4"
         width={404}
         height={784}
         fill="none"
@@ -120,17 +120,17 @@ export default function App() {
         <Links />
       </head>
       <body className="bg-[#191A21] text-white antialiased">
-        <div className="flex items-center justify-center h-16 px-8 z-10 border-b border-gray-800 relative">
-          <TreasureLogoIcon className="w-8 h-8" />
+        <div className="relative z-10 flex h-16 items-center justify-center border-b border-gray-800 px-8">
+          <TreasureLogoIcon className="h-8 w-8" />
         </div>
-        <div className="overflow-hidden relative">
+        <div className="relative overflow-hidden">
           <DotPattern />
-          <div className="flex flex-col min-h-[calc(100vh-64px)] max-w-7xl m-auto p-8 relative mb-24">
+          <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] max-w-7xl flex-col p-8">
             <Outlet />
           </div>
-          <header className="px-2 fixed left-0 right-0 bottom-[5.5rem] sm:bottom-28 z-10">
+          <header className="fixed left-0 right-0 bottom-[5.5rem] z-10 px-2 sm:bottom-28">
             <div className="relative">
-              <div className="absolute left-1/2 transform -translate-x-1/2 w-full max-w-2xl backdrop-blur-md bg-gray-800 bg-opacity-80 rounded-xl z-10 p-2 shadow-xl shadow-gray-800/30">
+              <div className="absolute left-1/2 z-10 w-full max-w-2xl -translate-x-1/2 transform rounded-xl bg-gray-800 bg-opacity-80 p-2 shadow-xl shadow-gray-800/30 backdrop-blur-md">
                 <nav className="flex gap-1">
                   <NavLink to="/">Swap</NavLink>
                   <NavLink to="pools">Pool</NavLink>
