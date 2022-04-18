@@ -205,7 +205,7 @@ export default function Pools() {
         </div>
       </div>
       <div className="mt-2 grid flex-1 grid-cols-6 gap-x-4">
-        <div className="hidden h-[calc(100vh-256px)] flex-col overflow-hidden rounded-md bg-gray-800 lg:col-span-2 lg:flex">
+        <div className="hidden h-[calc(100vh-320px)] flex-col overflow-hidden rounded-md bg-gray-800 lg:col-span-2 lg:flex">
           <div className="p-6">
             <label htmlFor="liquidity-pools" className="sr-only">
               Liquidity Pool
@@ -240,7 +240,7 @@ export default function Pools() {
             </div>
           </div>
         </div>
-        <div className="col-span-6 overflow-hidden rounded-md bg-gray-800 lg:col-span-4">
+        <div className="col-span-6 overflow-hidden rounded-md bg-gray-800 lg:col-span-4 lg:h-[calc(100vh-320px)]">
           <Outlet />
         </div>
       </div>
