@@ -151,7 +151,8 @@ export default function Pools() {
                         isActive
                           ? "border-red-500 text-white"
                           : "border-transparent text-gray-500 hover:border-gray-600 hover:text-gray-700",
-                        "ml-4 border-b-2 py-2 text-base font-medium sm:text-xl"
+                        notFirstTab && "ml-4",
+                        "border-b-2 py-2 text-base font-medium sm:text-xl"
                       )}
                     >
                       {tab.name}

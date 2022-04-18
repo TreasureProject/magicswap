@@ -11,6 +11,7 @@ import { sdk } from "~/utils/api.server";
 import { ArrowSmDownIcon, ArrowSmUpIcon } from "@heroicons/react/solid";
 import { LineGraph } from "../components/Graph";
 import cn from "clsx";
+import { Button } from "~/components/Button";
 
 type LoaderData = {
   tokenPrice: GetTokenPriceQuery;
@@ -179,6 +180,9 @@ export default function Index() {
           <ArrowDownwardIcon className="block h-6 w-6 lg:hidden" />
         </div>
         <TokenInput positive={false} />
+      </div>
+      <div className="mt-12 w-full px-0 lg:px-72">
+        <Button>Swap</Button>
       </div>
     </div>
   );
