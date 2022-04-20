@@ -63,6 +63,33 @@ export const getPairs = gql`
   ${pairFieldsQuery}
 `;
 
+export const getSwapsForPair = gql`
+  query getSwapsForPair($pair: String!) {
+    swaps(
+      first: 100
+      where: { pair: $pair }
+      orderBy: timestamp
+      orderDirection: desc
+    ) {
+      id
+      pair {
+        token0 {
+          symbol
+        }
+        token1 {
+          symbol
+        }
+      }
+      timestamp
+      amount0In
+      amount1In
+      amount0Out
+      amount1Out
+      amountUSD
+    }
+  }
+`;
+
 export const getTokenPrice = gql`
   query getTokenPrice($id: ID!) {
     bundle(id: "1") {
