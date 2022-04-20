@@ -2,54 +2,58 @@ import { ArrowRightIcon } from "@heroicons/react/solid";
 import type { LoaderFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
+import { distanceInWordsToNow } from "date-fns";
 import { LineGraph } from "~/components/Graph";
 import { Pill } from "~/components/Pill";
+import { exchangeSdk } from "~/utils/api.server";
+import { formatNumber, formatUsd } from "~/utils/price";
 
-const transactions = [
-  {
-    type: "Swapped MAGIC/SMOL",
-    amount: "$1000",
-    in: "SMOL",
-    inPrice: "4 SMOL",
-    from: "MAGIC",
-    fromPrice: "0.1 MAGIC",
-    txnId: "2x3y...QfD",
-    date: "1 day ago",
-  },
-  {
-    type: "Swapped MAGIC/SMOL",
-    amount: "$983.44",
-    in: "MAGIC",
-    inPrice: "4 MAGIC",
-    from: "SMOL",
-    fromPrice: "0.1 SMOL",
-    txnId: "2x3y...QfD",
-    date: "1 day ago",
-  },
-  {
-    type: "Swapped MAGIC/SMOL",
-    amount: "$997",
-    in: "MAGIC",
-    inPrice: "4 MAGIC",
-    from: "SMOL",
-    fromPrice: "0.1 SMOL",
-    txnId: "2x3y...QfD",
-    date: "1 day ago",
-  },
-];
+type Swap = {
+  id: string;
+  inSymbol: string;
+  inAmount: number;
+  outSymbol: string;
+  outAmount: number;
+  amount: number;
+  date: Date;
+};
 
 type LoaderData = {
   randomNumber: number;
+  swaps: Swap[];
 };
 
-export const loader: LoaderFunction = async () => {
+export const loader: LoaderFunction = async ({ params: { poolId } }) => {
   const randomNumber = Math.floor(Math.random() * 6);
 
-  return json<LoaderData>({ randomNumber });
+  const { swaps = [] } = poolId
+    ? await exchangeSdk.getSwapsForPair({ pair: poolId })
+    : {};
+
+  return json<LoaderData>({
+    randomNumber,
+    swaps: swaps.map((swap) => {
+      const amount0In = parseFloat(swap.amount0In);
+      const amount1In = parseFloat(swap.amount1In);
+      const amount0Out = parseFloat(swap.amount0Out);
+      const amount1Out = parseFloat(swap.amount1Out);
+      return {
+        id: swap.id,
+        inSymbol:
+          amount0In > 0 ? swap.pair.token0.symbol : swap.pair.token1.symbol,
+        inAmount: amount0In || amount1In,
+        outSymbol:
+          amount0Out > 0 ? swap.pair.token0.symbol : swap.pair.token1.symbol,
+        outAmount: amount0Out || amount1Out,
+        amount: parseFloat(swap.amountUSD),
+        date: new Date(swap.timestamp * 1000),
+      };
+    }),
+  });
 };
 
 export default function Analytics() {
-  const { randomNumber } = useLoaderData<LoaderData>();
+  const { randomNumber, swaps } = useLoaderData<LoaderData>();
 
   return (
     <div>
@@ -136,7 +140,7 @@ export default function Analytics() {
                 scope="col"
                 className="hidden px-3 py-3.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:table-cell sm:text-xs"
               >
-                From
+                Out
               </th>
               <th
                 scope="col"
@@ -147,26 +151,26 @@ export default function Analytics() {
             </tr>
           </thead>
           <tbody>
-            {transactions.map((transaction) => (
-              <tr key={transaction.amount}>
+            {swaps.map((swap) => (
+              <tr key={swap.id}>
                 <td className="whitespace-nowrap py-2.5 pl-4 pr-3 text-sm font-medium sm:pl-6">
                   <div className="flex items-center space-x-2 sm:space-x-4">
-                    <Pill text={transaction.in} enumValue={randomNumber} />
+                    <Pill text={swap.inSymbol} enumValue={randomNumber} />
                     <ArrowRightIcon className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
-                    <Pill text={transaction.from} enumValue={randomNumber} />
+                    <Pill text={swap.outSymbol} enumValue={randomNumber} />
                   </div>
                 </td>
                 <td className="table-cell whitespace-nowrap px-3 py-2.5 text-[0.6rem] font-semibold text-gray-200 sm:text-sm">
-                  {transaction.amount}
+                  {formatUsd(swap.amount)}
                 </td>
                 <td className="hidden whitespace-nowrap px-3 py-2.5 text-sm text-gray-400 sm:table-cell">
-                  {transaction.inPrice}
+                  {formatNumber(swap.inAmount)}
                 </td>
                 <td className="hidden whitespace-nowrap px-3 py-2.5 text-sm text-gray-400 sm:table-cell">
-                  {transaction.fromPrice}
+                  {formatNumber(swap.outAmount)}
                 </td>
                 <td className="whitespace-nowrap px-3 py-2.5 text-[0.6rem] text-gray-500 sm:text-sm">
-                  {transaction.date}
+                  {distanceInWordsToNow(swap.date, { addSuffix: true })}
                 </td>
               </tr>
             ))}
