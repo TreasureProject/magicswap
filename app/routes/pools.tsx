@@ -28,7 +28,7 @@ export const loader: LoaderFunction = async () => {
     where: { token0: "0x539bde0d7dbd336b79148aa742883198bbf60342" },
   });
 
-  return json<LoaderData>({ pairs });
+  return json<LoaderData>({ pairs: [...pairs, ...pairs] });
 };
 
 // Changing query params on pools/:poolId/manage route automatically reloads all parent loaders, but we don't have to do that here.
@@ -147,6 +147,7 @@ export default function Pools() {
                     )}
                     <Link
                       to={`/pools/${poolId}/${tab.href}`}
+                      prefetch="intent"
                       className={cn(
                         isActive
                           ? "border-red-500 text-white"
@@ -192,7 +193,10 @@ export default function Pools() {
                 </div>
               </div>
             ) : (
-              <div>Select a pool</div>
+              <div className="flex items-center justify-between">
+                <div>Select a pool</div>
+                <ChevronDownIcon className="h-4 w-4 flex-shrink-0" />
+              </div>
             )}
             <button
               className="absolute inset-0 h-full w-full focus:outline-none"
@@ -206,7 +210,7 @@ export default function Pools() {
         </div>
       </div>
       <div className="mt-2 grid flex-1 grid-cols-6 gap-x-4">
-        <div className="hidden h-[calc(100vh-320px)] flex-col overflow-hidden rounded-md bg-gray-800 lg:col-span-2 lg:flex">
+        <div className="hidden h-[calc(100vh-256px)] flex-col overflow-hidden rounded-md bg-gray-800 lg:col-span-2 lg:flex">
           <div className="p-6">
             <label htmlFor="liquidity-pools" className="sr-only">
               Liquidity Pool
@@ -241,7 +245,7 @@ export default function Pools() {
             </div>
           </div>
         </div>
-        <div className="col-span-6 overflow-hidden rounded-md bg-gray-800 lg:col-span-4 lg:h-[calc(100vh-320px)]">
+        <div className="col-span-6 overflow-hidden rounded-md bg-gray-800 lg:col-span-4 lg:h-[calc(100vh-256px)]">
           <Outlet />
         </div>
       </div>

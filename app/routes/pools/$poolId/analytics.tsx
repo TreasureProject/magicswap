@@ -53,7 +53,7 @@ export default function Analytics() {
 
   return (
     <div>
-      <div className="flex flex-col divide-x divide-gray-700 sm:flex-row">
+      <div className="flex flex-col divide-y divide-gray-700 sm:flex-row sm:divide-y-0 sm:divide-x">
         {Array.from({ length: 2 }).map(() => (
           // eslint-disable-next-line react/jsx-key
           <div className="grid flex-1 grid-cols-6 p-4">
@@ -110,37 +110,37 @@ export default function Analytics() {
           </div>
         ))}
       </div>
-      <div className="-mx-4 overflow-hidden border-t border-gray-700 sm:-mx-6 md:mx-0">
+      <div className="overflow-hidden border-t border-gray-700 sm:-mx-6 md:mx-0">
         <table className="min-w-full divide-y divide-gray-700">
           <thead className="bg-gray-900">
             <tr>
               <th
                 scope="col"
-                className="py-3.5 pl-4 pr-3 text-left text-xs font-semibold text-gray-400 sm:pl-6"
+                className="py-3.5 pl-4 pr-3 text-left text-[0.6rem] font-semibold text-gray-400 sm:pl-6 sm:text-xs"
               >
                 Swap
               </th>
               <th
                 scope="col"
-                className="table-cell px-3 py-3.5 text-left text-xs font-semibold text-gray-400"
+                className="table-cell px-3 py-3.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:text-xs"
               >
                 Amount
               </th>
               <th
                 scope="col"
-                className="table-cell px-3 py-3.5 text-left text-xs font-semibold text-gray-400"
+                className="hidden px-3 py-3.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:table-cell sm:text-xs"
               >
                 In
               </th>
               <th
                 scope="col"
-                className="table-cell px-3 py-3.5 text-left text-xs font-semibold text-gray-400"
+                className="hidden px-3 py-3.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:table-cell sm:text-xs"
               >
                 From
               </th>
               <th
                 scope="col"
-                className="px-3 py-3.5 text-left text-xs font-semibold text-gray-400"
+                className="px-3 py-3.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:text-xs"
               >
                 Date
               </th>
@@ -149,23 +149,23 @@ export default function Analytics() {
           <tbody>
             {transactions.map((transaction) => (
               <tr key={transaction.amount}>
-                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium sm:pl-6">
-                  <div className="flex items-center space-x-6">
+                <td className="whitespace-nowrap py-2.5 pl-4 pr-3 text-sm font-medium sm:pl-6">
+                  <div className="flex items-center space-x-2 sm:space-x-4">
                     <Pill text={transaction.in} enumValue={randomNumber} />
                     <ArrowRightIcon className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
                     <Pill text={transaction.from} enumValue={randomNumber} />
                   </div>
                 </td>
-                <td className="table-cell whitespace-nowrap px-3 py-4 text-sm font-semibold text-gray-200">
+                <td className="table-cell whitespace-nowrap px-3 py-2.5 text-[0.6rem] font-semibold text-gray-200 sm:text-sm">
                   {transaction.amount}
                 </td>
-                <td className="table-cell whitespace-nowrap px-3 py-4 text-sm text-gray-400">
+                <td className="hidden whitespace-nowrap px-3 py-2.5 text-sm text-gray-400 sm:table-cell">
                   {transaction.inPrice}
                 </td>
-                <td className="table-cell whitespace-nowrap px-3 py-4 text-sm text-gray-400">
+                <td className="hidden whitespace-nowrap px-3 py-2.5 text-sm text-gray-400 sm:table-cell">
                   {transaction.fromPrice}
                 </td>
-                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                <td className="whitespace-nowrap px-3 py-2.5 text-[0.6rem] text-gray-500 sm:text-sm">
                   {transaction.date}
                 </td>
               </tr>
