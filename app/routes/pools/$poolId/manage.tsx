@@ -1,7 +1,9 @@
+import * as React from "react";
 import { PlusIcon } from "@heroicons/react/solid";
 import { Link, useParams, useSearchParams } from "@remix-run/react";
 import cn from "clsx";
 import { Button } from "~/components/Button";
+import { Switch } from "@headlessui/react";
 
 const tabs = [
   { name: "Liquidity", query: "liquidity" },
@@ -9,7 +11,13 @@ const tabs = [
   { name: "Rewards", query: "rewards" },
 ] as const;
 
-const TokenInput = ({ className }: { className?: string }) => {
+const TokenInput = ({
+  tokenName,
+  className,
+}: {
+  tokenName: string;
+  className?: string;
+}) => {
   return (
     <div className={className}>
       <label htmlFor="balance" className="sr-only">
@@ -23,7 +31,7 @@ const TokenInput = ({ className }: { className?: string }) => {
             className="z-10 h-4 w-4 rounded-full ring-1"
           />
           <span className="block font-semibold text-white sm:text-sm">
-            MAGIC
+            {tokenName}
           </span>
         </div>
         <input
@@ -79,18 +87,7 @@ export default function Manage() {
       {(() => {
         switch (selectedTab.query) {
           case "liquidity":
-            return (
-              <div className="flex flex-1 items-center justify-center px-3 py-8">
-                <div className="grid grid-cols-7 gap-y-4">
-                  <TokenInput className="col-span-7 xl:col-span-3" />
-                  <PlusIcon className="col-span-7 h-4 w-4 justify-self-center text-gray-400 xl:col-span-1 xl:place-self-center" />
-                  <TokenInput className="col-span-7 xl:col-span-3" />
-                  <div className="col-span-7 w-full xl:col-start-5 xl:col-end-8">
-                    <Button>Add Liquidity</Button>
-                  </div>
-                </div>
-              </div>
-            );
+            return <Liquidity />;
           case "stake":
             return <div>Stake</div>;
           case "rewards":
@@ -100,3 +97,92 @@ export default function Manage() {
     </div>
   );
 }
+
+const Liquidity = () => {
+  const [isAddLiquidity, setIsAddLiquidity] = React.useState(false);
+
+  return (
+    <div className="flex flex-1 items-center justify-center p-6 lg:p-8">
+      <div className="flex max-w-xl flex-1 flex-col space-y-4">
+        <div className="flex items-center space-x-2">
+          <span
+            className={cn(
+              isAddLiquidity && "text-gray-500",
+              "text-[0.6rem] font-bold uppercase sm:text-base"
+            )}
+          >
+            Remove Liquidity
+          </span>
+          <Switch
+            checked={isAddLiquidity}
+            onChange={setIsAddLiquidity}
+            className="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          >
+            <span className="sr-only">
+              {isAddLiquidity ? "Remove Liquidity" : "Add Liquidity"}
+            </span>
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute h-full w-full rounded-md bg-gray-800"
+            />
+            <span
+              aria-hidden="true"
+              className={cn(
+                isAddLiquidity ? "bg-[#E5003E]" : "bg-gray-200",
+                "pointer-events-none absolute mx-auto h-2.5 w-8 rounded-full transition-colors duration-200 ease-in-out"
+              )}
+            />
+            <span
+              aria-hidden="true"
+              className={cn(
+                isAddLiquidity ? "translate-x-5" : "translate-x-0",
+                "pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full border border-[#FF4E7E] bg-[#FF4E7E] shadow ring-0 transition-transform duration-200 ease-in-out"
+              )}
+            />
+          </Switch>
+          <span
+            className={cn(
+              !isAddLiquidity && "text-gray-500",
+              "text-[0.6rem] font-bold uppercase sm:text-base"
+            )}
+          >
+            Add Liquidity
+          </span>
+        </div>
+        {isAddLiquidity ? (
+          <div className="space-y-4">
+            <TokenInput tokenName="MAGIC" />
+            <div className="flex justify-center">
+              <PlusIcon className="h-4 w-4 text-gray-400" />
+            </div>
+            <TokenInput tokenName="WETH" />
+            <div className="space-y-2 rounded-md bg-gray-900 p-4">
+              <p className="text-xs text-gray-600 sm:text-base">
+                You'll receive (at least):
+              </p>
+              <p className="text-sm font-medium sm:text-lg">≈ 0.55 SLP</p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <TokenInput tokenName="SLP" />
+            <div className="space-y-2 rounded-md bg-gray-900 p-4">
+              <p className="text-xs text-gray-600 sm:text-base">
+                You'll receive (at least):
+              </p>
+              <div className="flex items-center justify-between">
+                <span className="font-medium">0.0012 MAGIC</span>
+                <span className="text-gray-200">≈ $0.09</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-medium">0.0012 WETH</span>
+                <span className="text-gray-200">≈ $0.09</span>
+              </div>
+            </div>
+          </div>
+        )}
+        <Button>{isAddLiquidity ? "Add" : "Remove"} Liquidity</Button>
+      </div>
+    </div>
+  );
+};
