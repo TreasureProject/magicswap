@@ -1,13 +1,18 @@
-import { getSdk } from "~/graphql/generated";
 import { GraphQLClient } from "graphql-request";
 
-const sdk = getSdk(
+import { getSdk as getBlocksSdk } from "~/graphql/blocks.generated";
+import { getSdk as getExchangeSdk } from "~/graphql/exchange.generated";
+
+export const blocksSdk = getBlocksSdk(
   new GraphQLClient(
-    "https://api.thegraph.com/subgraphs/name/sushiswap/arbitrum-exchange",
-    {
-      fetch: fetch,
-    }
+    "https://api.thegraph.com/subgraphs/name/sushiswap/arbitrum-blocks",
+    { fetch }
   )
 );
 
-export { sdk };
+export const exchangeSdk = getExchangeSdk(
+  new GraphQLClient(
+    "https://api.thegraph.com/subgraphs/name/sushiswap/arbitrum-exchange",
+    { fetch }
+  )
+);

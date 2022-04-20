@@ -1,39 +1,12 @@
-import type { LoaderFunction } from "@remix-run/cloudflare";
-import { json } from "@remix-run/cloudflare";
-// import { useLoaderData } from "@remix-run/react";
 import {
   ArrowDownwardIcon,
   ArrowForwardIcon,
   StarIcon,
 } from "~/components/Icons";
-import type { GetTokenPriceQuery } from "~/graphql/generated";
-import { sdk } from "~/utils/api.server";
 import { ArrowSmDownIcon, ArrowSmUpIcon } from "@heroicons/react/solid";
 import { LineGraph } from "../components/Graph";
 import cn from "clsx";
 import { Button } from "~/components/Button";
-
-type LoaderData = {
-  tokenPrice: GetTokenPriceQuery;
-};
-
-export const loader: LoaderFunction = async () => {
-  /* TODO: attach query parameters like sushi:
-      /inputCurrency=ETH&outputCurrency=USD
-
-      and fetch like so:
-
-      let url = new URL(request.url);
-      let page = url.searchParams.get("inputCurrency") || MAGIC;
-      let perPage = url.searchParams.get("outputCurrency") || TOKEN;
-  */
-
-  const tokenPrice = await sdk.getTokenPrice({
-    id: "0x539bde0d7dbd336b79148aa742883198bbf60342",
-  });
-
-  return json<LoaderData>({ tokenPrice });
-};
 
 const TokenInput = ({
   positive,
@@ -161,8 +134,6 @@ const TokenInput = ({
 };
 
 export default function Index() {
-  // const { tokenPrice } = useLoaderData<LoaderData>();
-
   return (
     <div className="flex flex-col items-center">
       <StarIcon className="h-8 w-8" />
