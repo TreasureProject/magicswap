@@ -7,15 +7,22 @@ import { Link } from "@remix-run/react";
 import { useLocation } from "@remix-run/react";
 import { useParams } from "@remix-run/react";
 import { Outlet, useLoaderData } from "@remix-run/react";
-import type { GetPairsQuery } from "~/graphql/generated";
-import { sdk } from "~/utils/api.server";
+import { blocksSdk, exchangeSdk } from "~/utils/api.server";
 import { getApr } from "~/utils/price";
+import { getOneDayFilter, getOneWeekFilter } from "~/utils/time";
 import cn from "clsx";
 import { Dialog, Transition } from "@headlessui/react";
 import { SlashIcon } from "~/components/Icons";
 
+type Pair = {
+  id: string;
+  name: string;
+  volume1w: number;
+  liquidity: number;
+};
+
 type LoaderData = {
-  pairs: GetPairsQuery["pairs"];
+  pairs: Pair[];
 };
 
 const tabs = [
@@ -24,11 +31,51 @@ const tabs = [
 ];
 
 export const loader: LoaderFunction = async () => {
-  const { pairs } = await sdk.getPairs({
-    where: { token0: "0x539bde0d7dbd336b79148aa742883198bbf60342" },
-  });
+  const magicFilter = { token0: "0x539bde0d7dbd336b79148aa742883198bbf60342" };
+  const [
+    {
+      blocks: [{ number: block1d }],
+    },
+    {
+      blocks: [{ number: block1w }],
+    },
+    { pairs },
+  ] = await Promise.all([
+    blocksSdk.getBlocks({
+      where: getOneDayFilter(),
+    }),
+    blocksSdk.getBlocks({
+      where: getOneWeekFilter(),
+    }),
+    exchangeSdk.getPairs({
+      where: magicFilter,
+    }),
+  ]);
 
-  return json<LoaderData>({ pairs: [...pairs, ...pairs] });
+  const [{ pairs: pairs1d }, { pairs: pairs1w }] = await Promise.all([
+    exchangeSdk.getPairs({
+      where: magicFilter,
+      block: { number: parseInt(block1d) },
+    }),
+    exchangeSdk.getPairs({
+      where: magicFilter,
+      block: { number: parseInt(block1w) },
+    }),
+  ]);
+
+  return json<LoaderData>({
+    pairs: pairs.map((pair) => {
+      const { id, name, volumeUSD, reserveUSD: liquidity } = pair;
+      const pair1d = pairs1d.find(({ id: id1d }) => id1d === id) ?? pair;
+      const pair1w = pairs1w.find(({ id: id1w }) => id1w === id) ?? pair1d;
+      return {
+        id,
+        name,
+        volume1w: volumeUSD - pair1w.volumeUSD,
+        liquidity,
+      };
+    }),
+  });
 };
 
 // Changing query params on pools/:poolId/manage route automatically reloads all parent loaders, but we don't have to do that here.
@@ -187,7 +234,7 @@ export default function Pools() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <p className="text-sm font-bold sm:text-base">
-                    {getApr(selectedPool.volumeUSD, selectedPool.reserveUSD)}%
+                    {getApr(selectedPool.volume1w, selectedPool.liquidity)}%
                   </p>
                   <ChevronDownIcon className="h-4 w-4 flex-shrink-0" />
                 </div>
@@ -253,13 +300,7 @@ export default function Pools() {
   );
 }
 
-const PoolLink = ({
-  pair,
-  lastPath,
-}: {
-  pair: NonNullable<GetPairsQuery["pairs"]>[number];
-  lastPath: string;
-}) => {
+const PoolLink = ({ pair, lastPath }: { pair: Pair; lastPath: string }) => {
   const { poolId } = useParams();
   const isActive = pair.id === poolId;
   return (
@@ -309,7 +350,7 @@ const PoolLink = ({
                 "text-red-500": isActive,
               })}
             >
-              {getApr(pair.volumeUSD, pair.reserveUSD)}%
+              {getApr(pair.volume1w, pair.liquidity)}%
             </p>
           </div>
         </div>
