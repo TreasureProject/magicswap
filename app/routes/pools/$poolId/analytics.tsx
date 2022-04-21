@@ -2,7 +2,7 @@ import { ArrowRightIcon } from "@heroicons/react/solid";
 import type { LoaderFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { useCatch, useLoaderData, useParams } from "@remix-run/react";
-import { distanceInWordsToNow } from "date-fns";
+import { distanceInWordsToNow } from "~/utils/date.server";
 import invariant from "tiny-invariant";
 import type { GraphDataPoint } from "~/components/Graph";
 import { LineGraph } from "~/components/Graph";
@@ -17,7 +17,7 @@ type Swap = {
   outSymbol: string;
   outAmount: number;
   amount: number;
-  date: Date;
+  date: string;
 };
 
 type PairAnalytics = {
@@ -76,7 +76,9 @@ export const loader: LoaderFunction = async ({ params: { poolId } }) => {
         outSymbol: amount0Out > 0 ? pair.token0.symbol : pair.token1.symbol,
         outAmount: amount0Out || amount1Out,
         amount: parseFloat(swap.amountUSD),
-        date: new Date(swap.timestamp * 1000),
+        date: distanceInWordsToNow(new Date(swap.timestamp * 1000), {
+          addSuffix: true,
+        }),
       };
     }),
   };
@@ -219,7 +221,7 @@ export default function Analytics() {
                   {formatNumber(swap.outAmount)}
                 </td>
                 <td className="whitespace-nowrap px-3 py-2.5 text-[0.6rem] text-gray-500 sm:text-sm">
-                  {distanceInWordsToNow(swap.date, { addSuffix: true })}
+                  {swap.date}
                 </td>
               </tr>
             ))}
