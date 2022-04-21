@@ -1,9 +1,29 @@
 import * as React from "react";
+import type { LoaderFunction } from "@remix-run/cloudflare";
+import { json } from "@remix-run/cloudflare";
+import { useLoaderData } from "@remix-run/react";
 import { PlusIcon } from "@heroicons/react/solid";
 import { Link, useParams, useSearchParams } from "@remix-run/react";
 import cn from "clsx";
+import { exchangeSdk } from "~/utils/api.server";
 import { Button } from "~/components/Button";
 import { Switch } from "@headlessui/react";
+import { formatNumber, formatUsd } from "~/utils/price";
+
+type PairLiquidity = {
+  id: string;
+  name: string;
+  token0Symbol: string;
+  token1Symbol: string;
+  token0Usd: number;
+  token1Usd: number;
+  lpPrice: number;
+  userBalance: number;
+};
+
+type LoaderData = {
+  pairLiquidity?: PairLiquidity;
+};
 
 const tabs = [
   { name: "Liquidity", query: "liquidity" },
@@ -11,11 +31,44 @@ const tabs = [
   { name: "Rewards", query: "rewards" },
 ] as const;
 
+export const loader: LoaderFunction = async ({ params: { poolId } }) => {
+  const { bundle } = await exchangeSdk.getEthPrice();
+  const ethUsd = parseFloat(bundle?.ethPrice ?? 0);
+
+  let pairLiquidity: PairLiquidity | undefined;
+  if (poolId) {
+    const { pair } = await exchangeSdk.getPairLiquidity({
+      pair: poolId,
+      user: "0xb137d135dc8482b633265c21191f50a4ba26145d",
+    });
+    if (pair) {
+      pairLiquidity = {
+        id: poolId,
+        name: pair.name,
+        token0Symbol: pair.token0.symbol,
+        token1Symbol: pair.token1.symbol,
+        token0Usd: parseFloat(pair.token0.derivedETH) * ethUsd,
+        token1Usd: parseFloat(pair.token1.derivedETH) * ethUsd,
+        lpPrice: parseFloat(pair.reserveUSD) / parseFloat(pair.totalSupply),
+        userBalance: parseFloat(
+          pair.liquidityPositions?.[0]?.liquidityTokenBalance ?? 0
+        ),
+      };
+    }
+  }
+
+  return json<LoaderData>({ pairLiquidity });
+};
+
 const TokenInput = ({
   tokenName,
+  balance = 0,
+  price = 0,
   className,
 }: {
   tokenName: string;
+  balance?: number;
+  price?: number;
   className?: string;
 }) => {
   return (
@@ -43,10 +96,12 @@ const TokenInput = ({
           placeholder="0.00"
         />
         <div className="pointer-events-none absolute left-0 bottom-2 flex flex-col items-end pl-3">
-          <span className="text-xs text-gray-500">Balance: 123123</span>
+          <span className="text-xs text-gray-500">
+            Balance: {formatNumber(balance)}
+          </span>
         </div>
         <div className="pointer-events-none absolute bottom-2 right-0 flex flex-col items-end pr-3">
-          <span className="text-xs text-gray-500">~ $123.45</span>
+          <span className="text-xs text-gray-500">~ {formatUsd(price)}</span>
         </div>
       </div>
     </div>
@@ -100,6 +155,7 @@ export default function Manage() {
 
 const Liquidity = () => {
   const [isAddLiquidity, setIsAddLiquidity] = React.useState(false);
+  const { pairLiquidity } = useLoaderData<LoaderData>();
 
   return (
     <div className="flex flex-1 items-center justify-center p-6 lg:p-8">
@@ -151,31 +207,47 @@ const Liquidity = () => {
         </div>
         {isAddLiquidity ? (
           <div className="space-y-4">
-            <TokenInput tokenName="MAGIC" />
+            <TokenInput
+              tokenName={pairLiquidity?.token0Symbol ?? ""}
+              price={pairLiquidity?.token0Usd}
+            />
             <div className="flex justify-center">
               <PlusIcon className="h-4 w-4 text-gray-400" />
             </div>
-            <TokenInput tokenName="WETH" />
+            <TokenInput
+              tokenName={pairLiquidity?.token1Symbol ?? ""}
+              price={pairLiquidity?.token1Usd}
+            />
             <div className="space-y-2 rounded-md bg-gray-900 p-4">
               <p className="text-xs text-gray-600 sm:text-base">
                 You'll receive (at least):
               </p>
-              <p className="text-sm font-medium sm:text-lg">≈ 0.55 SLP</p>
+              <p className="text-sm font-medium sm:text-lg">
+                ≈ 0.55 {pairLiquidity?.name} Pool Tokens
+              </p>
             </div>
           </div>
         ) : (
           <div className="space-y-4">
-            <TokenInput tokenName="SLP" />
+            <TokenInput
+              tokenName={pairLiquidity?.name ?? ""}
+              balance={pairLiquidity?.userBalance}
+              price={pairLiquidity?.lpPrice}
+            />
             <div className="space-y-2 rounded-md bg-gray-900 p-4">
               <p className="text-xs text-gray-600 sm:text-base">
                 You'll receive (at least):
               </p>
               <div className="flex items-center justify-between">
-                <span className="font-medium">0.0012 MAGIC</span>
+                <span className="font-medium">
+                  0.0012 {pairLiquidity?.token0Symbol}
+                </span>
                 <span className="text-gray-200">≈ $0.09</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="font-medium">0.0012 WETH</span>
+                <span className="font-medium">
+                  0.0012 {pairLiquidity?.token1Symbol}
+                </span>
                 <span className="text-gray-200">≈ $0.09</span>
               </div>
             </div>

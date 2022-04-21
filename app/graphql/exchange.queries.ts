@@ -92,6 +92,27 @@ export const getPairAnalytics = gql`
   }
 `;
 
+export const getPairLiquidity = gql`
+  query getPairLiquidity($pair: ID!, $user: String!) {
+    pair(id: $pair) {
+      name
+      token0 {
+        symbol
+        derivedETH
+      }
+      token1 {
+        symbol
+        derivedETH
+      }
+      totalSupply
+      reserveUSD
+      liquidityPositions(where: { user: $user }) {
+        liquidityTokenBalance
+      }
+    }
+  }
+`;
+
 export const getTokenPrice = gql`
   query getTokenPrice($id: ID!) {
     bundle(id: "1") {
