@@ -2,7 +2,7 @@ import { ArrowRightIcon } from "@heroicons/react/solid";
 import type { LoaderFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { useCatch, useLoaderData, useParams } from "@remix-run/react";
-import { distanceInWordsToNow } from "~/utils/date.server";
+import { getTimeAgo } from "~/utils/date.server";
 import invariant from "tiny-invariant";
 import type { GraphDataPoint } from "~/components/Graph";
 import { LineGraph } from "~/components/Graph";
@@ -76,9 +76,7 @@ export const loader: LoaderFunction = async ({ params: { poolId } }) => {
         outSymbol: amount0Out > 0 ? pair.token0.symbol : pair.token1.symbol,
         outAmount: amount0Out || amount1Out,
         amount: parseFloat(swap.amountUSD),
-        date: distanceInWordsToNow(new Date(swap.timestamp * 1000), {
-          addSuffix: true,
-        }),
+        date: getTimeAgo(swap.timestamp),
       };
     }),
   };
