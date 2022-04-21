@@ -1,5 +1,6 @@
 import {
   addSeconds,
+  getUnixTime,
   startOfHour,
   startOfMinute,
   startOfSecond,
@@ -11,11 +12,11 @@ export const getOneDayFilter = () => {
   const date = startOfSecond(
     startOfMinute(startOfHour(subDays(Date.now(), 1)))
   );
-  const start = date.getTime();
-  const end = addSeconds(date, 600).getTime();
+  const start = getUnixTime(date);
+  const end = getUnixTime(addSeconds(date, 600));
   return {
-    timestamp_gt: start / 1000,
-    timestamp_lt: end / 1000,
+    timestamp_gt: start,
+    timestamp_lt: end,
   };
 };
 
@@ -23,10 +24,10 @@ export const getOneWeekFilter = () => {
   const date = startOfSecond(
     startOfMinute(startOfHour(subWeeks(Date.now(), 1)))
   );
-  const start = date.getTime();
-  const end = addSeconds(date, 600).getTime();
+  const start = getUnixTime(date);
+  const end = getUnixTime(addSeconds(date, 600));
   return {
-    timestamp_gt: start / 1000,
-    timestamp_lt: end / 1000,
+    timestamp_gt: start,
+    timestamp_lt: end,
   };
 };
