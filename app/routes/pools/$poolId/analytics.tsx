@@ -1,9 +1,11 @@
 import { ArrowRightIcon } from "@heroicons/react/solid";
 import type { LoaderFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
-import { useLoaderData } from "@remix-run/react";
+import { useCatch, useLoaderData, useParams } from "@remix-run/react";
 import { distanceInWordsToNow } from "date-fns";
-import { GraphDataPoint, LineGraph } from "~/components/Graph";
+import invariant from "tiny-invariant";
+import type { GraphDataPoint } from "~/components/Graph";
+import { LineGraph } from "~/components/Graph";
 import { Pill } from "~/components/Pill";
 import { exchangeSdk } from "~/utils/api.server";
 import { formatNumber, formatUsd } from "~/utils/price";
@@ -36,44 +38,48 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ params: { poolId } }) => {
   const randomNumber = Math.floor(Math.random() * 6);
 
-  let pairAnalytics: PairAnalytics | undefined;
-  if (poolId) {
-    const { pair } = await exchangeSdk.getPairAnalytics({ pair: poolId });
-    if (pair) {
-      pairAnalytics = {
-        id: poolId,
-        name: pair.name,
-        liquidity: parseFloat(pair.reserveUSD),
-        volume1d: pair.hourData.reduce(
-          (total, { volumeUSD }) => total + parseFloat(volumeUSD),
-          0
-        ),
-        liquidityGraphData: pair.hourData.map(({ date, reserveUSD }) => ({
-          x: date,
-          y: parseFloat(reserveUSD),
-        })),
-        volumeGraphData: pair.hourData.map(({ date, volumeUSD }) => ({
-          x: date,
-          y: parseFloat(volumeUSD),
-        })),
-        swaps: pair.swaps.map((swap) => {
-          const amount0In = parseFloat(swap.amount0In);
-          const amount1In = parseFloat(swap.amount1In);
-          const amount0Out = parseFloat(swap.amount0Out);
-          const amount1Out = parseFloat(swap.amount1Out);
-          return {
-            id: swap.id,
-            inSymbol: amount0In > 0 ? pair.token0.symbol : pair.token1.symbol,
-            inAmount: amount0In || amount1In,
-            outSymbol: amount0Out > 0 ? pair.token0.symbol : pair.token1.symbol,
-            outAmount: amount0Out || amount1Out,
-            amount: parseFloat(swap.amountUSD),
-            date: new Date(swap.timestamp * 1000),
-          };
-        }),
-      };
-    }
+  invariant(poolId, `poolId is required`);
+
+  const { pair } = await exchangeSdk.getPairAnalytics({ pair: poolId });
+
+  if (!pair) {
+    throw new Response("Pool not found", {
+      status: 404,
+    });
   }
+
+  const pairAnalytics = {
+    id: poolId,
+    name: pair.name,
+    liquidity: parseFloat(pair.reserveUSD),
+    volume1d: pair.hourData.reduce(
+      (total, { volumeUSD }) => total + parseFloat(volumeUSD),
+      0
+    ),
+    liquidityGraphData: pair.hourData.map(({ date, reserveUSD }) => ({
+      x: date,
+      y: parseFloat(reserveUSD),
+    })),
+    volumeGraphData: pair.hourData.map(({ date, volumeUSD }) => ({
+      x: date,
+      y: parseFloat(volumeUSD),
+    })),
+    swaps: pair.swaps.map((swap) => {
+      const amount0In = parseFloat(swap.amount0In);
+      const amount1In = parseFloat(swap.amount1In);
+      const amount0Out = parseFloat(swap.amount0Out);
+      const amount1Out = parseFloat(swap.amount1Out);
+      return {
+        id: swap.id,
+        inSymbol: amount0In > 0 ? pair.token0.symbol : pair.token1.symbol,
+        inAmount: amount0In || amount1In,
+        outSymbol: amount0Out > 0 ? pair.token0.symbol : pair.token1.symbol,
+        outAmount: amount0Out || amount1Out,
+        amount: parseFloat(swap.amountUSD),
+        date: new Date(swap.timestamp * 1000),
+      };
+    }),
+  };
 
   return json<LoaderData>({
     randomNumber,
@@ -81,28 +87,47 @@ export const loader: LoaderFunction = async ({ params: { poolId } }) => {
   });
 };
 
+export function CatchBoundary() {
+  const caught = useCatch();
+  const params = useParams();
+  if (caught.status === 404) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center">
+        <p className="text-[0.6rem] text-gray-500 sm:text-base">
+          {params.poolId} not found.
+        </p>
+      </div>
+    );
+  }
+  throw new Error(`Unhandled error: ${caught.status}`);
+}
+
 export default function Analytics() {
   const { randomNumber, pairAnalytics } = useLoaderData<LoaderData>();
 
   return (
-    <div>
+    <div className="flex h-full flex-col">
       <div className="flex flex-col divide-y divide-gray-700 sm:flex-row sm:divide-y-0 sm:divide-x">
-        <div className="grid flex-1 grid-cols-6 p-4">
-          <p className="col-span-4 text-xs text-gray-500">
-            {pairAnalytics?.name}
-          </p>
-          <p className="col-span-2 text-xs text-gray-500">
-            {new Date().toLocaleDateString(undefined, {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </p>
-          <h3 className="col-span-4 font-semibold">Liquidity</h3>
-          <p className="col-span-2 font-semibold">
-            {pairAnalytics?.liquidity && formatUsd(pairAnalytics.liquidity)}
-          </p>
-          <div className="col-span-6 h-32">
+        <div className="flex-1 p-4">
+          <div className="flex justify-between">
+            <p className="col-span-4 text-[0.6rem] text-gray-500 sm:text-xs">
+              {pairAnalytics?.name}
+            </p>
+            <p className="col-span-2 text-[0.6rem] text-gray-500 sm:text-xs">
+              {new Date().toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </p>
+          </div>
+          <div className="flex justify-between">
+            <h3 className="col-span-4 font-semibold">Liquidity</h3>
+            <p className="col-span-2 font-semibold">
+              {pairAnalytics?.liquidity && formatUsd(pairAnalytics.liquidity)}
+            </p>
+          </div>
+          <div className="h-32">
             <LineGraph
               gradient={{
                 from: "#96e4df",
@@ -112,16 +137,22 @@ export default function Analytics() {
             />
           </div>
         </div>
-        <div className="grid flex-1 grid-cols-6 p-4">
-          <p className="col-span-4 text-xs text-gray-500">
-            {pairAnalytics?.name}
-          </p>
-          <p className="col-span-2 text-xs text-gray-500">Past 24h</p>
-          <h3 className="col-span-4 font-semibold">Volume</h3>
-          <p className="col-span-2 font-semibold">
-            {pairAnalytics?.volume1d && formatUsd(pairAnalytics.volume1d)}
-          </p>
-          <div className="col-span-6 h-32">
+        <div className="flex-1 p-4">
+          <div className="flex justify-between">
+            <p className="col-span-4 text-[0.6rem] text-gray-500 sm:text-xs">
+              {pairAnalytics?.name}
+            </p>
+            <p className="col-span-2 text-[0.6rem] text-gray-500 sm:text-xs">
+              Past 24h
+            </p>
+          </div>
+          <div className="flex justify-between">
+            <h3 className="col-span-4 font-semibold">Volume</h3>
+            <p className="col-span-2 font-semibold">
+              {pairAnalytics?.volume1d && formatUsd(pairAnalytics.volume1d)}{" "}
+            </p>
+          </div>
+          <div className="h-32">
             <LineGraph
               gradient={{
                 from: "#96e4df",
@@ -132,9 +163,9 @@ export default function Analytics() {
           </div>
         </div>
       </div>
-      <div className="overflow-hidden border-t border-gray-700 sm:-mx-6 md:mx-0">
+      <div className="max-h-96 flex-1 overflow-auto border-t border-gray-700 sm:-mx-6 md:mx-0 lg:max-h-full">
         <table className="min-w-full divide-y divide-gray-700">
-          <thead className="bg-gray-900">
+          <thead className="sticky top-0 z-10 bg-gray-900">
             <tr>
               <th
                 scope="col"
