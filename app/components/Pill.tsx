@@ -20,7 +20,7 @@ export const Pill = ({
     text === "MAGIC"
       ? "bg-red-100 text-red-800"
       : colors[enumValue] || colors[0],
-    "inline-flex items-center rounded-md bg-gray-100 px-2.5 py-0.5 sm:text-xs text-[0.6rem]"
+    "inline-flex items-center rounded-md bg-gray-100 px-2.5 py-0.5 xl:text-xs text-[0.4rem]"
   );
   return <span className={className}>{text}</span>;
 };
