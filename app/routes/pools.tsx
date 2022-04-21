@@ -9,7 +9,7 @@ import { useParams } from "@remix-run/react";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import { blocksSdk, exchangeSdk } from "~/utils/api.server";
 import { getApr } from "~/utils/price";
-import { getOneDayFilter, getOneWeekFilter } from "~/utils/time";
+import { getOneDayFilter, getOneWeekFilter } from "~/utils/time.server";
 import cn from "clsx";
 import { Dialog, Transition } from "@headlessui/react";
 import { SlashIcon } from "~/components/Icons";
