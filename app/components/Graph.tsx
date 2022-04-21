@@ -6,16 +6,18 @@ import { useMemo } from "react";
 import { useId } from "@reach/auto-id";
 import AutoSizer from "react-virtualized-auto-sizer";
 
+export type GraphDataPoint = {
+  x: number;
+  y: number;
+};
+
 export const Graph = ({
   data,
   width,
   height,
   gradient,
 }: {
-  data: {
-    x: number;
-    y: number;
-  }[];
+  data: GraphDataPoint[];
   width: number;
   height: number;
   gradient: {
