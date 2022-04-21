@@ -127,7 +127,7 @@ export default function Analytics() {
               {pairAnalytics?.liquidity && formatUsd(pairAnalytics.liquidity)}
             </p>
           </div>
-          <div className="h-32">
+          <div className="h-36 sm:h-40">
             <LineGraph
               gradient={{
                 from: "#96e4df",
@@ -152,7 +152,7 @@ export default function Analytics() {
               {pairAnalytics?.volume1d && formatUsd(pairAnalytics.volume1d)}{" "}
             </p>
           </div>
-          <div className="h-32">
+          <div className="h-36 sm:h-40">
             <LineGraph
               gradient={{
                 from: "#96e4df",
