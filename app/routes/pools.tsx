@@ -100,9 +100,7 @@ export default function Pools() {
 
   const lastPath = splitPaths[splitPaths.length - 1];
 
-  const filteredPairs = fetcher.data;
-
-  const actualPairs = filteredPairs?.pairs ?? pairs;
+  const filteredPairs = fetcher.data?.pairs ?? pairs;
 
   const selectedPool = pairs.find((p) => p.id === poolId);
 
@@ -196,7 +194,7 @@ export default function Pools() {
                 </div>
                 <div className="flex-1 overflow-auto">
                   <ul>
-                    {actualPairs.map((pair) => (
+                    {filteredPairs.map((pair) => (
                       <PoolLink pair={pair} lastPath={lastPath} key={pair.id} />
                     ))}
                   </ul>
@@ -325,7 +323,7 @@ export default function Pools() {
             </div>
             <div className="flex-1 overflow-auto">
               <ul>
-                {actualPairs.map((pair) => (
+                {filteredPairs.map((pair) => (
                   <PoolLink pair={pair} lastPath={lastPath} key={pair.id} />
                 ))}
               </ul>
