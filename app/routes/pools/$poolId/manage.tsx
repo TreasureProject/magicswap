@@ -8,6 +8,7 @@ import { useNumberFieldState } from "@react-stately/numberfield";
 import { PlusIcon } from "@heroicons/react/solid";
 import { Link, useParams, useSearchParams } from "@remix-run/react";
 import cn from "clsx";
+import invariant from "tiny-invariant";
 import { exchangeSdk } from "~/utils/api.server";
 import { Button } from "~/components/Button";
 import { Switch } from "@headlessui/react";
@@ -35,7 +36,7 @@ type PairLiquidity = {
 };
 
 type LoaderData = {
-  pairLiquidity?: PairLiquidity;
+  pairLiquidity: PairLiquidity;
 };
 
 const tabs = [
@@ -45,36 +46,47 @@ const tabs = [
 ] as const;
 
 export const loader: LoaderFunction = async ({ params: { poolId } }) => {
-  const { bundle } = await exchangeSdk.getEthPrice();
-  const ethUsd = parseFloat(bundle?.ethPrice ?? 0);
+  invariant(poolId, `poolId is required`);
 
-  let pairLiquidity: PairLiquidity | undefined;
-  if (poolId) {
-    const { pair } = await exchangeSdk.getPairLiquidity({
+  const [{ bundle }, { pair }] = await Promise.all([
+    exchangeSdk.getEthPrice(),
+    exchangeSdk.getPairLiquidity({
       pair: poolId,
       user: "",
+    }),
+  ]);
+
+  if (!bundle) {
+    throw new Response("ETH price not found", {
+      status: 404,
     });
-    if (pair) {
-      const totalSupply = parseFloat(pair.totalSupply);
-      pairLiquidity = {
-        id: poolId,
-        name: pair.name,
-        token0Symbol: pair.token0.symbol,
-        token1Symbol: pair.token1.symbol,
-        token0Price: parseFloat(pair.token0Price),
-        token1Price: parseFloat(pair.token1Price),
-        token0Usd: parseFloat(pair.token0.derivedETH) * ethUsd,
-        token1Usd: parseFloat(pair.token1.derivedETH) * ethUsd,
-        token0Reserve: parseFloat(pair.reserve0),
-        token1Reserve: parseFloat(pair.reserve1),
-        totalSupply,
-        lpPrice: parseFloat(pair.reserveUSD) / totalSupply,
-        userBalance: parseFloat(
-          pair.liquidityPositions?.[0]?.liquidityTokenBalance ?? 0
-        ),
-      };
-    }
   }
+
+  if (!pair) {
+    throw new Response("Pool not found", {
+      status: 404,
+    });
+  }
+
+  const ethUsd = parseFloat(bundle.ethPrice);
+  const totalSupply = parseFloat(pair.totalSupply);
+  const pairLiquidity: PairLiquidity = {
+    id: poolId,
+    name: pair.name,
+    token0Symbol: pair.token0.symbol,
+    token1Symbol: pair.token1.symbol,
+    token0Price: parseFloat(pair.token0Price),
+    token1Price: parseFloat(pair.token1Price),
+    token0Usd: parseFloat(pair.token0.derivedETH) * ethUsd,
+    token1Usd: parseFloat(pair.token1.derivedETH) * ethUsd,
+    token0Reserve: parseFloat(pair.reserve0),
+    token1Reserve: parseFloat(pair.reserve1),
+    totalSupply,
+    lpPrice: parseFloat(pair.reserveUSD) / totalSupply,
+    userBalance: parseFloat(
+      pair.liquidityPositions?.[0]?.liquidityTokenBalance ?? 0
+    ),
+  };
 
   return json<LoaderData>({ pairLiquidity });
 };
@@ -200,10 +212,6 @@ const Liquidity = () => {
   const handleAdd1InputChanged = (value: number) => {
     setAddInputValues([value * pairLiquidity!.token0Price, value]);
   };
-
-  if (!pairLiquidity) {
-    return null;
-  }
 
   return (
     <div className="flex flex-1 items-center justify-center p-6 lg:p-8">
