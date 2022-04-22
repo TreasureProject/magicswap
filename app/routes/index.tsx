@@ -15,7 +15,7 @@ const TokenInput = ({
   positive: boolean;
 }) => {
   return (
-    <div className="flex-1 space-y-6 rounded-md bg-gray-800 p-6">
+    <div className="flex-1 space-y-6 rounded-md border border-transparent bg-gray-800 p-6 hover:border-gray-700">
       <div>
         <label htmlFor="balance" className="sr-only">
           Balance
