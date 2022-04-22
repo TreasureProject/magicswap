@@ -12,12 +12,8 @@ import invariant from "tiny-invariant";
 import { exchangeSdk } from "~/utils/api.server";
 import { Button } from "~/components/Button";
 import { Switch } from "@headlessui/react";
-import {
-  formatNumber,
-  formatUsd,
-  getLpTokenCount,
-  getTokenCount,
-} from "~/utils/price";
+import { formatUsd, getLpTokenCount, getTokenCount } from "~/utils/price";
+import { formatNumber, getFormatOptions } from "~/utils/number";
 
 type PairLiquidity = {
   id: string;
@@ -206,11 +202,11 @@ const Liquidity = () => {
   const { pairLiquidity } = useLoaderData<LoaderData>();
 
   const handleAdd0InputChanged = (value: number) => {
-    setAddInputValues([value, value * pairLiquidity!.token1Price]);
+    setAddInputValues([value, value * pairLiquidity.token1Price]);
   };
 
   const handleAdd1InputChanged = (value: number) => {
-    setAddInputValues([value * pairLiquidity!.token0Price, value]);
+    setAddInputValues([value * pairLiquidity.token0Price, value]);
   };
 
   return (
@@ -271,9 +267,7 @@ const Liquidity = () => {
               balance={1234}
               value={addInputValues[0]}
               onChange={handleAdd0InputChanged}
-              formatOptions={{
-                maximumSignificantDigits: 10,
-              }}
+              formatOptions={getFormatOptions(addInputValues[0])}
             />
             <div className="flex justify-center">
               <PlusIcon className="h-4 w-4 text-gray-400" />
@@ -286,9 +280,7 @@ const Liquidity = () => {
               balance={5678}
               value={addInputValues[1]}
               onChange={handleAdd1InputChanged}
-              formatOptions={{
-                maximumSignificantDigits: 10,
-              }}
+              formatOptions={getFormatOptions(addInputValues[1])}
             />
             {addInputValues.some((value) => value > 0) && (
               <div className="space-y-2 rounded-md bg-gray-900 p-4">
