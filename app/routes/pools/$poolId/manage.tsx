@@ -176,7 +176,7 @@ export default function Manage() {
           case "liquidity":
             return <Liquidity />;
           case "stake":
-            return <div>Stake</div>;
+            return <Stake />;
           case "rewards":
             return <div>Rewards</div>;
         }
@@ -258,11 +258,14 @@ const Liquidity = () => {
             <TokenInput
               id="addLiquidityToken0"
               label="Amount"
-              tokenName={pairLiquidity.token0Symbol ?? ""}
+              tokenName={pairLiquidity.token0Symbol}
               price={pairLiquidity.token0Usd}
               balance={1234}
               value={addInputValues[0]}
               onChange={handleAdd0InputChanged}
+              formatOptions={{
+                maximumSignificantDigits: 10,
+              }}
             />
             <div className="flex justify-center">
               <PlusIcon className="h-4 w-4 text-gray-400" />
@@ -270,11 +273,14 @@ const Liquidity = () => {
             <TokenInput
               id="addLiquidityToken1"
               label="Amount"
-              tokenName={pairLiquidity.token1Symbol ?? ""}
+              tokenName={pairLiquidity.token1Symbol}
               price={pairLiquidity.token1Usd}
               balance={5678}
               value={addInputValues[1]}
               onChange={handleAdd1InputChanged}
+              formatOptions={{
+                maximumSignificantDigits: 10,
+              }}
             />
             {addInputValues.some((value) => value > 0) && (
               <div className="space-y-2 rounded-md bg-gray-900 p-4">
@@ -300,7 +306,7 @@ const Liquidity = () => {
             <TokenInput
               id="removeLiquidity"
               label="Amount"
-              tokenName={pairLiquidity.name ?? ""}
+              tokenName={pairLiquidity.name}
               balance={1234}
               price={pairLiquidity.lpPrice}
               onChange={(value) => setRemoveInputValue(value)}
@@ -359,6 +365,78 @@ const Liquidity = () => {
           </div>
         )}
         <Button>{isAddLiquidity ? "Add" : "Remove"} Liquidity</Button>
+      </div>
+    </div>
+  );
+};
+
+const Stake = () => {
+  const [isStake, setIsStake] = React.useState(true);
+
+  return (
+    <div className="flex flex-1 items-center justify-center p-6 lg:p-8">
+      <div className="flex max-w-xl flex-1 flex-col space-y-4">
+        <div className="flex items-center space-x-2">
+          <span
+            className={cn(
+              isStake && "text-gray-500",
+              "text-[0.6rem] font-bold uppercase sm:text-base"
+            )}
+          >
+            Unstake
+          </span>
+          <Switch
+            checked={isStake}
+            onChange={setIsStake}
+            className="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          >
+            <span className="sr-only">
+              {isStake ? "Remove Liquidity" : "Add Liquidity"}
+            </span>
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute h-full w-full rounded-md bg-gray-800"
+            />
+            <span
+              aria-hidden="true"
+              className={cn(
+                isStake ? "bg-[#E5003E]" : "bg-gray-200",
+                "pointer-events-none absolute mx-auto h-2.5 w-8 rounded-full transition-colors duration-200 ease-in-out"
+              )}
+            />
+            <span
+              aria-hidden="true"
+              className={cn(
+                isStake ? "translate-x-5" : "translate-x-0",
+                "pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full border border-[#FF4E7E] bg-[#FF4E7E] shadow ring-0 transition-transform duration-200 ease-in-out"
+              )}
+            />
+          </Switch>
+          <span
+            className={cn(
+              !isStake && "text-gray-500",
+              "text-[0.6rem] font-bold uppercase sm:text-base"
+            )}
+          >
+            Stake
+          </span>
+        </div>
+        <div className="flex justify-around space-x-3 sm:block">
+          <button className="rounded-md bg-gray-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-xs">
+            25%
+          </button>
+          <button className="rounded-md bg-gray-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-xs">
+            50%
+          </button>
+          <button className="rounded-md bg-gray-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-xs">
+            75%
+          </button>
+          <button className="rounded-md bg-gray-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-xs">
+            100%
+          </button>
+        </div>
+        <TokenInput tokenName="SLP" />
+        <Button>{isStake ? "Stake" : "Unstake"}</Button>
       </div>
     </div>
   );
