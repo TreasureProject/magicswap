@@ -3,6 +3,7 @@ import { ChevronDownIcon, SearchIcon, XIcon } from "@heroicons/react/solid";
 import type { LoaderFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import type { ShouldReloadFunction } from "@remix-run/react";
+import { useFetcher } from "@remix-run/react";
 import { Link } from "@remix-run/react";
 import { useLocation } from "@remix-run/react";
 import { useParams } from "@remix-run/react";
@@ -12,7 +13,8 @@ import { getApr } from "~/utils/price";
 import { getOneDayFilter, getOneWeekFilter } from "~/utils/time.server";
 import cn from "clsx";
 import { Dialog, Transition } from "@headlessui/react";
-import { SlashIcon } from "~/components/Icons";
+import { SlashIcon, SpinnerIcon } from "~/components/Icons";
+import type { Pair_Filter } from "~/graphql/exchange.generated";
 
 type Pair = {
   id: string;
@@ -30,8 +32,15 @@ const tabs = [
   { name: "Analytics", href: "analytics" },
 ];
 
-export const loader: LoaderFunction = async () => {
-  const magicFilter = { token0: "0x539bde0d7dbd336b79148aa742883198bbf60342" };
+export const loader: LoaderFunction = async ({ request }) => {
+  const url = new URL(request.url);
+  const name = url.searchParams.get("name") ?? "";
+
+  const magicFilter: Pair_Filter = {
+    token0: "0x539bde0d7dbd336b79148aa742883198bbf60342",
+    name_contains: name,
+  };
+
   const [
     {
       blocks: [{ number: block1d }],
@@ -83,13 +92,27 @@ export const unstable_shouldReload: ShouldReloadFunction = () => false;
 
 export default function Pools() {
   const { pairs } = useLoaderData<LoaderData>();
+  const fetcher = useFetcher<LoaderData>();
   const { poolId } = useParams();
   const location = useLocation();
   const splitPaths = location.pathname.split("/");
 
   const lastPath = splitPaths[splitPaths.length - 1];
 
+  const filteredPairs = fetcher.data;
+
+  const actualPairs = filteredPairs?.pairs ?? pairs;
+
   const selectedPool = pairs.find((p) => p.id === poolId);
+
+  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const name = event.currentTarget.value;
+    const searchParams = new URLSearchParams();
+    searchParams.set("name", name);
+    fetcher.load(`/pools?${searchParams.toString()}`);
+  }
+
+  const isLoading = fetcher.state === "loading";
 
   React.useEffect(() => {
     setMobileFiltersOpen(false);
@@ -139,24 +162,31 @@ export default function Pools() {
                 </button>
               </div>
               <div className="p-2">
-                <label htmlFor="liquidity-pools" className="sr-only">
-                  Liquidity Pool
-                </label>
-                <div className="relative mt-1 rounded-md shadow-sm">
-                  <input
-                    type="text"
-                    name="liquidity-pools"
-                    id="liquidity-pools"
-                    className="block w-full rounded-md border-gray-700 bg-gray-900 pr-10 text-sm focus:border-gray-500 focus:ring-gray-500"
-                    placeholder="Search for liquidity pools"
-                  />
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                    <SearchIcon
-                      className="h-5 w-5 text-gray-700"
-                      aria-hidden="true"
+                <fetcher.Form>
+                  <label htmlFor="liquidity-pools" className="sr-only">
+                    Liquidity Pool
+                  </label>
+                  <div className="relative mt-1 rounded-md shadow-sm">
+                    <input
+                      type="text"
+                      name="liquidity-pools"
+                      id="liquidity-pools"
+                      onChange={handleChange}
+                      className="block w-full rounded-md border-gray-700 bg-gray-900 pr-10 text-sm focus:border-gray-500 focus:ring-gray-500"
+                      placeholder="Search for liquidity pools"
                     />
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                      {isLoading ? (
+                        <SpinnerIcon className="h-5 w-5 animate-spin fill-gray-900 text-gray-700" />
+                      ) : (
+                        <SearchIcon
+                          className="h-5 w-5 text-gray-700"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </div>
                   </div>
-                </div>
+                </fetcher.Form>
               </div>
               <div className="mt-4 flex min-h-0 flex-1 flex-col">
                 <div className="sticky top-0 z-10 flex justify-between border-b-[0.5px] border-gray-600 px-6 py-2 text-sm font-medium text-gray-500">
@@ -165,7 +195,7 @@ export default function Pools() {
                 </div>
                 <div className="flex-1 overflow-auto">
                   <ul>
-                    {pairs.map((pair) => (
+                    {actualPairs.map((pair) => (
                       <PoolLink pair={pair} lastPath={lastPath} key={pair.id} />
                     ))}
                   </ul>
@@ -259,24 +289,31 @@ export default function Pools() {
       <div className="mt-2 grid flex-1 grid-cols-6 gap-x-4">
         <div className="hidden h-[calc(100vh-256px)] flex-col overflow-hidden rounded-md bg-gray-800 lg:col-span-2 lg:flex">
           <div className="p-6">
-            <label htmlFor="liquidity-pools" className="sr-only">
-              Liquidity Pool
-            </label>
-            <div className="relative mt-1 rounded-md shadow-sm">
-              <input
-                type="text"
-                name="liquidity-pools"
-                id="liquidity-pools"
-                className="block w-full rounded-md border-gray-700 bg-gray-900 pr-10 focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
-                placeholder="Search for liquidity pools"
-              />
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                <SearchIcon
-                  className="h-5 w-5 text-gray-700"
-                  aria-hidden="true"
+            <fetcher.Form>
+              <label htmlFor="liquidity-pools" className="sr-only">
+                Liquidity Pool
+              </label>
+              <div className="relative mt-1 rounded-md shadow-sm">
+                <input
+                  type="text"
+                  name="liquidity-pools"
+                  id="liquidity-pools"
+                  onChange={handleChange}
+                  className="block w-full rounded-md border-gray-700 bg-gray-900 pr-10 focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
+                  placeholder="Search for liquidity pools"
                 />
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                  {isLoading ? (
+                    <SpinnerIcon className="h-5 w-5 animate-spin fill-gray-900 text-gray-700" />
+                  ) : (
+                    <SearchIcon
+                      className="h-5 w-5 text-gray-700"
+                      aria-hidden="true"
+                    />
+                  )}
+                </div>
               </div>
-            </div>
+            </fetcher.Form>
           </div>
           <div className="flex min-h-0 flex-1 flex-col">
             <div className="sticky top-0 z-10 flex justify-between border-b-[0.5px] border-gray-600 px-6 pb-2 text-sm font-medium text-gray-500">
@@ -285,7 +322,7 @@ export default function Pools() {
             </div>
             <div className="flex-1 overflow-auto">
               <ul>
-                {pairs.map((pair) => (
+                {actualPairs.map((pair) => (
                   <PoolLink pair={pair} lastPath={lastPath} key={pair.id} />
                 ))}
               </ul>
@@ -304,7 +341,7 @@ const PoolLink = ({ pair, lastPath }: { pair: Pair; lastPath: string }) => {
   const { poolId } = useParams();
   const isActive = pair.id === poolId;
   return (
-    <li key={pair.id}>
+    <li>
       <Link
         to={`/pools/${pair.id}/${lastPath === "pools" ? "manage" : lastPath}`}
         prefetch="intent"
