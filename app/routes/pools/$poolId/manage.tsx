@@ -1,6 +1,7 @@
 import * as React from "react";
 import type { LoaderFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
+import type { ShouldReloadFunction } from "@remix-run/react";
 import { useCatch, useLoaderData } from "@remix-run/react";
 import { useNumberField } from "@react-aria/numberfield";
 import { useLocale } from "@react-aria/i18n";
@@ -86,6 +87,8 @@ export const loader: LoaderFunction = async ({ params: { poolId } }) => {
 
   return json<LoaderData>({ pairLiquidity });
 };
+
+export const unstable_shouldReload: ShouldReloadFunction = () => false;
 
 const TokenInput = ({
   className,
