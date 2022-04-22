@@ -15,6 +15,7 @@ import cn from "clsx";
 import { Dialog, Transition } from "@headlessui/react";
 import { SlashIcon, SpinnerIcon } from "~/components/Icons";
 import type { Pair_Filter } from "~/graphql/exchange.generated";
+import { formatPercent } from "~/utils/number";
 
 type Pair = {
   id: string;
@@ -264,7 +265,9 @@ export default function Pools() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <p className="text-sm font-bold sm:text-base">
-                    {getApr(selectedPool.volume1w, selectedPool.liquidity)}%
+                    {formatPercent(
+                      getApr(selectedPool.volume1w, selectedPool.liquidity)
+                    )}
                   </p>
                   <ChevronDownIcon className="h-4 w-4 flex-shrink-0" />
                 </div>
@@ -387,7 +390,7 @@ const PoolLink = ({ pair, lastPath }: { pair: Pair; lastPath: string }) => {
                 "text-red-500": isActive,
               })}
             >
-              {getApr(pair.volume1w, pair.liquidity)}%
+              {formatPercent(getApr(pair.volume1w, pair.liquidity))}
             </p>
           </div>
         </div>

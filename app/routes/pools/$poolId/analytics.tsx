@@ -1,14 +1,15 @@
 import { ArrowRightIcon } from "@heroicons/react/solid";
 import type { LoaderFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
-import { useCatch, useLoaderData, useParams } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { getTimeAgo } from "~/utils/date.server";
 import invariant from "tiny-invariant";
 import type { GraphDataPoint } from "~/components/Graph";
 import { LineGraph } from "~/components/Graph";
 import { Pill } from "~/components/Pill";
 import { exchangeSdk } from "~/utils/api.server";
-import { formatNumber, formatUsd } from "~/utils/price";
+import { formatUsd } from "~/utils/price";
+import { formatNumber } from "~/utils/number";
 
 type Swap = {
   id: string;
@@ -32,7 +33,7 @@ type PairAnalytics = {
 
 type LoaderData = {
   randomNumber: number;
-  pairAnalytics?: PairAnalytics;
+  pairAnalytics: PairAnalytics;
 };
 
 export const loader: LoaderFunction = async ({ params: { poolId } }) => {
@@ -48,7 +49,7 @@ export const loader: LoaderFunction = async ({ params: { poolId } }) => {
     });
   }
 
-  const pairAnalytics = {
+  const pairAnalytics: PairAnalytics = {
     id: poolId,
     name: pair.name,
     liquidity: parseFloat(pair.reserveUSD),
@@ -96,7 +97,7 @@ export default function Analytics() {
         <div className="flex-1 p-4">
           <div className="flex justify-between">
             <p className="col-span-4 text-[0.6rem] text-gray-500 sm:text-xs">
-              {pairAnalytics?.name}
+              {pairAnalytics.name}
             </p>
             <p className="col-span-2 text-[0.6rem] text-gray-500 sm:text-xs">
               {new Date().toLocaleDateString(undefined, {
@@ -109,7 +110,7 @@ export default function Analytics() {
           <div className="flex justify-between">
             <h3 className="col-span-4 font-semibold">Liquidity</h3>
             <p className="col-span-2 font-semibold">
-              {pairAnalytics?.liquidity && formatUsd(pairAnalytics.liquidity)}
+              {formatUsd(pairAnalytics.liquidity)}
             </p>
           </div>
           <div className="h-36 sm:h-40">
@@ -118,14 +119,14 @@ export default function Analytics() {
                 from: "#96e4df",
                 to: "#21d190",
               }}
-              data={pairAnalytics?.liquidityGraphData ?? []}
+              data={pairAnalytics.liquidityGraphData}
             />
           </div>
         </div>
         <div className="flex-1 p-4">
           <div className="flex justify-between">
             <p className="col-span-4 text-[0.6rem] text-gray-500 sm:text-xs">
-              {pairAnalytics?.name}
+              {pairAnalytics.name}
             </p>
             <p className="col-span-2 text-[0.6rem] text-gray-500 sm:text-xs">
               Past 24h
@@ -134,7 +135,7 @@ export default function Analytics() {
           <div className="flex justify-between">
             <h3 className="col-span-4 font-semibold">Volume</h3>
             <p className="col-span-2 font-semibold">
-              {pairAnalytics?.volume1d && formatUsd(pairAnalytics.volume1d)}{" "}
+              {formatUsd(pairAnalytics.volume1d)}{" "}
             </p>
           </div>
           <div className="h-36 sm:h-40">
@@ -143,7 +144,7 @@ export default function Analytics() {
                 from: "#96e4df",
                 to: "#21d190",
               }}
-              data={pairAnalytics?.volumeGraphData ?? []}
+              data={pairAnalytics.volumeGraphData}
             />
           </div>
         </div>
@@ -185,7 +186,7 @@ export default function Analytics() {
             </tr>
           </thead>
           <tbody>
-            {pairAnalytics?.swaps.map((swap) => (
+            {pairAnalytics.swaps.map((swap) => (
               <tr key={swap.id}>
                 <td className="whitespace-nowrap py-2.5 pl-4 pr-3 text-sm font-medium sm:pl-6">
                   <div className="flex items-center space-x-2 sm:space-x-4">

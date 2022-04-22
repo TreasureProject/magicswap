@@ -1,12 +1,12 @@
+import { getFormatOptions } from "./number";
+
 const usdFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
 });
 
 export const getApr = (volume: number, liquidity: number) =>
-  ((((volume / 7) * 365 * 0.0025) / liquidity) * 100)
-    .toFixed(2)
-    .replace(".00", "");
+  (((volume / 7) * 365 * 0.0025) / liquidity) * 100;
 
 export const getLpTokenCount = (
   tokenCount: number,
@@ -20,12 +20,5 @@ export const getTokenCount = (
   lpTotalSupply: number
 ) => (lpCount / lpTotalSupply) * tokenReserve;
 
-export const formatUsd = usdFormatter.format;
-
-export const formatNumber = (
-  value: number,
-  maximumFractionDigits: number = 5
-) =>
-  value.toLocaleString("en-US", {
-    maximumFractionDigits,
-  });
+export const formatUsd = (value: number) =>
+  `$${value.toLocaleString("en-US", getFormatOptions(value, true))}`;
