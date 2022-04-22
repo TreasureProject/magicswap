@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ArrowRightIcon } from "@heroicons/react/solid";
-import type { LoaderFunction } from "@remix-run/cloudflare";
+import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import {
   useCatch,
@@ -41,6 +41,10 @@ type LoaderData = {
   randomNumber: number;
   pairAnalytics: PairAnalytics;
 };
+
+export const meta: MetaFunction = ({ data }: { data: LoaderData }) => ({
+  title: `${data.pairAnalytics.name} - Analytics - Magicswap`,
+});
 
 export const loader: LoaderFunction = async ({ params: { poolId } }) => {
   const randomNumber = Math.floor(Math.random() * 6);

@@ -1,5 +1,5 @@
 import * as React from "react";
-import type { LoaderFunction } from "@remix-run/cloudflare";
+import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import type { ShouldReloadFunction } from "@remix-run/react";
 import { useCatch, useLoaderData } from "@remix-run/react";
@@ -41,6 +41,10 @@ const tabs = [
   { name: "Stake", query: "stake" },
   { name: "Rewards", query: "rewards" },
 ] as const;
+
+export const meta: MetaFunction = ({ data }: { data: LoaderData }) => ({
+  title: `${data.pairLiquidity.name} - Manage - Magicswap`,
+});
 
 export const loader: LoaderFunction = async ({ params: { poolId } }) => {
   invariant(poolId, `poolId is required`);
