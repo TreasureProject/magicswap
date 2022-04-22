@@ -87,21 +87,6 @@ export const loader: LoaderFunction = async ({ params: { poolId } }) => {
   });
 };
 
-export function CatchBoundary() {
-  const caught = useCatch();
-  const params = useParams();
-  if (caught.status === 404) {
-    return (
-      <div className="flex h-full flex-col items-center justify-center">
-        <p className="text-[0.6rem] text-gray-500 sm:text-base">
-          {params.poolId} not found.
-        </p>
-      </div>
-    );
-  }
-  throw new Error(`Unhandled error: ${caught.status}`);
-}
-
 export default function Analytics() {
   const { randomNumber, pairAnalytics } = useLoaderData<LoaderData>();
 
