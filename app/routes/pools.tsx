@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ChevronDownIcon, SearchIcon, XIcon } from "@heroicons/react/solid";
-import type { LoaderFunction } from "@remix-run/cloudflare";
+import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import type { ShouldReloadFunction } from "@remix-run/react";
 import { useFetcher } from "@remix-run/react";
@@ -27,6 +27,10 @@ type Pair = {
 type LoaderData = {
   pairs: Pair[];
 };
+
+export const meta: MetaFunction = () => ({
+  title: "Pools | Magicswap",
+});
 
 const tabs = [
   { name: "Manage Liquidity", href: "manage" },
