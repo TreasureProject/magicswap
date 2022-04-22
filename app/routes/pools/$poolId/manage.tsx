@@ -1,7 +1,7 @@
 import * as React from "react";
 import type { LoaderFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
-import { useLoaderData } from "@remix-run/react";
+import { useCatch, useLoaderData } from "@remix-run/react";
 import { useNumberField } from "@react-aria/numberfield";
 import { useLocale } from "@react-aria/i18n";
 import { useNumberFieldState } from "@react-stately/numberfield";
@@ -449,3 +449,18 @@ const Stake = () => {
     </div>
   );
 };
+
+export function CatchBoundary() {
+  const caught = useCatch();
+  const params = useParams();
+  if (caught.status === 404) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center">
+        <p className="text-[0.6rem] text-gray-500 sm:text-base">
+          {params.poolId} not found.
+        </p>
+      </div>
+    );
+  }
+  throw new Error(`Unhandled error: ${caught.status}`);
+}
