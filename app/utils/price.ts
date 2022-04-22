@@ -8,6 +8,18 @@ export const getApr = (volume: number, liquidity: number) =>
     .toFixed(2)
     .replace(".00", "");
 
+export const getLpTokenCount = (
+  tokenCount: number,
+  tokenReserve: number,
+  lpTotalSupply: number
+) => (tokenCount / tokenReserve) * lpTotalSupply;
+
+export const getTokenCount = (
+  lpCount: number,
+  tokenReserve: number,
+  lpTotalSupply: number
+) => (lpCount / lpTotalSupply) * tokenReserve;
+
 export const formatUsd = usdFormatter.format;
 
 export const formatNumber = (

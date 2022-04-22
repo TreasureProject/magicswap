@@ -104,8 +104,12 @@ export const getPairLiquidity = gql`
         symbol
         derivedETH
       }
-      totalSupply
+      token0Price
+      token1Price
+      reserve0
+      reserve1
       reserveUSD
+      totalSupply
       liquidityPositions(where: { user: $user }) {
         liquidityTokenBalance
       }

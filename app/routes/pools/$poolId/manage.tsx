@@ -2,21 +2,34 @@ import * as React from "react";
 import type { LoaderFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
+import { useNumberField } from "@react-aria/numberfield";
+import { useLocale } from "@react-aria/i18n";
+import { useNumberFieldState } from "@react-stately/numberfield";
 import { PlusIcon } from "@heroicons/react/solid";
 import { Link, useParams, useSearchParams } from "@remix-run/react";
 import cn from "clsx";
 import { exchangeSdk } from "~/utils/api.server";
 import { Button } from "~/components/Button";
 import { Switch } from "@headlessui/react";
-import { formatNumber, formatUsd } from "~/utils/price";
+import {
+  formatNumber,
+  formatUsd,
+  getLpTokenCount,
+  getTokenCount,
+} from "~/utils/price";
 
 type PairLiquidity = {
   id: string;
   name: string;
   token0Symbol: string;
   token1Symbol: string;
+  token0Price: number;
+  token1Price: number;
   token0Usd: number;
   token1Usd: number;
+  token0Reserve: number;
+  token1Reserve: number;
+  totalSupply: number;
   lpPrice: number;
   userBalance: number;
 };
@@ -39,17 +52,23 @@ export const loader: LoaderFunction = async ({ params: { poolId } }) => {
   if (poolId) {
     const { pair } = await exchangeSdk.getPairLiquidity({
       pair: poolId,
-      user: "0xb137d135dc8482b633265c21191f50a4ba26145d",
+      user: "",
     });
     if (pair) {
+      const totalSupply = parseFloat(pair.totalSupply);
       pairLiquidity = {
         id: poolId,
         name: pair.name,
         token0Symbol: pair.token0.symbol,
         token1Symbol: pair.token1.symbol,
+        token0Price: parseFloat(pair.token0Price),
+        token1Price: parseFloat(pair.token1Price),
         token0Usd: parseFloat(pair.token0.derivedETH) * ethUsd,
         token1Usd: parseFloat(pair.token1.derivedETH) * ethUsd,
-        lpPrice: parseFloat(pair.reserveUSD) / parseFloat(pair.totalSupply),
+        token0Reserve: parseFloat(pair.reserve0),
+        token1Reserve: parseFloat(pair.reserve1),
+        totalSupply,
+        lpPrice: parseFloat(pair.reserveUSD) / totalSupply,
         userBalance: parseFloat(
           pair.liquidityPositions?.[0]?.liquidityTokenBalance ?? 0
         ),
@@ -61,20 +80,30 @@ export const loader: LoaderFunction = async ({ params: { poolId } }) => {
 };
 
 const TokenInput = ({
+  className,
   tokenName,
   balance = 0,
   price = 0,
-  className,
-}: {
+  ...numberFieldProps
+}: Parameters<typeof useNumberField>[0] & {
+  className?: string;
   tokenName: string;
   balance?: number;
   price?: number;
-  className?: string;
 }) => {
+  const { locale } = useLocale();
+  const state = useNumberFieldState({ ...numberFieldProps, locale });
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const { labelProps, inputProps } = useNumberField(
+    numberFieldProps,
+    state,
+    inputRef
+  );
+
   return (
     <div className={className}>
-      <label htmlFor="balance" className="sr-only">
-        Balance
+      <label className="sr-only" {...labelProps}>
+        {numberFieldProps.label}
       </label>
       <div className="relative focus-within:border-red-600">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center space-x-2 pl-3 pb-4">
@@ -88,11 +117,9 @@ const TokenInput = ({
           </span>
         </div>
         <input
-          type="text"
-          name="balance"
-          id="balance"
-          dir="rtl"
-          className="block w-full rounded-md border-0 bg-gray-900 pl-7 pb-6 focus:outline-none focus:ring-2 focus:ring-red-600 sm:text-lg lg:text-2xl"
+          {...inputProps}
+          ref={inputRef}
+          className="block w-full rounded-md border-0 bg-gray-900 pl-7 pb-6 text-right focus:outline-none focus:ring-2 focus:ring-red-600 sm:text-lg lg:text-2xl"
           placeholder="0.00"
         />
         <div className="pointer-events-none absolute left-0 bottom-2 flex flex-col items-end pl-3">
@@ -101,7 +128,12 @@ const TokenInput = ({
           </span>
         </div>
         <div className="pointer-events-none absolute bottom-2 right-0 flex flex-col items-end pr-3">
-          <span className="text-xs text-gray-500">~ {formatUsd(price)}</span>
+          <span className="text-xs text-gray-500">
+            ~{" "}
+            {formatUsd(
+              price * (Number.isNaN(state.numberValue) ? 1 : state.numberValue)
+            )}
+          </span>
         </div>
       </div>
     </div>
@@ -155,7 +187,23 @@ export default function Manage() {
 
 const Liquidity = () => {
   const [isAddLiquidity, setIsAddLiquidity] = React.useState(false);
+  const [removeInputValue, setRemoveInputValue] = React.useState(0);
+  const [addInputValues, setAddInputValues] = React.useState<[number, number]>([
+    0, 0,
+  ]);
   const { pairLiquidity } = useLoaderData<LoaderData>();
+
+  const handleAdd0InputChanged = (value: number) => {
+    setAddInputValues([value, value * pairLiquidity!.token1Price]);
+  };
+
+  const handleAdd1InputChanged = (value: number) => {
+    setAddInputValues([value * pairLiquidity!.token0Price, value]);
+  };
+
+  if (!pairLiquidity) {
+    return null;
+  }
 
   return (
     <div className="flex flex-1 items-center justify-center p-6 lg:p-8">
@@ -208,49 +256,106 @@ const Liquidity = () => {
         {isAddLiquidity ? (
           <div className="space-y-4">
             <TokenInput
-              tokenName={pairLiquidity?.token0Symbol ?? ""}
-              price={pairLiquidity?.token0Usd}
+              id="addLiquidityToken0"
+              label="Amount"
+              tokenName={pairLiquidity.token0Symbol ?? ""}
+              price={pairLiquidity.token0Usd}
+              balance={1234}
+              value={addInputValues[0]}
+              onChange={handleAdd0InputChanged}
             />
             <div className="flex justify-center">
               <PlusIcon className="h-4 w-4 text-gray-400" />
             </div>
             <TokenInput
-              tokenName={pairLiquidity?.token1Symbol ?? ""}
-              price={pairLiquidity?.token1Usd}
+              id="addLiquidityToken1"
+              label="Amount"
+              tokenName={pairLiquidity.token1Symbol ?? ""}
+              price={pairLiquidity.token1Usd}
+              balance={5678}
+              value={addInputValues[1]}
+              onChange={handleAdd1InputChanged}
             />
-            <div className="space-y-2 rounded-md bg-gray-900 p-4">
-              <p className="text-xs text-gray-600 sm:text-base">
-                You'll receive (at least):
-              </p>
-              <p className="text-sm font-medium sm:text-lg">
-                ≈ 0.55 {pairLiquidity?.name} Pool Tokens
-              </p>
-            </div>
+            {addInputValues.some((value) => value > 0) && (
+              <div className="space-y-2 rounded-md bg-gray-900 p-4">
+                <p className="text-xs text-gray-600 sm:text-base">
+                  You'll receive (at least):
+                </p>
+                <p className="text-sm font-medium sm:text-lg">
+                  ≈{" "}
+                  {formatNumber(
+                    getLpTokenCount(
+                      addInputValues[0],
+                      pairLiquidity.token0Reserve,
+                      pairLiquidity.totalSupply
+                    )
+                  )}{" "}
+                  {pairLiquidity.name} Pool Tokens
+                </p>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
             <TokenInput
-              tokenName={pairLiquidity?.name ?? ""}
-              balance={pairLiquidity?.userBalance}
-              price={pairLiquidity?.lpPrice}
+              id="removeLiquidity"
+              label="Amount"
+              tokenName={pairLiquidity.name ?? ""}
+              balance={1234}
+              price={pairLiquidity.lpPrice}
+              onChange={(value) => setRemoveInputValue(value)}
             />
-            <div className="space-y-2 rounded-md bg-gray-900 p-4">
-              <p className="text-xs text-gray-600 sm:text-base">
-                You'll receive (at least):
-              </p>
-              <div className="flex items-center justify-between">
-                <span className="font-medium">
-                  0.0012 {pairLiquidity?.token0Symbol}
-                </span>
-                <span className="text-gray-200">≈ $0.09</span>
+            {removeInputValue > 0 && (
+              <div className="space-y-2 rounded-md bg-gray-900 p-4">
+                <p className="text-xs text-gray-600 sm:text-base">
+                  You'll receive (at least):
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">
+                    {formatNumber(
+                      getTokenCount(
+                        removeInputValue,
+                        pairLiquidity.token0Reserve,
+                        pairLiquidity.totalSupply
+                      )
+                    )}{" "}
+                    {pairLiquidity.token0Symbol}
+                  </span>
+                  <span className="text-gray-200">
+                    ≈{" "}
+                    {formatUsd(
+                      getTokenCount(
+                        removeInputValue,
+                        pairLiquidity.token0Reserve,
+                        pairLiquidity.totalSupply
+                      ) * pairLiquidity.token0Usd
+                    )}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">
+                    {formatNumber(
+                      getTokenCount(
+                        removeInputValue,
+                        pairLiquidity.token1Reserve,
+                        pairLiquidity.totalSupply
+                      )
+                    )}{" "}
+                    {pairLiquidity.token1Symbol}
+                  </span>
+                  <span className="text-gray-200">
+                    ≈{" "}
+                    {formatUsd(
+                      getTokenCount(
+                        removeInputValue,
+                        pairLiquidity.token1Reserve,
+                        pairLiquidity.totalSupply
+                      ) * pairLiquidity.token1Usd
+                    )}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="font-medium">
-                  0.0012 {pairLiquidity?.token1Symbol}
-                </span>
-                <span className="text-gray-200">≈ $0.09</span>
-              </div>
-            </div>
+            )}
           </div>
         )}
         <Button>{isAddLiquidity ? "Add" : "Remove"} Liquidity</Button>
