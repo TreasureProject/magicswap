@@ -35,7 +35,7 @@ const tabs = [
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
-  const name = url.searchParams.get("name") ?? "";
+  const name = (url.searchParams.get("name") ?? "").toUpperCase();
 
   const magicFilter: Pair_Filter = {
     token0: "0x539bde0d7dbd336b79148aa742883198bbf60342",

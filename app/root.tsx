@@ -130,7 +130,7 @@ export default function App() {
           </div>
           <header className="fixed left-0 right-0 bottom-[5.5rem] z-10 px-2 sm:bottom-28">
             <div className="relative">
-              <div className="absolute left-1/2 z-10 w-full max-w-2xl -translate-x-1/2 transform rounded-xl bg-gray-800 bg-opacity-80 p-2 shadow-xl shadow-gray-800/30 backdrop-blur-md">
+              <div className="absolute left-1/2 z-10 w-full max-w-2xl -translate-x-1/2 transform rounded-xl border border-[#191A21] bg-gray-800/50 bg-opacity-80 p-2 shadow-2xl shadow-gray-800/30 backdrop-blur-md">
                 <nav className="flex gap-1">
                   <NavLink to="/">Swap</NavLink>
                   <NavLink to="pools">Pool</NavLink>
@@ -139,7 +139,6 @@ export default function App() {
             </div>
           </header>
         </div>
-        {/* <ScrollRestoration /> */}
         <Scripts />
         <LiveReload />
       </body>
