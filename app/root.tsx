@@ -6,6 +6,8 @@ import {
   Outlet,
   Scripts,
   NavLink as Link,
+  useTransition,
+  useFetchers,
 } from "@remix-run/react";
 import cn from "clsx";
 
@@ -13,7 +15,13 @@ import styles from "./styles/tailwind.css";
 import React from "react";
 import { PieIcon, SplitIcon, TreasureLogoIcon } from "./components/Icons";
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+import NProgress from "nprogress";
+import nProgressStyles from "./styles/nprogress.css";
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: styles },
+  { rel: "stylesheet", href: nProgressStyles },
+];
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
@@ -113,6 +121,28 @@ const DotPattern = () => (
 );
 
 export default function App() {
+  const transition = useTransition();
+
+  const fetchers = useFetchers();
+
+  const state = React.useMemo<"idle" | "loading">(
+    function getGlobalState() {
+      const states = [
+        transition.state,
+        ...fetchers.map((fetcher) => fetcher.state),
+      ];
+      if (states.every((state) => state === "idle")) return "idle";
+      return "loading";
+    },
+    [transition.state, fetchers]
+  );
+
+  // slim loading bars on top of the page, for page transitions
+  React.useEffect(() => {
+    if (state === "loading") NProgress.start();
+    if (state === "idle") NProgress.done();
+  }, [state, transition.state]);
+
   return (
     <html lang="en">
       <head>
