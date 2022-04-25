@@ -29,10 +29,16 @@ module.exports = {
             "animation-timing-function": "cubic-bezier(0, 0, 0.2, 1)",
           },
         },
+        "rotate-right-to-left": {
+          "100%": {
+            transform: "rotate(180deg)",
+          },
+        },
       },
       animation: {
         "bounce-right-to-left": "bounce-right-to-left 1s ease-in-out infinite",
         "bounce-bottom-to-top": "bounce-bottom-to-top 1s ease-in-out infinite",
+        "rotate-180": "rotate-right-to-left 0.2s forwards linear",
       },
     },
   },

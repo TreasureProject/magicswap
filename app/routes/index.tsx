@@ -1,9 +1,4 @@
-import {
-  ArrowDownwardIcon,
-  ArrowForwardIcon,
-  SpinnerIcon,
-  StarIcon,
-} from "~/components/Icons";
+import { SpinnerIcon, StarIcon } from "~/components/Icons";
 import {
   ArrowSmDownIcon,
   ArrowSmUpIcon,
@@ -23,6 +18,7 @@ import { getTokens } from "~/utils/tokens.server";
 import { getTokenBySymbol } from "~/utils/tokens.server";
 import type { LoaderData as ApiLoaderData } from "./api/get-token-list";
 import { ChevronDownIcon } from "@heroicons/react/solid";
+import { ArrowRightIcon, ArrowDownIcon } from "@heroicons/react/outline";
 
 type LoaderData = {
   inputCurrencyData: Tokens[number];
@@ -232,8 +228,13 @@ export default function Index() {
             positive
           />
           <div className="flex basis-24 items-center justify-center lg:basis-32">
-            <ArrowForwardIcon className="hidden h-6 w-6 lg:block" />
-            <ArrowDownwardIcon className="block h-6 w-6 lg:hidden" />
+            <Link
+              to={`/?inputCurrency=${data.outputCurrencyData.symbol}&outputCurrency=${data.inputCurrencyData.symbol}`}
+              className="rounded-full p-2 transition duration-300 ease-in-out hover:bg-gray-500/20"
+            >
+              <ArrowRightIcon className="hidden h-6 w-6 text-gray-500 hover:animate-rotate-180 lg:block" />
+              <ArrowDownIcon className="block h-6 w-6 text-gray-500 hover:animate-rotate-180 lg:hidden" />
+            </Link>
           </div>
           <TokenInput
             name={data.outputCurrencyData.symbol}
@@ -407,10 +408,20 @@ const Modal = ({
                                 to={`/?inputCurrency=${
                                   type === "input"
                                     ? token.symbol
+                                    : // if selected output currency is the same as input currency,
+                                    // then we need to change the output currency to the selected input currency
+                                    type === "output" &&
+                                      token.symbol ===
+                                        loaderData.inputCurrencyData.symbol
+                                    ? loaderData.outputCurrencyData.symbol
                                     : loaderData.inputCurrencyData.symbol
                                 }&outputCurrency=${
                                   type === "output"
                                     ? token.symbol
+                                    : type === "input" &&
+                                      token.symbol ===
+                                        loaderData.outputCurrencyData.symbol
+                                    ? loaderData.inputCurrencyData.symbol
                                     : loaderData.outputCurrencyData.symbol
                                 }`}
                               >
