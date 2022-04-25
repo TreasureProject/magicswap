@@ -21,17 +21,19 @@ import { redirect } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
-import type { Tokens } from "~/utils/tokens.server";
 import { getTokens } from "~/utils/tokens.server";
 import { getTokenBySymbol } from "~/utils/tokens.server";
 import type { LoaderData as ApiLoaderData } from "./api/get-token-list";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import { ArrowRightIcon, ArrowDownIcon } from "@heroicons/react/outline";
+import { Token } from "~/types";
+import { useTokenBalance } from "~/hooks/useTokenBalance";
+import { formatNumber } from "~/utils/number";
 
 type LoaderData = {
-  inputCurrencyData: Tokens[number];
-  outputCurrencyData: Tokens[number];
-  tokenList: Tokens;
+  inputCurrencyData: Token;
+  outputCurrencyData: Token;
+  tokenList: Token[];
 };
 
 export const meta: MetaFunction = ({ data }) => {
@@ -79,11 +81,13 @@ const TokenInput = ({
   positive,
   onTokenClick,
   name,
+  balance,
 }: {
   // for demo purposes
   positive: boolean;
   onTokenClick: () => void;
   name: string;
+  balance: number;
 }) => {
   return (
     <div className="flex-1 space-y-6 rounded-md border border-transparent bg-gray-800 p-6 hover:border-gray-700">
@@ -114,7 +118,9 @@ const TokenInput = ({
                 onClick={onTokenClick}
               />
             </div>
-            <span className="text-xs text-gray-500">Balance: 123123</span>
+            <span className="text-xs text-gray-500">
+              Balance: {formatNumber(balance)}
+            </span>
           </div>
         </div>
       </div>
@@ -212,6 +218,9 @@ export default function Index() {
     type: "input",
   });
 
+  const inputCurrencyBalance = useTokenBalance(data.inputCurrencyData);
+  const outputCurrencyBalance = useTokenBalance(data.outputCurrencyData);
+
   const onClose = React.useCallback(
     () =>
       setOpenTokenListModalProps((props) => ({
@@ -235,6 +244,7 @@ export default function Index() {
         <div className="mt-14 flex w-full flex-col lg:flex-row">
           <TokenInput
             name={data.inputCurrencyData.symbol}
+            balance={inputCurrencyBalance}
             onTokenClick={() =>
               setOpenTokenListModalProps({
                 open: true,
@@ -254,6 +264,7 @@ export default function Index() {
           </div>
           <TokenInput
             name={data.outputCurrencyData.symbol}
+            balance={outputCurrencyBalance}
             onTokenClick={() =>
               setOpenTokenListModalProps({
                 open: true,
@@ -392,7 +403,7 @@ const Modal = ({
                   {listTokens.map((token) => {
                     const isSelected = token.symbol === currentCurrency.symbol;
                     return (
-                      <li key={token.address}>
+                      <li key={token.name}>
                         <div
                           className={cn(
                             !isSelected

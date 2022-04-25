@@ -11,12 +11,17 @@ import {
 } from "@remix-run/react";
 import cn from "clsx";
 
+import { providers } from "ethers";
+import { Provider, chain, createClient } from "wagmi";
+import { InjectedConnector } from "wagmi/connectors/injected";
+
 import styles from "./styles/tailwind.css";
 import React from "react";
 import { PieIcon, SplitIcon, TreasureLogoIcon } from "./components/Icons";
 
 import NProgress from "nprogress";
 import nProgressStyles from "./styles/nprogress.css";
+import { Wallet } from "./components/Wallet";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -27,6 +32,24 @@ export const meta: MetaFunction = () => ({
   charset: "utf-8",
   title: "Swap | Magicswap",
   viewport: "width=device-width,initial-scale=1",
+});
+
+const chains = [chain.arbitrum, chain.arbitrumRinkeby];
+
+const isChainSupported = (chainId?: number) =>
+  chains.some(({ id }) => id === chainId);
+
+const client = createClient({
+  autoConnect: true,
+  connectors() {
+    return [new InjectedConnector({ chains })];
+  },
+  provider({ chainId }) {
+    return new providers.AlchemyProvider(
+      isChainSupported(chainId) ? chainId : chain.arbitrum.id,
+      "NjmODXI8Z1XirrqiT0PnTMIQ-rHJGbIR"
+    );
+  },
 });
 
 const NavLink = ({
@@ -150,25 +173,32 @@ export default function App() {
         <Links />
       </head>
       <body className="bg-[#191A21] text-white antialiased">
-        <div className="relative z-10 flex h-16 items-center justify-center border-b border-gray-800 px-8">
-          <TreasureLogoIcon className="h-8 w-8" />
-        </div>
-        <div className="relative overflow-hidden">
-          <DotPattern />
-          <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] max-w-7xl flex-col p-8">
-            <Outlet />
-          </div>
-          <header className="fixed left-0 right-0 bottom-[5.5rem] z-10 px-2 sm:bottom-28">
-            <div className="relative">
-              <div className="absolute left-1/2 z-10 w-full max-w-2xl -translate-x-1/2 transform rounded-xl bg-gray-900/40 p-2 shadow-2xl shadow-gray-800/30 backdrop-blur-md">
-                <nav className="flex gap-1">
-                  <NavLink to="/">Swap</NavLink>
-                  <NavLink to="pools">Pool</NavLink>
-                </nav>
+        <Provider client={client}>
+          <div className="z-10 flex h-16 items-center justify-center border-b border-gray-800 px-8">
+            <div className="relative m-auto flex max-w-7xl flex-1 items-center justify-center">
+              <TreasureLogoIcon className="h-8 w-8" />
+              <div className="absolute inset-y-0 right-5 flex items-center justify-center">
+                <Wallet />
               </div>
             </div>
-          </header>
-        </div>
+          </div>
+          <div className="relative overflow-hidden">
+            <DotPattern />
+            <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] max-w-7xl flex-col p-8">
+              <Outlet />
+            </div>
+            <header className="fixed left-0 right-0 bottom-[5.5rem] z-10 px-2 sm:bottom-28">
+              <div className="relative">
+                <div className="absolute left-1/2 z-10 w-full max-w-2xl -translate-x-1/2 transform rounded-xl bg-gray-900/40 p-2 shadow-2xl shadow-gray-800/30 backdrop-blur-md">
+                  <nav className="flex gap-1">
+                    <NavLink to="/">Swap</NavLink>
+                    <NavLink to="pools">Pool</NavLink>
+                  </nav>
+                </div>
+              </div>
+            </header>
+          </div>
+        </Provider>
         <Scripts />
         <LiveReload />
       </body>
