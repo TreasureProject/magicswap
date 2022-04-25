@@ -1,57 +1,106 @@
-import { chain } from "wagmi";
-import { Token } from "~/types";
+import {
+  GetSwapPairQuery,
+  GetSwapPairsQuery,
+} from "~/graphql/exchange.generated";
+import { AdvancedToken, Optional, Token } from "~/types";
+import { exchangeSdk } from "./api.server";
 
-// testing purposes only
-const wait = (ms: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+type RawTokenList = GetSwapPairsQuery["pairs"];
+type RawToken = RawTokenList[0]["token0"];
+type RawPairToken = GetSwapPairQuery["pairs"][0]["token0"];
 
-export const TOKENS: Token[] = [
-  {
-    name: "Magic",
-    symbol: "MAGIC",
-    addresses: {
-      [chain.arbitrum.id]: "0x539bde0d7dbd336b79148aa742883198bbf60342",
-      [chain.arbitrumRinkeby.id]: "0x7b402a341f92d2ce96da3f87d00b60d552d66ca7",
-    },
-  },
-  {
-    name: "Ethereum",
-    symbol: "ETH",
-    addresses: {
-      [chain.arbitrum.id]: "0x0000000000000000000000000000000000000002",
-      [chain.arbitrumRinkeby.id]: "0x0000000000000000000000000000000000000002",
-    },
-  },
-  {
-    name: "Token 3",
-    symbol: "TKN3",
-    addresses: {
-      [chain.arbitrum.id]: "0x0000000000000000000000000000000000000003",
-      [chain.arbitrumRinkeby.id]: "0x0000000000000000000000000000000000000003",
-    },
-  },
-  {
-    name: "Token 4",
-    symbol: "TKN4",
-    addresses: {
-      [chain.arbitrum.id]: "0x0000000000000000000000000000000000000004",
-      [chain.arbitrumRinkeby.id]: "0x0000000000000000000000000000000000000004",
-    },
-  },
-];
+export const normalizeToken = ({
+  id,
+  symbol,
+  name,
+  derivedETH,
+}: RawToken): Token => ({
+  id,
+  symbol,
+  name,
+  priceEth: parseFloat(derivedETH),
+});
 
-export const getTokens = async (filter?: string) => {
-  await wait(100);
+export const normalizeAdvancedToken = (
+  { hourData, dayData, ...rawToken }: RawPairToken,
+  ethUsd: number
+): AdvancedToken => {
+  const token = normalizeToken(rawToken);
+  const priceUsd = token.priceEth * ethUsd;
 
-  if (filter) {
-    return TOKENS.filter((token) => token.symbol.includes(filter));
+  let price24hChange = -1;
+  if (dayData.length > 0) {
+    const priceYesterdayUsd = parseFloat(dayData[1].priceUSD);
+    price24hChange = (priceUsd - priceYesterdayUsd) / priceYesterdayUsd;
   }
 
-  return TOKENS;
+  return {
+    ...token,
+    priceUsd,
+    price24hChange,
+    price1dUsd: hourData.map(({ date, priceUSD }) => ({
+      date,
+      value: parseFloat(priceUSD),
+    })),
+    price1wUsd: dayData.map(({ date, priceUSD }) => ({
+      date,
+      value: parseFloat(priceUSD),
+    })),
+    volume1dUsd: hourData.reduce(
+      (total, { volumeUSD }) => total + parseFloat(volumeUSD),
+      0
+    ),
+    volume1wUsd: dayData.reduce(
+      (total, { volumeUSD }) => total + parseFloat(volumeUSD),
+      0
+    ),
+  };
 };
 
-export const getTokenBySymbol = async (symbol: string) => {
-  await wait(100);
+const normalizeTokenList = (pairs: RawTokenList): Token[] => {
+  const tokenSymbols: string[] = [];
+  const tokens: Token[] = [];
 
-  return TOKENS.find((token) => token.symbol === symbol);
+  pairs.forEach(({ token0, token1 }) => {
+    const normalizedToken0 = normalizeToken(token0);
+    if (!tokenSymbols.includes(normalizedToken0.symbol)) {
+      tokenSymbols.push(normalizedToken0.symbol);
+      tokens.push(normalizedToken0);
+    }
+
+    const normalizedToken1 = normalizeToken(token1);
+    if (!tokenSymbols.includes(normalizedToken1.symbol)) {
+      tokenSymbols.push(normalizedToken1.symbol);
+      tokens.push(normalizedToken1);
+    }
+  });
+
+  return tokens;
+};
+
+export const getTokens = async (filter?: string): Promise<Token[]> => {
+  const { pairs } = await exchangeSdk.getSwapPairs({
+    where: {
+      token0: "0x539bde0d7dbd336b79148aa742883198bbf60342",
+    },
+  });
+
+  const tokens = normalizeTokenList(pairs);
+
+  if (filter) {
+    return tokens.filter((token) => token.symbol.includes(filter));
+  }
+
+  return tokens;
+};
+
+export const getTokenBySymbol = (
+  tokens: Token[],
+  symbol: string
+): Optional<Token> =>
+  tokens.find((token) => token.symbol.toLowerCase() === symbol.toLowerCase());
+
+export const getEthUsd = async (): Promise<number> => {
+  const { bundle } = await exchangeSdk.getEthPrice();
+  return parseFloat(bundle?.ethPrice ?? 0);
 };

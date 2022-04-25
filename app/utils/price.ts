@@ -6,7 +6,7 @@ const usdFormatter = new Intl.NumberFormat("en-US", {
 });
 
 export const getApr = (volume: number, liquidity: number) =>
-  (((volume / 7) * 365 * 0.0025) / liquidity) * 100;
+  ((volume / 7) * 365 * 0.0025) / liquidity;
 
 export const getLpTokenCount = (
   tokenCount: number,

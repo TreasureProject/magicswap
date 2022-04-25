@@ -21,4 +21,4 @@ export const formatNumber = (value: number) =>
   value.toLocaleString("en-US", getFormatOptions(value));
 
 export const formatPercent = (value: number) =>
-  `${value.toFixed(2).replace(".00", "")}%`;
+  `${(value * 100).toFixed(2).replace(".00", "")}%`;
