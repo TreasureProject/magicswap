@@ -21,19 +21,21 @@ import { redirect } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
-import { getTokens } from "~/utils/tokens.server";
-import { getTokenBySymbol } from "~/utils/tokens.server";
+import { getTokenBySymbol, getTokens } from "~/utils/tokens.server";
 import type { LoaderData as ApiLoaderData } from "./api/get-token-list";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import { ArrowRightIcon, ArrowDownIcon } from "@heroicons/react/outline";
-import { Token } from "~/types";
+import { Pair, PairToken, Token } from "~/types";
 import { useTokenBalance } from "~/hooks/useTokenBalance";
-import { formatNumber } from "~/utils/number";
+import { formatNumber, formatPercent } from "~/utils/number";
+import { getPair } from "~/utils/pair.server";
+import { formatUsd } from "~/utils/price";
 
 type LoaderData = {
-  inputCurrencyData: Token;
-  outputCurrencyData: Token;
   tokenList: Token[];
+  inputToken: PairToken;
+  outputToken: PairToken;
+  pair: Pair;
 };
 
 export const meta: MetaFunction = ({ data }) => {
@@ -43,52 +45,59 @@ export const meta: MetaFunction = ({ data }) => {
     };
   }
 
-  const { inputCurrencyData, outputCurrencyData } = data as LoaderData;
+  const { inputToken, outputToken } = data as LoaderData;
   return {
-    title: `Swap ${inputCurrencyData.symbol} to ${outputCurrencyData.symbol} | Magicswap`,
+    title: `Swap ${inputToken.symbol} to ${outputToken.symbol} | Magicswap`,
   };
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const inputCurrency = url.searchParams.get("inputCurrency") ?? "MAGIC";
-  const outputCurrency = url.searchParams.get("outputCurrency") ?? "ETH";
+  const outputCurrency = url.searchParams.get("outputCurrency") ?? "WETH";
 
-  const inputCurrencyData = await getTokenBySymbol(inputCurrency);
-  const outputCurrencyData = await getTokenBySymbol(outputCurrency);
   const tokenList = await getTokens();
+  const inputToken = getTokenBySymbol(tokenList, inputCurrency);
+  const outputToken = getTokenBySymbol(tokenList, outputCurrency);
 
-  if (!inputCurrencyData || !outputCurrencyData) {
+  if (!inputToken || !outputToken) {
     throw new Response("Token not found", {
       status: 404,
     });
   }
 
-  if (inputCurrencyData.symbol === outputCurrencyData.symbol) {
+  if (inputToken.id === outputToken.id) {
+    throw new Response("Swap not allowed", {
+      status: 404,
+    });
+  }
+
+  const pair = await getPair(inputToken.id, outputToken.id);
+
+  if (!pair) {
     throw new Response("Swap not allowed", {
       status: 404,
     });
   }
 
   return json<LoaderData>({
-    inputCurrencyData,
-    outputCurrencyData,
     tokenList,
+    inputToken: pair.token0.id === inputToken.id ? pair.token0 : pair.token1,
+    outputToken: pair.token0.id === outputToken.id ? pair.token0 : pair.token1,
+    pair,
   });
 };
 
 const TokenInput = ({
-  positive,
   onTokenClick,
-  name,
+  token,
   balance,
 }: {
-  // for demo purposes
-  positive: boolean;
   onTokenClick: () => void;
-  name: string;
+  token: PairToken;
   balance: number;
 }) => {
+  const positive = token.price24hChange >= 0;
   return (
     <div className="flex-1 space-y-6 rounded-md border border-transparent bg-gray-800 p-6 hover:border-gray-700">
       <div>
@@ -111,7 +120,9 @@ const TokenInput = ({
           </div>
           <div className="absolute bottom-2 right-0 flex flex-col items-end pr-3">
             <div className="relative mb-1 flex items-center space-x-1">
-              <p className="font-bold text-gray-300 sm:text-sm">{name}</p>
+              <p className="font-bold text-gray-300 sm:text-sm">
+                {token.symbol}
+              </p>
               <ChevronDownIcon className="h-4 w-4" />
               <button
                 className="absolute inset-0 h-full w-full"
@@ -126,10 +137,15 @@ const TokenInput = ({
       </div>
       <div className="space-y-4 bg-gray-900 p-4">
         <div className="flex items-center justify-between">
-          <p className="font-bold">{name}</p>
+          <p className="font-bold">
+            {token.symbol}{" "}
+            {token.symbol.toLowerCase() !== token.name.toLowerCase() && (
+              <>({token.name})</>
+            )}
+          </p>
           <div className="flex items-baseline">
             <p className="text-sm font-normal text-gray-300 lg:text-lg">
-              $3.45 USD
+              {formatUsd(token.priceUsd)} USD
             </p>
             <p
               className={cn(
@@ -151,8 +167,10 @@ const TokenInput = ({
                   aria-hidden="true"
                 />
               )}
-              <span className="sr-only">Increased by</span>
-              3.3%
+              <span className="sr-only">
+                {positive ? "Increased by" : "Decreased by"}
+              </span>
+              {formatPercent(token.price24hChange)}
             </p>
           </div>
         </div>
@@ -162,47 +180,15 @@ const TokenInput = ({
               from: positive ? "#96e4df" : "#ee9617",
               to: positive ? "#21d190" : "#fe5858",
             }}
-            data={[
-              {
-                x: 0.4,
-                y: 0.5,
-              },
-              {
-                x: 0.6,
-                y: 0.4,
-              },
-              {
-                x: 0.7,
-                y: 0.5,
-              },
-              {
-                x: 0.9,
-                y: 0.6,
-              },
-              {
-                x: 1.2,
-                y: 0.5,
-              },
-              {
-                x: 1.6,
-                y: 0.2,
-              },
-              {
-                x: 2.0,
-                y: 0.9,
-              },
-              {
-                x: 2.4,
-                y: 0.6,
-              },
-              {
-                x: 2.8,
-                y: 0.7,
-              },
-            ]}
+            data={token.price1wUsd.map(({ date, value }) => ({
+              x: date,
+              y: value,
+            }))}
           />
         </div>
-        <p className="text-xs font-light text-gray-500">VOL $1.2M</p>
+        <p className="text-xs font-light text-gray-500">
+          VOL {formatUsd(token.volume1wUsd)}
+        </p>
       </div>
     </div>
   );
@@ -218,8 +204,8 @@ export default function Index() {
     type: "input",
   });
 
-  const inputCurrencyBalance = useTokenBalance(data.inputCurrencyData);
-  const outputCurrencyBalance = useTokenBalance(data.outputCurrencyData);
+  const inputCurrencyBalance = useTokenBalance(data.inputToken);
+  const outputCurrencyBalance = useTokenBalance(data.outputToken);
 
   const onClose = React.useCallback(
     () =>
@@ -235,15 +221,14 @@ export default function Index() {
       <div className="flex flex-col items-center">
         <StarIcon className="h-8 w-8" />
         <h2 className="mt-14 text-base font-bold sm:text-lg">
-          Swap {data.inputCurrencyData.symbol} to{" "}
-          {data.outputCurrencyData.symbol}
+          Swap {data.inputToken.symbol} to {data.outputToken.symbol}
         </h2>
         <p className="text-sm text-gray-500 sm:text-base">
           The easiest way to swap your tokens
         </p>
         <div className="mt-14 flex w-full flex-col lg:flex-row">
           <TokenInput
-            name={data.inputCurrencyData.symbol}
+            token={data.inputToken}
             balance={inputCurrencyBalance}
             onTokenClick={() =>
               setOpenTokenListModalProps({
@@ -251,11 +236,10 @@ export default function Index() {
                 type: "input",
               })
             }
-            positive
           />
           <div className="flex basis-24 items-center justify-center lg:basis-32">
             <Link
-              to={`/?inputCurrency=${data.outputCurrencyData.symbol}&outputCurrency=${data.inputCurrencyData.symbol}`}
+              to={`/?inputCurrency=${data.outputToken.symbol}&outputCurrency=${data.inputToken.symbol}`}
               className="group rounded-full p-2 transition duration-300 ease-in-out hover:bg-gray-500/20"
             >
               <ArrowRightIcon className="hidden h-6 w-6 animate-rotate-back text-gray-500 group-hover:animate-rotate-180 lg:block" />
@@ -263,7 +247,7 @@ export default function Index() {
             </Link>
           </div>
           <TokenInput
-            name={data.outputCurrencyData.symbol}
+            token={data.outputToken}
             balance={outputCurrencyBalance}
             onTokenClick={() =>
               setOpenTokenListModalProps({
@@ -271,7 +255,6 @@ export default function Index() {
                 type: "output",
               })
             }
-            positive={false}
           />
         </div>
         <div className="mt-12 w-full px-0 lg:px-72">
@@ -316,9 +299,7 @@ const Modal = ({
   const listTokens = fetcher.data?.tokenList ?? loaderData.tokenList;
 
   const currentCurrency =
-    type === "input"
-      ? loaderData.inputCurrencyData
-      : loaderData.outputCurrencyData;
+    type === "input" ? loaderData.inputToken : loaderData.outputToken;
 
   React.useEffect(() => {
     onClose();
@@ -401,9 +382,9 @@ const Modal = ({
                 </div>
                 <ul className="mt-2 h-80 overflow-auto rounded-md border border-gray-700 bg-gray-900">
                   {listTokens.map((token) => {
-                    const isSelected = token.symbol === currentCurrency.symbol;
+                    const isSelected = token.id === currentCurrency.id;
                     return (
-                      <li key={token.name}>
+                      <li key={token.id}>
                         <div
                           className={cn(
                             !isSelected
@@ -439,17 +420,17 @@ const Modal = ({
                                     // then we need to change the output currency to the selected input currency
                                     type === "output" &&
                                       token.symbol ===
-                                        loaderData.inputCurrencyData.symbol
-                                    ? loaderData.outputCurrencyData.symbol
-                                    : loaderData.inputCurrencyData.symbol
+                                        loaderData.inputToken.symbol
+                                    ? loaderData.outputToken.symbol
+                                    : loaderData.inputToken.symbol
                                 }&outputCurrency=${
                                   type === "output"
                                     ? token.symbol
                                     : type === "input" &&
                                       token.symbol ===
-                                        loaderData.outputCurrencyData.symbol
-                                    ? loaderData.inputCurrencyData.symbol
-                                    : loaderData.outputCurrencyData.symbol
+                                        loaderData.outputToken.symbol
+                                    ? loaderData.inputToken.symbol
+                                    : loaderData.outputToken.symbol
                                 }`}
                               >
                                 <span
