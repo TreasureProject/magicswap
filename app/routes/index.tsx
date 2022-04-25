@@ -246,10 +246,10 @@ export default function Index() {
           <div className="flex basis-24 items-center justify-center lg:basis-32">
             <Link
               to={`/?inputCurrency=${data.outputCurrencyData.symbol}&outputCurrency=${data.inputCurrencyData.symbol}`}
-              className="rounded-full p-2 transition duration-300 ease-in-out hover:bg-gray-500/20"
+              className="group rounded-full p-2 transition duration-300 ease-in-out hover:bg-gray-500/20"
             >
-              <ArrowRightIcon className="hidden h-6 w-6 text-gray-500 hover:animate-rotate-180 lg:block" />
-              <ArrowDownIcon className="block h-6 w-6 text-gray-500 hover:animate-rotate-180 lg:hidden" />
+              <ArrowRightIcon className="hidden h-6 w-6 animate-rotate-back text-gray-500 group-hover:animate-rotate-180 lg:block" />
+              <ArrowDownIcon className="block h-6 w-6 animate-rotate-back text-gray-500 group-hover:animate-rotate-180 lg:hidden" />
             </Link>
           </div>
           <TokenInput
