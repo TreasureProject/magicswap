@@ -208,7 +208,6 @@ export default function Index() {
     <>
       <div className="flex flex-col items-center">
         <StarIcon className="h-8 w-8" />
-        {/* Make this dynamic */}
         <h2 className="mt-14 text-base font-bold sm:text-lg">
           Swap {data.inputCurrencyData.symbol} to{" "}
           {data.outputCurrencyData.symbol}
