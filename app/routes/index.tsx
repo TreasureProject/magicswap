@@ -109,7 +109,10 @@ const TokenInput = ({
             <div className="relative mb-1 flex items-center space-x-1">
               <p className="font-bold text-gray-300 sm:text-sm">{name}</p>
               <ChevronDownIcon className="h-4 w-4" />
-              <button className="absolute inset-0" onClick={onTokenClick} />
+              <button
+                className="absolute inset-0 h-full w-full"
+                onClick={onTokenClick}
+              />
             </div>
             <span className="text-xs text-gray-500">Balance: 123123</span>
           </div>
