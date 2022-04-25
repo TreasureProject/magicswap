@@ -34,11 +34,20 @@ module.exports = {
             transform: "rotate(180deg)",
           },
         },
+        "rotate-back": {
+          from: {
+            transform: "rotate(180deg)",
+          },
+          to: {
+            transform: "rotate(0deg)",
+          },
+        },
       },
       animation: {
         "bounce-right-to-left": "bounce-right-to-left 1s ease-in-out infinite",
         "bounce-bottom-to-top": "bounce-bottom-to-top 1s ease-in-out infinite",
         "rotate-180": "rotate-right-to-left 0.2s forwards linear",
+        "rotate-back": "rotate-back 0.2s forwards linear",
       },
     },
   },
