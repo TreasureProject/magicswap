@@ -1,12 +1,5 @@
 overwrite: true
 generates:
-  ./app/graphql/blocks.generated.ts:
-    schema: ${BLOCKS_ENDPOINT}
-    documents: "./app/graphql/blocks.queries.ts"
-    plugins:
-      - "typescript"
-      - "typescript-operations"
-      - "typescript-graphql-request"
   ./app/graphql/exchange.generated.ts:
     schema: ${EXCHANGE_ENDPOINT}
     documents: "./app/graphql/exchange.queries.ts"
