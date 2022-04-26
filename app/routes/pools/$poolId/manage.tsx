@@ -10,30 +10,16 @@ import { PlusIcon } from "@heroicons/react/solid";
 import { Link, useParams, useSearchParams } from "@remix-run/react";
 import cn from "clsx";
 import invariant from "tiny-invariant";
-import { exchangeSdk } from "~/utils/api.server";
 import { Button } from "~/components/Button";
 import { Switch } from "@headlessui/react";
 import { formatUsd, getLpTokenCount, getTokenCount } from "~/utils/price";
 import { formatNumber, getFormatOptions } from "~/utils/number";
-
-type PairLiquidity = {
-  id: string;
-  name: string;
-  token0Symbol: string;
-  token1Symbol: string;
-  token0Price: number;
-  token1Price: number;
-  token0Usd: number;
-  token1Usd: number;
-  token0Reserve: number;
-  token1Reserve: number;
-  totalSupply: number;
-  lpPrice: number;
-  userBalance: number;
-};
+import { getPairById } from "~/utils/pair.server";
+import { Pair, PairToken } from "~/types";
+import { useAddressBalance, useTokenBalance } from "~/hooks/useTokenBalance";
 
 type LoaderData = {
-  pairLiquidity: PairLiquidity;
+  pair: Pair;
 };
 
 const tabs = [
@@ -43,25 +29,13 @@ const tabs = [
 ] as const;
 
 export const meta: MetaFunction = ({ data }: { data: LoaderData }) => ({
-  title: `${data.pairLiquidity.name} - Manage - Magicswap`,
+  title: `${data.pair.name} - Manage - Magicswap`,
 });
 
 export const loader: LoaderFunction = async ({ params: { poolId } }) => {
   invariant(poolId, `poolId is required`);
 
-  const [{ bundle }, { pair }] = await Promise.all([
-    exchangeSdk.getEthPrice(),
-    exchangeSdk.getPairLiquidity({
-      pair: poolId,
-      user: "",
-    }),
-  ]);
-
-  if (!bundle) {
-    throw new Response("ETH price not found", {
-      status: 404,
-    });
-  }
+  const pair = await getPairById(poolId);
 
   if (!pair) {
     throw new Response("Pool not found", {
@@ -69,42 +43,24 @@ export const loader: LoaderFunction = async ({ params: { poolId } }) => {
     });
   }
 
-  const ethUsd = parseFloat(bundle.ethPrice);
-  const totalSupply = parseFloat(pair.totalSupply);
-  const pairLiquidity: PairLiquidity = {
-    id: poolId,
-    name: pair.name,
-    token0Symbol: pair.token0.symbol,
-    token1Symbol: pair.token1.symbol,
-    token0Price: parseFloat(pair.token0Price),
-    token1Price: parseFloat(pair.token1Price),
-    token0Usd: parseFloat(pair.token0.derivedETH) * ethUsd,
-    token1Usd: parseFloat(pair.token1.derivedETH) * ethUsd,
-    token0Reserve: parseFloat(pair.reserve0),
-    token1Reserve: parseFloat(pair.reserve1),
-    totalSupply,
-    lpPrice: parseFloat(pair.reserveUSD) / totalSupply,
-    userBalance: parseFloat(
-      pair.liquidityPositions?.[0]?.liquidityTokenBalance ?? 0
-    ),
-  };
-
-  return json<LoaderData>({ pairLiquidity });
+  return json<LoaderData>({ pair });
 };
 
 export const unstable_shouldReload: ShouldReloadFunction = () => false;
 
 const TokenInput = ({
   className,
-  tokenName,
+  token,
+  tokenSymbol,
+  price,
   balance = 0,
-  price = 0,
   ...numberFieldProps
 }: Parameters<typeof useNumberField>[0] & {
   className?: string;
-  tokenName: string;
-  balance?: number;
+  token?: PairToken;
+  tokenSymbol?: string;
   price?: number;
+  balance?: number;
 }) => {
   const { locale } = useLocale();
   const state = useNumberFieldState({ ...numberFieldProps, locale });
@@ -128,7 +84,7 @@ const TokenInput = ({
             className="z-10 h-4 w-4 rounded-full ring-1"
           />
           <span className="block font-semibold text-white sm:text-sm">
-            {tokenName}
+            {token?.symbol ?? tokenSymbol}
           </span>
         </div>
         <input
@@ -146,7 +102,8 @@ const TokenInput = ({
           <span className="text-xs text-gray-500">
             ~{" "}
             {formatUsd(
-              price * (Number.isNaN(state.numberValue) ? 1 : state.numberValue)
+              (token?.priceUsd ?? price ?? 0) *
+                (Number.isNaN(state.numberValue) ? 1 : state.numberValue)
             )}
           </span>
         </div>
@@ -206,14 +163,18 @@ const Liquidity = () => {
   const [addInputValues, setAddInputValues] = React.useState<[number, number]>([
     0, 0,
   ]);
-  const { pairLiquidity } = useLoaderData<LoaderData>();
+  const { pair } = useLoaderData<LoaderData>();
+
+  const token0Balance = useTokenBalance(pair.token0);
+  const token1Balance = useTokenBalance(pair.token1);
+  const lpBalance = useAddressBalance(pair.id);
 
   const handleAdd0InputChanged = (value: number) => {
-    setAddInputValues([value, value * pairLiquidity.token1Price]);
+    setAddInputValues([value, value * pair.token1.price]);
   };
 
   const handleAdd1InputChanged = (value: number) => {
-    setAddInputValues([value * pairLiquidity.token0Price, value]);
+    setAddInputValues([value * pair.token0.price, value]);
   };
 
   return (
@@ -269,9 +230,8 @@ const Liquidity = () => {
             <TokenInput
               id="addLiquidityToken0"
               label="Amount"
-              tokenName={pairLiquidity.token0Symbol}
-              price={pairLiquidity.token0Usd}
-              balance={1234}
+              token={pair.token0}
+              balance={token0Balance}
               value={addInputValues[0]}
               onChange={handleAdd0InputChanged}
               formatOptions={getFormatOptions(addInputValues[0])}
@@ -282,9 +242,8 @@ const Liquidity = () => {
             <TokenInput
               id="addLiquidityToken1"
               label="Amount"
-              tokenName={pairLiquidity.token1Symbol}
-              price={pairLiquidity.token1Usd}
-              balance={5678}
+              token={pair.token1}
+              balance={token1Balance}
               value={addInputValues[1]}
               onChange={handleAdd1InputChanged}
               formatOptions={getFormatOptions(addInputValues[1])}
@@ -299,11 +258,11 @@ const Liquidity = () => {
                   {formatNumber(
                     getLpTokenCount(
                       addInputValues[0],
-                      pairLiquidity.token0Reserve,
-                      pairLiquidity.totalSupply
+                      pair.token0.reserve,
+                      pair.totalSupply
                     )
                   )}{" "}
-                  {pairLiquidity.name} Pool Tokens
+                  {pair.name} Pool Tokens
                 </p>
               </div>
             )}
@@ -313,9 +272,9 @@ const Liquidity = () => {
             <TokenInput
               id="removeLiquidity"
               label="Amount"
-              tokenName={pairLiquidity.name}
-              balance={1234}
-              price={pairLiquidity.lpPrice}
+              tokenSymbol={`${pair.name} LP`}
+              price={pair.lpPriceUsd}
+              balance={lpBalance}
               onChange={(value) => setRemoveInputValue(value)}
             />
             {removeInputValue > 0 && (
@@ -328,20 +287,20 @@ const Liquidity = () => {
                     {formatNumber(
                       getTokenCount(
                         removeInputValue,
-                        pairLiquidity.token0Reserve,
-                        pairLiquidity.totalSupply
+                        pair.token0.reserve,
+                        pair.totalSupply
                       )
                     )}{" "}
-                    {pairLiquidity.token0Symbol}
+                    {pair.token0.symbol}
                   </span>
                   <span className="text-gray-200">
                     ≈{" "}
                     {formatUsd(
                       getTokenCount(
                         removeInputValue,
-                        pairLiquidity.token0Reserve,
-                        pairLiquidity.totalSupply
-                      ) * pairLiquidity.token0Usd
+                        pair.token0.reserve,
+                        pair.totalSupply * pair.token0.priceUsd
+                      )
                     )}
                   </span>
                 </div>
@@ -350,20 +309,20 @@ const Liquidity = () => {
                     {formatNumber(
                       getTokenCount(
                         removeInputValue,
-                        pairLiquidity.token1Reserve,
-                        pairLiquidity.totalSupply
+                        pair.token1.reserve,
+                        pair.totalSupply
                       )
                     )}{" "}
-                    {pairLiquidity.token1Symbol}
+                    {pair.token1.symbol}
                   </span>
                   <span className="text-gray-200">
-                    ≈{" "}
+                    ={" "}
                     {formatUsd(
                       getTokenCount(
                         removeInputValue,
-                        pairLiquidity.token1Reserve,
-                        pairLiquidity.totalSupply
-                      ) * pairLiquidity.token1Usd
+                        pair.token1.reserve,
+                        pair.totalSupply * pair.token1.priceUsd
+                      )
                     )}
                   </span>
                 </div>
@@ -442,7 +401,7 @@ const Stake = () => {
             100%
           </button>
         </div>
-        <TokenInput tokenName="SLP" />
+        <TokenInput tokenSymbol="SLP" />
         <Button>{isStake ? "Stake" : "Unstake"}</Button>
       </div>
     </div>

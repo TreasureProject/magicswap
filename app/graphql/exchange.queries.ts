@@ -105,9 +105,32 @@ export const getPairs = gql`
       where: $where
     ) {
       ...pairFields
+      token0 {
+        ...advancedTokenFields
+      }
+      token1 {
+        ...advancedTokenFields
+      }
     }
   }
   ${pairFieldsFragment}
+  ${advancedTokenFieldsFragment}
+`;
+
+export const getPair = gql`
+  query getPair($id: ID!) {
+    pair(id: $id) {
+      ...pairFields
+      token0 {
+        ...advancedTokenFields
+      }
+      token1 {
+        ...advancedTokenFields
+      }
+    }
+  }
+  ${pairFieldsFragment}
+  ${advancedTokenFieldsFragment}
 `;
 
 export const getPairAnalytics = gql`
@@ -134,31 +157,6 @@ export const getPairAnalytics = gql`
         amount0Out
         amount1Out
         amountUSD
-      }
-    }
-  }
-`;
-
-export const getPairLiquidity = gql`
-  query getPairLiquidity($pair: ID!, $user: String!) {
-    pair(id: $pair) {
-      name
-      token0 {
-        symbol
-        derivedETH
-      }
-      token1 {
-        symbol
-        derivedETH
-      }
-      token0Price
-      token1Price
-      reserve0
-      reserve1
-      reserveUSD
-      totalSupply
-      liquidityPositions(where: { user: $user }) {
-        liquidityTokenBalance
       }
     }
   }

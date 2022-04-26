@@ -32,7 +32,8 @@ export type Pair = {
   token0: PairToken;
   token1: PairToken;
   totalSupply: number;
-  lpPrice: number;
+  liquidityUsd: number;
+  lpPriceUsd: number;
   volume1dUsd: number;
   volume1wUsd: number;
 };
