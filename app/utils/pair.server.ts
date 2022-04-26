@@ -1,4 +1,4 @@
-import { GetSwapPairQuery } from "~/graphql/exchange.generated";
+import { GetSwapPairQuery, Pair_Filter } from "~/graphql/exchange.generated";
 import { Optional, Pair } from "~/types";
 import { exchangeSdk } from "./api.server";
 import { getEthUsd, normalizeAdvancedToken } from "./tokens.server";
@@ -22,6 +22,7 @@ const normalizePair = (
   }: RawPair,
   ethUsd: number = 0
 ): Pair => {
+  const liquidityUsd = parseFloat(reserveUSD);
   const totalSupply = parseFloat(rawTotalSupply);
   return {
     id,
@@ -37,7 +38,8 @@ const normalizePair = (
       reserve: parseFloat(reserve1),
     },
     totalSupply,
-    lpPrice: parseFloat(reserveUSD) / totalSupply,
+    liquidityUsd,
+    lpPriceUsd: liquidityUsd / totalSupply,
     volume1dUsd: hourData.reduce(
       (total, { volumeUSD }) => total + parseFloat(volumeUSD),
       0
@@ -72,4 +74,30 @@ export const getPair = async (
   }
 
   return normalizePair(pair, ethUsd);
+};
+
+export const getPairById = async (id: string): Promise<Optional<Pair>> => {
+  const [ethUsd, { pair }] = await Promise.all([
+    getEthUsd(),
+    exchangeSdk.getPair({ id }),
+  ]);
+
+  if (!pair) {
+    return undefined;
+  }
+
+  return normalizePair(pair, ethUsd);
+};
+
+export const getPairs = async (where?: Pair_Filter): Promise<Pair[]> => {
+  const [ethUsd, { pairs }] = await Promise.all([
+    getEthUsd(),
+    exchangeSdk.getPairs({
+      where: {
+        ...where,
+        token0: "0x539bde0d7dbd336b79148aa742883198bbf60342",
+      },
+    }),
+  ]);
+  return pairs.map((pair) => normalizePair(pair as RawPair, ethUsd));
 };
