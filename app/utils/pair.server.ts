@@ -40,6 +40,22 @@ const normalizePair = (
     totalSupply,
     liquidityUsd,
     lpPriceUsd: liquidityUsd / totalSupply,
+    liquidity1dUsdIntervals: hourData.map(({ date, reserveUSD }) => ({
+      date,
+      value: parseFloat(reserveUSD),
+    })),
+    liquidity1wUsdIntervals: dayData.map(({ date, reserveUSD }) => ({
+      date,
+      value: parseFloat(reserveUSD),
+    })),
+    volume1dUsdIntervals: hourData.map(({ date, volumeUSD }) => ({
+      date,
+      value: parseFloat(volumeUSD),
+    })),
+    volume1wUsdIntervals: dayData.map(({ date, volumeUSD }) => ({
+      date,
+      value: parseFloat(volumeUSD),
+    })),
     volume1dUsd: hourData.reduce(
       (total, { volumeUSD }) => total + parseFloat(volumeUSD),
       0

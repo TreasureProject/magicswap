@@ -8,42 +8,23 @@ import {
   useLoaderData,
   useParams,
 } from "@remix-run/react";
-import { getTimeAgo } from "~/utils/date.server";
 import invariant from "tiny-invariant";
-import type { GraphDataPoint } from "~/components/Graph";
-import { LineGraph } from "~/components/Graph";
+import { TimeIntervalLineGraph } from "~/components/Graph";
 import { Pill } from "~/components/Pill";
-import { exchangeSdk } from "~/utils/api.server";
 import { formatUsd } from "~/utils/price";
 import { formatNumber } from "~/utils/number";
-
-type Swap = {
-  id: string;
-  inSymbol: string;
-  inAmount: number;
-  outSymbol: string;
-  outAmount: number;
-  amount: number;
-  date: string;
-};
-
-type PairAnalytics = {
-  id: string;
-  name: string;
-  liquidity: number;
-  volume1d: number;
-  liquidityGraphData: GraphDataPoint[];
-  volumeGraphData: GraphDataPoint[];
-  swaps: Swap[];
-};
+import { getPairById } from "~/utils/pair.server";
+import { Pair, Swap } from "~/types";
+import { getSwaps } from "~/utils/swap.server";
 
 type LoaderData = {
   randomNumber: number;
-  pairAnalytics: PairAnalytics;
+  pair: Pair;
+  swaps: Swap[];
 };
 
 export const meta: MetaFunction = ({ data }: { data: LoaderData }) => ({
-  title: `${data.pairAnalytics.name} - Analytics - Magicswap`,
+  title: `${data.pair.name} - Analytics - Magicswap`,
 });
 
 export const loader: LoaderFunction = async ({ params: { poolId } }) => {
@@ -51,7 +32,10 @@ export const loader: LoaderFunction = async ({ params: { poolId } }) => {
 
   invariant(poolId, `poolId is required`);
 
-  const { pair } = await exchangeSdk.getPairAnalytics({ pair: poolId });
+  const [pair, swaps] = await Promise.all([
+    getPairById(poolId),
+    getSwaps(poolId),
+  ]);
 
   if (!pair) {
     throw new Response("Pool not found", {
@@ -59,51 +43,19 @@ export const loader: LoaderFunction = async ({ params: { poolId } }) => {
     });
   }
 
-  const pairAnalytics: PairAnalytics = {
-    id: poolId,
-    name: pair.name,
-    liquidity: parseFloat(pair.reserveUSD),
-    volume1d: pair.hourData.reduce(
-      (total, { volumeUSD }) => total + parseFloat(volumeUSD),
-      0
-    ),
-    liquidityGraphData: pair.hourData.map(({ date, reserveUSD }) => ({
-      x: date,
-      y: parseFloat(reserveUSD),
-    })),
-    volumeGraphData: pair.hourData.map(({ date, volumeUSD }) => ({
-      x: date,
-      y: parseFloat(volumeUSD),
-    })),
-    swaps: pair.swaps.map((swap) => {
-      const amount0In = parseFloat(swap.amount0In);
-      const amount1In = parseFloat(swap.amount1In);
-      const amount0Out = parseFloat(swap.amount0Out);
-      const amount1Out = parseFloat(swap.amount1Out);
-      return {
-        id: swap.id,
-        inSymbol: amount0In > 0 ? pair.token0.symbol : pair.token1.symbol,
-        inAmount: amount0In || amount1In,
-        outSymbol: amount0Out > 0 ? pair.token0.symbol : pair.token1.symbol,
-        outAmount: amount0Out || amount1Out,
-        amount: parseFloat(swap.amountUSD),
-        date: getTimeAgo(swap.timestamp),
-      };
-    }),
-  };
-
   return json<LoaderData>({
     randomNumber,
-    pairAnalytics,
+    pair,
+    swaps,
   });
 };
 
 export default function Analytics() {
-  const { randomNumber, pairAnalytics } = useLoaderData<LoaderData>();
+  const data = useLoaderData<LoaderData>();
 
   const { poolId } = useParams();
 
-  const { load, data } = useFetcher<LoaderData>();
+  const { load, data: fetchedData } = useFetcher<LoaderData>();
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -115,7 +67,8 @@ export default function Analytics() {
     return () => clearInterval(interval);
   }, [load, poolId]);
 
-  const fetchedAnalytics = data?.pairAnalytics ?? pairAnalytics;
+  const pair = fetchedData?.pair ?? data.pair;
+  const swaps = fetchedData?.swaps ?? data.swaps;
 
   return (
     <div className="flex h-full flex-col">
@@ -123,7 +76,7 @@ export default function Analytics() {
         <div className="flex-1 p-4">
           <div className="flex justify-between">
             <p className="col-span-4 text-[0.6rem] text-gray-500 sm:text-xs">
-              {fetchedAnalytics.name}
+              {pair.name}
             </p>
             <p className="col-span-2 text-[0.6rem] text-gray-500 sm:text-xs">
               {new Date().toLocaleDateString(undefined, {
@@ -136,23 +89,23 @@ export default function Analytics() {
           <div className="flex justify-between">
             <h3 className="col-span-4 font-semibold">Liquidity</h3>
             <p className="col-span-2 font-semibold">
-              {formatUsd(fetchedAnalytics.liquidity)}
+              {formatUsd(pair.liquidityUsd)}
             </p>
           </div>
           <div className="h-36 sm:h-40">
-            <LineGraph
+            <TimeIntervalLineGraph
               gradient={{
                 from: "#96e4df",
                 to: "#21d190",
               }}
-              data={fetchedAnalytics.liquidityGraphData}
+              data={pair.liquidity1dUsdIntervals}
             />
           </div>
         </div>
         <div className="flex-1 p-4">
           <div className="flex justify-between">
             <p className="col-span-4 text-[0.6rem] text-gray-500 sm:text-xs">
-              {fetchedAnalytics.name}
+              {pair.name}
             </p>
             <p className="col-span-2 text-[0.6rem] text-gray-500 sm:text-xs">
               Past 24h
@@ -161,16 +114,16 @@ export default function Analytics() {
           <div className="flex justify-between">
             <h3 className="col-span-4 font-semibold">Volume</h3>
             <p className="col-span-2 font-semibold">
-              {formatUsd(fetchedAnalytics.volume1d)}{" "}
+              {formatUsd(pair.volume1dUsd)}{" "}
             </p>
           </div>
           <div className="h-36 sm:h-40">
-            <LineGraph
+            <TimeIntervalLineGraph
               gradient={{
                 from: "#96e4df",
                 to: "#21d190",
               }}
-              data={fetchedAnalytics.volumeGraphData}
+              data={pair.volume1dUsdIntervals}
             />
           </div>
         </div>
@@ -212,17 +165,31 @@ export default function Analytics() {
             </tr>
           </thead>
           <tbody>
-            {fetchedAnalytics.swaps.map((swap) => (
+            {swaps.map((swap) => (
               <tr key={swap.id}>
                 <td className="whitespace-nowrap py-2.5 pl-4 pr-3 text-sm font-medium sm:pl-6">
                   <div className="flex items-center space-x-2 sm:space-x-4">
-                    <Pill text={swap.inSymbol} enumValue={randomNumber} />
+                    <Pill
+                      text={
+                        swap.isAmount0In
+                          ? pair.token0.symbol
+                          : pair.token1.symbol
+                      }
+                      enumValue={data.randomNumber}
+                    />
                     <ArrowRightIcon className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
-                    <Pill text={swap.outSymbol} enumValue={randomNumber} />
+                    <Pill
+                      text={
+                        swap.isAmount0Out
+                          ? pair.token0.symbol
+                          : pair.token1.symbol
+                      }
+                      enumValue={data.randomNumber}
+                    />
                   </div>
                 </td>
                 <td className="table-cell whitespace-nowrap px-3 py-2.5 text-[0.6rem] font-semibold text-gray-200 sm:text-sm">
-                  {formatUsd(swap.amount)}
+                  {formatUsd(swap.amountUsd)}
                 </td>
                 <td className="hidden whitespace-nowrap px-3 py-2.5 text-sm text-gray-400 sm:table-cell">
                   {formatNumber(swap.inAmount)}
@@ -230,8 +197,11 @@ export default function Analytics() {
                 <td className="hidden whitespace-nowrap px-3 py-2.5 text-sm text-gray-400 sm:table-cell">
                   {formatNumber(swap.outAmount)}
                 </td>
-                <td className="whitespace-nowrap px-3 py-2.5 text-[0.6rem] text-gray-500 sm:text-sm">
-                  {swap.date}
+                <td
+                  className="whitespace-nowrap px-3 py-2.5 text-[0.6rem] text-gray-500 sm:text-sm"
+                  title={new Date(swap.date * 1000).toLocaleString()}
+                >
+                  {swap.formattedDate}
                 </td>
               </tr>
             ))}

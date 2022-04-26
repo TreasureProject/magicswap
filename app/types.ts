@@ -1,6 +1,6 @@
 export type Optional<T> = T | undefined;
 
-type TimeInterval = {
+export type TimeInterval = {
   date: number;
   value: number;
 };
@@ -15,8 +15,8 @@ export type Token = {
 export type AdvancedToken = Token & {
   priceUsd: number;
   price24hChange: number;
-  price1dUsd: TimeInterval[];
-  price1wUsd: TimeInterval[];
+  price1dUsdIntervals: TimeInterval[];
+  price1wUsdIntervals: TimeInterval[];
   volume1dUsd: number;
   volume1wUsd: number;
 };
@@ -34,6 +34,21 @@ export type Pair = {
   totalSupply: number;
   liquidityUsd: number;
   lpPriceUsd: number;
+  liquidity1dUsdIntervals: TimeInterval[];
+  liquidity1wUsdIntervals: TimeInterval[];
+  volume1dUsdIntervals: TimeInterval[];
+  volume1wUsdIntervals: TimeInterval[];
   volume1dUsd: number;
   volume1wUsd: number;
+};
+
+export type Swap = {
+  id: string;
+  date: number;
+  formattedDate: string;
+  isAmount0In: Boolean;
+  isAmount0Out: Boolean;
+  inAmount: number;
+  outAmount: number;
+  amountUsd: number;
 };

@@ -38,11 +38,11 @@ export const normalizeAdvancedToken = (
     ...token,
     priceUsd,
     price24hChange,
-    price1dUsd: hourData.map(({ date, priceUSD }) => ({
+    price1dUsdIntervals: hourData.map(({ date, priceUSD }) => ({
       date,
       value: parseFloat(priceUSD),
     })),
-    price1wUsd: dayData.map(({ date, priceUSD }) => ({
+    price1wUsdIntervals: dayData.map(({ date, priceUSD }) => ({
       date,
       value: parseFloat(priceUSD),
     })),
