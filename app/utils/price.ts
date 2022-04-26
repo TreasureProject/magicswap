@@ -1,10 +1,5 @@
 import { getFormatOptions } from "./number";
 
-const usdFormatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-});
-
 export const getApr = (volume: number, liquidity: number) =>
   ((volume / 7) * 365 * 0.0025) / liquidity;
 

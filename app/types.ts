@@ -9,6 +9,7 @@ export type Token = {
   id: string;
   symbol: string;
   name: string;
+  decimals: number;
   priceEth: number;
 };
 
