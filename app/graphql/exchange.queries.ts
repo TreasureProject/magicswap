@@ -5,6 +5,7 @@ const tokenFieldsFragment = gql`
     id
     symbol
     name
+    decimals
     derivedETH
   }
 `;
@@ -30,6 +31,7 @@ const advancedTokenFieldsFragment = gql`
     id
     symbol
     name
+    decimals
     derivedETH
     hourData(first: 24, orderBy: date, orderDirection: desc) {
       ...tokenHourDataFields
