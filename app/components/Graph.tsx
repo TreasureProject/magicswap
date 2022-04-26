@@ -5,10 +5,16 @@ import { LinePath } from "@visx/shape";
 import { useMemo } from "react";
 import { useId } from "@reach/auto-id";
 import AutoSizer from "react-virtualized-auto-sizer";
+import { TimeInterval } from "~/types";
 
-export type GraphDataPoint = {
+type GraphDataPoint = {
   x: number;
   y: number;
+};
+
+type Gradient = {
+  from: string;
+  to: string;
 };
 
 export const Graph = ({
@@ -18,12 +24,9 @@ export const Graph = ({
   gradient,
 }: {
   data: GraphDataPoint[];
+  gradient: Gradient;
   width: number;
   height: number;
-  gradient: {
-    from: string;
-    to: string;
-  };
 }) => {
   const id = useId();
   const xScale = useMemo(
@@ -72,14 +75,8 @@ export const LineGraph = ({
   data,
   gradient,
 }: {
-  data: {
-    x: number;
-    y: number;
-  }[];
-  gradient: {
-    from: string;
-    to: string;
-  };
+  data: GraphDataPoint[];
+  gradient: Gradient;
 }) => {
   return (
     <AutoSizer>
@@ -87,5 +84,20 @@ export const LineGraph = ({
         <Graph width={width} height={height} data={data} gradient={gradient} />
       )}
     </AutoSizer>
+  );
+};
+
+export const TimeIntervalLineGraph = ({
+  data,
+  ...rest
+}: {
+  data: TimeInterval[];
+  gradient: Gradient;
+}) => {
+  return (
+    <LineGraph
+      {...rest}
+      data={data.map(({ date, value }) => ({ x: date, y: value }))}
+    />
   );
 };

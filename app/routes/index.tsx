@@ -4,7 +4,7 @@ import {
   ArrowSmUpIcon,
   SearchIcon,
 } from "@heroicons/react/solid";
-import { LineGraph } from "../components/Graph";
+import { TimeIntervalLineGraph } from "../components/Graph";
 import cn from "clsx";
 import { Button } from "~/components/Button";
 import React from "react";
@@ -14,10 +14,8 @@ import {
   useFetcher,
   useLoaderData,
   useLocation,
-  useParams,
 } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
-import { redirect } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
@@ -175,15 +173,12 @@ const TokenInput = ({
           </div>
         </div>
         <div className="h-36">
-          <LineGraph
+          <TimeIntervalLineGraph
             gradient={{
               from: positive ? "#96e4df" : "#ee9617",
               to: positive ? "#21d190" : "#fe5858",
             }}
-            data={token.price1wUsd.map(({ date, value }) => ({
-              x: date,
-              y: value,
-            }))}
+            data={token.price1wUsdIntervals}
           />
         </div>
         <p className="text-xs font-light text-gray-500">

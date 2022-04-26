@@ -45,6 +45,7 @@ const advancedTokenFieldsFragment = gql`
 const pairHourDataFieldsFragment = gql`
   fragment pairHourDataFields on PairHourData {
     date
+    reserveUSD
     volumeUSD
   }
 `;
@@ -52,6 +53,7 @@ const pairHourDataFieldsFragment = gql`
 const pairDayDataFieldsFragment = gql`
   fragment pairDayDataFields on PairDayData {
     date
+    reserveUSD
     volumeUSD
   }
 `;
@@ -133,31 +135,28 @@ export const getPair = gql`
   ${advancedTokenFieldsFragment}
 `;
 
-export const getPairAnalytics = gql`
-  query getPairAnalytics($pair: ID!) {
-    pair(id: $pair) {
-      name
-      token0 {
-        symbol
-      }
-      token1 {
-        symbol
-      }
-      reserveUSD
-      hourData(first: 24, orderBy: date, orderDirection: desc) {
-        date
-        reserveUSD
-        volumeUSD
-      }
-      swaps(first: 50, orderBy: timestamp, orderDirection: desc) {
-        id
-        timestamp
-        amount0In
-        amount1In
-        amount0Out
-        amount1Out
-        amountUSD
-      }
+export const getSwaps = gql`
+  query getSwaps(
+    $skip: Int = 0
+    $first: Int = 50
+    $where: Swap_filter
+    $orderBy: Swap_orderBy = timestamp
+    $orderDirection: OrderDirection = desc
+  ) {
+    swaps(
+      skip: $skip
+      first: $first
+      orderBy: $orderBy
+      orderDirection: $orderDirection
+      where: $where
+    ) {
+      id
+      timestamp
+      amount0In
+      amount1In
+      amount0Out
+      amount1Out
+      amountUSD
     }
   }
 `;
