@@ -1,4 +1,9 @@
-import type { LinksFunction, MetaFunction } from "@remix-run/cloudflare";
+import type {
+  LinksFunction,
+  LoaderFunction,
+  MetaFunction,
+} from "@remix-run/cloudflare";
+import { json } from "@remix-run/cloudflare";
 import {
   Links,
   LiveReload,
@@ -8,12 +13,11 @@ import {
   NavLink as Link,
   useTransition,
   useFetchers,
+  useLoaderData,
 } from "@remix-run/react";
 import cn from "clsx";
 
-import { providers } from "ethers";
-import { Provider, chain, createClient } from "wagmi";
-import { InjectedConnector } from "wagmi/connectors/injected";
+import { Provider } from "wagmi";
 
 import styles from "./styles/tailwind.css";
 import React from "react";
@@ -22,6 +26,13 @@ import { PieIcon, SplitIcon, TreasureLogoIcon } from "./components/Icons";
 import NProgress from "nprogress";
 import nProgressStyles from "./styles/nprogress.css";
 import { Wallet } from "./components/Wallet";
+import { getEnvVariable } from "./utils/env.server";
+import type { CloudFlareEnv } from "./types";
+import { generateClient } from "./utils/wagmiClient";
+
+type LoaderData = {
+  ENV: CloudFlareEnv;
+};
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -34,23 +45,13 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
-const chains = [chain.arbitrum, chain.arbitrumRinkeby];
-
-const isChainSupported = (chainId?: number) =>
-  chains.some(({ id }) => id === chainId);
-
-const client = createClient({
-  autoConnect: true,
-  connectors() {
-    return [new InjectedConnector({ chains })];
-  },
-  provider({ chainId }) {
-    return new providers.AlchemyProvider(
-      isChainSupported(chainId) ? chainId : chain.arbitrum.id,
-      "NjmODXI8Z1XirrqiT0PnTMIQ-rHJGbIR"
-    );
-  },
-});
+export const loader: LoaderFunction = ({ context }) => {
+  return json<LoaderData>({
+    ENV: {
+      ALCHEMY_KEY: getEnvVariable("ALCHEMY_KEY", context),
+    },
+  });
+};
 
 const NavLink = ({
   to,
@@ -62,7 +63,7 @@ const NavLink = ({
   const Icon = to === "/" ? SplitIcon : PieIcon;
 
   return (
-    <Link to={to} className="flex-1" prefetch="intent">
+    <Link to={to} className="flex-1" prefetch="render">
       {({ isActive }) => (
         <div
           className={cn(
@@ -145,6 +146,9 @@ const DotPattern = () => (
 
 export default function App() {
   const transition = useTransition();
+  const { ENV } = useLoaderData<LoaderData>();
+
+  const client = generateClient({ ALCHEMY_KEY: ENV.ALCHEMY_KEY });
 
   const fetchers = useFetchers();
 
@@ -201,6 +205,11 @@ export default function App() {
         </Provider>
         <Scripts />
         <LiveReload />
+        {/* <script
+          dangerouslySetInnerHTML={{
+            __html: `window.env = ${JSON.stringify(env)}`,
+          }}
+        /> */}
       </body>
     </html>
   );

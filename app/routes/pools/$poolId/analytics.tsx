@@ -14,7 +14,7 @@ import { Pill } from "~/components/Pill";
 import { formatUsd } from "~/utils/price";
 import { formatNumber } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
-import { Pair, Swap } from "~/types";
+import type { Pair, Swap } from "~/types";
 import { getSwaps } from "~/utils/swap.server";
 
 type LoaderData = {
@@ -24,7 +24,7 @@ type LoaderData = {
 };
 
 export const meta: MetaFunction = ({ data }: { data: LoaderData }) => ({
-  title: `${data.pair.name} - Analytics - Magicswap`,
+  title: `${data.pair.name} - Analytics | Magicswap`,
 });
 
 export const loader: LoaderFunction = async ({ params: { poolId } }) => {
