@@ -1,10 +1,9 @@
 import { SpinnerIcon, StarIcon } from "~/components/Icons";
 import {
-  ArrowSmDownIcon,
-  ArrowSmUpIcon,
+  ArrowRightIcon,
+  ArrowDownIcon,
   SearchIcon,
 } from "@heroicons/react/solid";
-import { TimeIntervalLineGraph } from "../components/Graph";
 import cn from "clsx";
 import { Button } from "~/components/Button";
 import React from "react";
@@ -21,13 +20,12 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { getTokenBySymbol, getTokens } from "~/utils/tokens.server";
 import type { LoaderData as ApiLoaderData } from "./api/get-token-list";
-import { ChevronDownIcon } from "@heroicons/react/solid";
-import { ArrowRightIcon, ArrowDownIcon } from "@heroicons/react/outline";
 import type { Pair, PairToken, Token } from "~/types";
 import { useTokenBalance } from "~/hooks/useTokenBalance";
-import { formatNumber, formatPercent } from "~/utils/number";
 import { getPair } from "~/utils/pair.server";
-import { formatUsd } from "~/utils/price";
+import PairTokenInput from "~/components/PairTokenInput";
+import { useState } from "react";
+import { useSwap } from "~/hooks/useSwap";
 
 type LoaderData = {
   tokenList: Token[];
@@ -86,109 +84,6 @@ export const loader: LoaderFunction = async ({ request }) => {
   });
 };
 
-const TokenInput = ({
-  onTokenClick,
-  token,
-  balance,
-}: {
-  onTokenClick: () => void;
-  token: PairToken;
-  balance: number;
-}) => {
-  const positive = token.price24hChange >= 0;
-  return (
-    <div className="flex-1 space-y-6 rounded-md border border-transparent bg-gray-800 p-6 hover:border-gray-700">
-      <div>
-        <label htmlFor="balance" className="sr-only">
-          Balance
-        </label>
-        <div className="relative border-b border-gray-600 focus-within:border-red-600">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 pb-4">
-            <span className="text-gray-500 sm:text-sm">$</span>
-          </div>
-          <input
-            type="text"
-            name="balance"
-            id="balance"
-            className="block w-full border-0 border-b border-transparent bg-gray-800 pl-7 pr-12 pb-6 focus:border-red-600 focus:ring-0 sm:text-lg lg:text-2xl"
-            placeholder="0.00"
-          />
-          <div className="pointer-events-none absolute left-0 bottom-2 flex flex-col items-end pl-3">
-            <span className="text-xs text-gray-500">~ $123.45</span>
-          </div>
-          <div className="absolute bottom-2 right-0 flex flex-col items-end pr-3">
-            <div className="relative mb-1 flex items-center space-x-1">
-              <p className="font-bold text-gray-300 sm:text-sm">
-                {token.symbol}
-              </p>
-              <ChevronDownIcon className="h-4 w-4" />
-              <button
-                className="absolute inset-0 h-full w-full"
-                onClick={onTokenClick}
-              />
-            </div>
-            <span className="text-xs text-gray-500">
-              Balance: {formatNumber(balance)}
-            </span>
-          </div>
-        </div>
-      </div>
-      <div className="space-y-4 bg-gray-900 p-4">
-        <div className="flex items-center justify-between">
-          <p className="font-bold">
-            {token.symbol}{" "}
-            {token.symbol.toLowerCase() !== token.name.toLowerCase() && (
-              <>({token.name})</>
-            )}
-          </p>
-          <div className="flex items-baseline">
-            <p className="text-sm font-normal text-gray-300 lg:text-lg">
-              {formatUsd(token.priceUsd)} USD
-            </p>
-            <p
-              className={cn(
-                "ml-1 flex items-baseline text-[0.6rem] font-semibold lg:text-xs",
-                {
-                  "text-red-600": !positive,
-                  "text-green-600": positive,
-                }
-              )}
-            >
-              {positive ? (
-                <ArrowSmUpIcon
-                  className="h-3 w-3 flex-shrink-0 self-center text-green-500 lg:h-4 lg:w-4"
-                  aria-hidden="true"
-                />
-              ) : (
-                <ArrowSmDownIcon
-                  className="h-3 w-3 flex-shrink-0 self-center text-red-500 lg:h-4 lg:w-4"
-                  aria-hidden="true"
-                />
-              )}
-              <span className="sr-only">
-                {positive ? "Increased by" : "Decreased by"}
-              </span>
-              {formatPercent(token.price24hChange)}
-            </p>
-          </div>
-        </div>
-        <div className="h-36">
-          <TimeIntervalLineGraph
-            gradient={{
-              from: positive ? "#96e4df" : "#ee9617",
-              to: positive ? "#21d190" : "#fe5858",
-            }}
-            data={token.price1wUsdIntervals}
-          />
-        </div>
-        <p className="text-xs font-light text-gray-500">
-          VOL {formatUsd(token.volume1wUsd)}
-        </p>
-      </div>
-    </div>
-  );
-};
-
 export default function Index() {
   const data = useLoaderData<LoaderData>();
   const [openTokenListModalProps, setOpenTokenListModalProps] = React.useState<{
@@ -199,8 +94,11 @@ export default function Index() {
     type: "input",
   });
 
+  const [isExactOut, setIsExactOut] = useState(false);
+  const [inputValues, setInputValues] = useState([0, 0]);
   const inputCurrencyBalance = useTokenBalance(data.inputToken);
   const outputCurrencyBalance = useTokenBalance(data.outputToken);
+  const swap = useSwap();
 
   const onClose = React.useCallback(
     () =>
@@ -210,6 +108,33 @@ export default function Index() {
       })),
     []
   );
+
+  const handleInputChange = (value: number) => {
+    setIsExactOut(false);
+    const rawAmountOut = value * data.outputToken.price;
+    const amountInWithFee = value * 0.997;
+    const amountOut =
+      (amountInWithFee * data.pair.token1.reserve) /
+      (data.pair.token0.reserve + amountInWithFee);
+    console.log("Price Impact:", (1 - amountOut / rawAmountOut) * 100);
+    setInputValues([value, amountOut]);
+  };
+
+  const handleOutputChange = (value: number) => {
+    setIsExactOut(true);
+    const rawAmountIn = value * data.inputToken.price;
+    const amountIn =
+      (data.pair.token0.reserve * value) /
+      ((data.pair.token1.reserve - value) * 0.997);
+    console.log("Price Impact:", (1 - rawAmountIn / amountIn) * 100);
+    setInputValues([amountIn, value]);
+  };
+
+  const handleSwap = () => {
+    swap(data.pair, inputValues[0], inputValues[1], isExactOut);
+  };
+
+  const insufficientBalance = inputCurrencyBalance < inputValues[0];
 
   return (
     <>
@@ -222,9 +147,12 @@ export default function Index() {
           The easiest way to swap your tokens
         </p>
         <div className="mt-14 flex w-full flex-col lg:flex-row">
-          <TokenInput
+          <PairTokenInput
+            id="inputToken"
             token={data.inputToken}
             balance={inputCurrencyBalance}
+            value={inputValues[0]}
+            onChange={handleInputChange}
             onTokenClick={() =>
               setOpenTokenListModalProps({
                 open: true,
@@ -241,9 +169,12 @@ export default function Index() {
               <ArrowDownIcon className="block h-6 w-6 animate-rotate-back text-gray-500 group-hover:animate-rotate-180 lg:hidden" />
             </Link>
           </div>
-          <TokenInput
+          <PairTokenInput
+            id="outputToken"
             token={data.outputToken}
             balance={outputCurrencyBalance}
+            value={inputValues[1]}
+            onChange={handleOutputChange}
             onTokenClick={() =>
               setOpenTokenListModalProps({
                 open: true,
@@ -253,7 +184,16 @@ export default function Index() {
           />
         </div>
         <div className="mt-12 w-full px-0 lg:px-72">
-          <Button>Swap</Button>
+          <Button
+            disabled={!inputValues[0] || !inputValues[1] || insufficientBalance}
+            onClick={handleSwap}
+          >
+            {insufficientBalance
+              ? "Insufficient Balance"
+              : inputValues[0] && inputValues[1]
+              ? "Swap"
+              : "Enter an Amount"}
+          </Button>
         </div>
       </div>
       <Modal

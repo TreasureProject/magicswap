@@ -3,9 +3,6 @@ import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import type { ShouldReloadFunction } from "@remix-run/react";
 import { useCatch, useLoaderData } from "@remix-run/react";
-import { useNumberField } from "@react-aria/numberfield";
-import { useLocale } from "@react-aria/i18n";
-import { useNumberFieldState } from "@react-stately/numberfield";
 import { PlusIcon } from "@heroicons/react/solid";
 import { Link, useParams, useSearchParams } from "@remix-run/react";
 import cn from "clsx";
@@ -15,9 +12,10 @@ import { Switch } from "@headlessui/react";
 import { formatUsd, getLpTokenCount, getTokenCount } from "~/utils/price";
 import { formatNumber, getFormatOptions } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
-import type { Pair, PairToken } from "~/types";
+import type { Pair } from "~/types";
 import { useAddressBalance, useTokenBalance } from "~/hooks/useTokenBalance";
 import { useAddLiquidity } from "~/hooks/useAddLiquidity";
+import TokenInput from "~/components/TokenInput";
 
 type LoaderData = {
   pair: Pair;
@@ -48,70 +46,6 @@ export const loader: LoaderFunction = async ({ params: { poolId } }) => {
 };
 
 export const unstable_shouldReload: ShouldReloadFunction = () => false;
-
-const TokenInput = ({
-  className,
-  token,
-  tokenSymbol,
-  price,
-  balance = 0,
-  ...numberFieldProps
-}: Parameters<typeof useNumberField>[0] & {
-  className?: string;
-  token?: PairToken;
-  tokenSymbol?: string;
-  price?: number;
-  balance?: number;
-}) => {
-  const { locale } = useLocale();
-  const state = useNumberFieldState({ ...numberFieldProps, locale });
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
-  const { labelProps, inputProps } = useNumberField(
-    numberFieldProps,
-    state,
-    inputRef
-  );
-
-  return (
-    <div className={className}>
-      <label className="sr-only" {...labelProps}>
-        {numberFieldProps.label}
-      </label>
-      <div className="relative focus-within:border-red-600">
-        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center space-x-2 pl-3 pb-4">
-          <img
-            src="https://via.placeholder.com/400"
-            alt="placeholder"
-            className="z-10 h-4 w-4 rounded-full ring-1"
-          />
-          <span className="block font-semibold text-white sm:text-sm">
-            {token?.symbol ?? tokenSymbol}
-          </span>
-        </div>
-        <input
-          {...inputProps}
-          ref={inputRef}
-          className="block w-full rounded-md border-0 bg-gray-900 pl-7 pb-6 text-right focus:outline-none focus:ring-2 focus:ring-red-600 sm:text-lg lg:text-2xl"
-          placeholder="0.00"
-        />
-        <div className="pointer-events-none absolute left-0 bottom-2 flex flex-col items-end pl-3">
-          <span className="text-xs text-gray-500">
-            Balance: {formatNumber(balance)}
-          </span>
-        </div>
-        <div className="pointer-events-none absolute bottom-2 right-0 flex flex-col items-end pr-3">
-          <span className="text-xs text-gray-500">
-            ~{" "}
-            {formatUsd(
-              (token?.priceUsd ?? price ?? 0) *
-                (Number.isNaN(state.numberValue) ? 1 : state.numberValue)
-            )}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 export default function Manage() {
   const params = useParams();
@@ -187,6 +121,7 @@ const Liquidity = () => {
 
   const token0BalanceInsufficient = addInputValues[0] > token0Balance;
   const token1BalanceInsufficient = addInputValues[1] > token1Balance;
+  const lpBalanceInsufficient = removeInputValue > lpBalance;
 
   return (
     <div className="flex flex-1 items-center justify-center p-6 lg:p-8">
@@ -286,6 +221,7 @@ const Liquidity = () => {
               tokenSymbol={`${pair.name} LP`}
               price={pair.lpPriceUsd}
               balance={lpBalance}
+              value={removeInputValue}
               onChange={(value) => setRemoveInputValue(value)}
             />
             {removeInputValue > 0 && (
@@ -342,19 +278,42 @@ const Liquidity = () => {
           </div>
         )}
         <Button
-          disabled={token0BalanceInsufficient || token1BalanceInsufficient}
+          disabled={
+            isAddLiquidity
+              ? !addInputValues[0] ||
+                !addInputValues[1] ||
+                token0BalanceInsufficient ||
+                token1BalanceInsufficient
+              : !removeInputValue || lpBalanceInsufficient
+          }
           onClick={isAddLiquidity ? handleAddLiquidity : handleRemoveLiquidity}
         >
-          {token0BalanceInsufficient || token1BalanceInsufficient ? (
+          {isAddLiquidity ? (
             <>
-              Insufficient{" "}
-              {token0BalanceInsufficient
-                ? pair.token0.symbol
-                : pair.token1.symbol}{" "}
-              Balance
+              {token0BalanceInsufficient || token1BalanceInsufficient ? (
+                <>
+                  Insufficient{" "}
+                  {token0BalanceInsufficient
+                    ? pair.token0.symbol
+                    : pair.token1.symbol}{" "}
+                  Balance
+                </>
+              ) : (
+                <>
+                  {addInputValues[0] > 0 && addInputValues[1] > 0
+                    ? "Add Liquidity"
+                    : "Enter an Amount"}
+                </>
+              )}
             </>
           ) : (
-            <>{isAddLiquidity ? "Add" : "Remove"} Liquidity</>
+            <>
+              {lpBalanceInsufficient
+                ? "Insufficient LP Token Balance"
+                : removeInputValue > 0
+                ? "Remove Liquidity"
+                : "Enter an Amount"}
+            </>
           )}
         </Button>
       </div>
