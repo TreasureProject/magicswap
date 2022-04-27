@@ -111,8 +111,7 @@ export const getPairs = async (where?: Pair_Filter): Promise<Pair[]> => {
     exchangeSdk.getPairs({
       where: {
         ...where,
-        token0: "0x539bde0d7dbd336b79148aa742883198bbf60342",
-        trackedReserveETH_gt: 0,
+        reserveETH_gt: 0,
       },
     }),
   ]);
