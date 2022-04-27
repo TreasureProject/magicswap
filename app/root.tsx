@@ -17,7 +17,7 @@ import {
 } from "@remix-run/react";
 import cn from "clsx";
 
-import { Provider } from "wagmi";
+import { chain, createClient, Provider } from "wagmi";
 
 import styles from "./styles/tailwind.css";
 import React from "react";
@@ -28,7 +28,9 @@ import nProgressStyles from "./styles/nprogress.css";
 import { Wallet } from "./components/Wallet";
 import { getEnvVariable } from "./utils/env.server";
 import type { CloudFlareEnv } from "./types";
-import { generateClient } from "./utils/wagmiClient";
+import { InjectedConnector } from "wagmi/connectors/injected";
+import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
+import { providers } from "ethers";
 
 type LoaderData = {
   ENV: CloudFlareEnv;
@@ -52,6 +54,11 @@ export const loader: LoaderFunction = ({ context }) => {
     },
   });
 };
+
+const chains = [chain.arbitrum, chain.arbitrumRinkeby];
+
+const isChainSupported = (chainId?: number) =>
+  chains.some(({ id }) => id === chainId);
 
 const NavLink = ({
   to,
@@ -148,7 +155,32 @@ export default function App() {
   const transition = useTransition();
   const { ENV } = useLoaderData<LoaderData>();
 
-  const client = generateClient({ ALCHEMY_KEY: ENV.ALCHEMY_KEY });
+  const client = createClient({
+    autoConnect: true,
+    connectors() {
+      return [
+        new InjectedConnector({ chains }),
+        new WalletConnectConnector({
+          chains,
+          options: {
+            rpc: {
+              [chain.arbitrum
+                .id]: `https://arb-mainnet.g.alchemy.com/v2/${ENV.ALCHEMY_KEY}`,
+              [chain.arbitrumRinkeby.id]:
+                "https://arb-rinkeby.g.alchemy.com/v2/ktPJku9xHYB37bA3I2jk79FwRLWGBrj2",
+            },
+            qrcode: true,
+          },
+        }),
+      ];
+    },
+    provider({ chainId }) {
+      return new providers.AlchemyProvider(
+        isChainSupported(chainId) ? chainId : chain.arbitrum.id,
+        ENV.ALCHEMY_KEY
+      );
+    },
+  });
 
   const fetchers = useFetchers();
 
