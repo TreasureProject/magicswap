@@ -5,21 +5,20 @@ import { Pair } from "~/types";
 
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
 
+const contractConfig = {
+  addressOrName: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
+  contractInterface: UniswapV2Router02Abi,
+};
+
 export const useAddLiquidity = () => {
   const { data: accountData } = useAccount();
   const { write: writeAddLiquidity } = useContractWrite(
-    {
-      addressOrName: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
-      contractInterface: UniswapV2Router02Abi,
-    },
+    contractConfig,
     "addLiquidity"
   );
 
   const { write: writeAddLiquidityEth } = useContractWrite(
-    {
-      addressOrName: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
-      contractInterface: UniswapV2Router02Abi,
-    },
+    contractConfig,
     "addLiquidityETH"
   );
 
