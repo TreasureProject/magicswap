@@ -6,7 +6,7 @@ import { Pair } from "~/types";
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
 
 const contractConfig = {
-  addressOrName: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
+  addressOrName: "0x0a073b830cd4247d518c4f0d1bafd6edf7af507b",
   contractInterface: UniswapV2Router02Abi,
 };
 

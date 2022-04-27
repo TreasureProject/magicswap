@@ -49,8 +49,8 @@ export const meta: MetaFunction = ({ data }) => {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
-  const inputCurrency = url.searchParams.get("inputCurrency") ?? "MAGIC";
-  const outputCurrency = url.searchParams.get("outputCurrency") ?? "WETH";
+  const inputCurrency = url.searchParams.get("inputCurrency") ?? "$MAGIC";
+  const outputCurrency = url.searchParams.get("outputCurrency") ?? "USDC";
 
   const tokenList = await getTokens();
   const inputToken = getTokenBySymbol(tokenList, inputCurrency);

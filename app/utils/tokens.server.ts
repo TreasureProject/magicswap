@@ -31,7 +31,7 @@ export const normalizeAdvancedToken = (
   const priceUsd = token.priceEth * ethUsd;
 
   let price24hChange = -1;
-  if (dayData.length > 0) {
+  if (dayData.length > 1) {
     const priceYesterdayUsd = parseFloat(dayData[1].priceUSD);
     price24hChange = (priceUsd - priceYesterdayUsd) / priceYesterdayUsd;
   }
@@ -83,8 +83,7 @@ const normalizeTokenList = (pairs: RawTokenList): Token[] => {
 export const getTokens = async (filter?: string): Promise<Token[]> => {
   const { pairs } = await exchangeSdk.getSwapPairs({
     where: {
-      token0: "0x539bde0d7dbd336b79148aa742883198bbf60342",
-      trackedReserveETH_gt: 0,
+      reserveETH_gt: 0,
     },
   });
 
