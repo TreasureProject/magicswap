@@ -46,9 +46,15 @@ export type Swap = {
   id: string;
   date: number;
   formattedDate: string;
-  isAmount0In: Boolean;
-  isAmount0Out: Boolean;
+  isAmount0In: boolean;
+  isAmount0Out: boolean;
   inAmount: number;
   outAmount: number;
   amountUsd: number;
+};
+
+export type CloudFlareEnvVar = "ALCHEMY_KEY";
+
+export type CloudFlareEnv = {
+  [key in CloudFlareEnvVar]: string;
 };

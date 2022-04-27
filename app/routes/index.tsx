@@ -23,7 +23,7 @@ import { getTokenBySymbol, getTokens } from "~/utils/tokens.server";
 import type { LoaderData as ApiLoaderData } from "./api/get-token-list";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import { ArrowRightIcon, ArrowDownIcon } from "@heroicons/react/outline";
-import { Pair, PairToken, Token } from "~/types";
+import type { Pair, PairToken, Token } from "~/types";
 import { useTokenBalance } from "~/hooks/useTokenBalance";
 import { formatNumber, formatPercent } from "~/utils/number";
 import { getPair } from "~/utils/pair.server";
@@ -457,7 +457,6 @@ const Modal = ({
 
 export function CatchBoundary() {
   const caught = useCatch();
-  console.log(caught);
   if (caught.status === 404) {
     return (
       <div className="flex h-full flex-col items-center justify-center">

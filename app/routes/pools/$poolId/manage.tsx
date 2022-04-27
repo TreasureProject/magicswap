@@ -15,7 +15,7 @@ import { Switch } from "@headlessui/react";
 import { formatUsd, getLpTokenCount, getTokenCount } from "~/utils/price";
 import { formatNumber, getFormatOptions } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
-import { Pair, PairToken } from "~/types";
+import type { Pair, PairToken } from "~/types";
 import { useAddressBalance, useTokenBalance } from "~/hooks/useTokenBalance";
 
 type LoaderData = {
@@ -29,7 +29,7 @@ const tabs = [
 ] as const;
 
 export const meta: MetaFunction = ({ data }: { data: LoaderData }) => ({
-  title: `${data.pair.name} - Manage - Magicswap`,
+  title: `${data.pair.name} - Manage | Magicswap`,
 });
 
 export const loader: LoaderFunction = async ({ params: { poolId } }) => {
