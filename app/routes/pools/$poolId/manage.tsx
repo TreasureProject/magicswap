@@ -17,6 +17,7 @@ import { formatNumber, getFormatOptions } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
 import type { Pair, PairToken } from "~/types";
 import { useAddressBalance, useTokenBalance } from "~/hooks/useTokenBalance";
+import { useAddLiquidity } from "~/hooks/useAddLiquidity";
 
 type LoaderData = {
   pair: Pair;
@@ -168,6 +169,7 @@ const Liquidity = () => {
   const token0Balance = useTokenBalance(pair.token0);
   const token1Balance = useTokenBalance(pair.token1);
   const lpBalance = useAddressBalance(pair.id);
+  const addLiquidity = useAddLiquidity();
 
   const handleAdd0InputChanged = (value: number) => {
     setAddInputValues([value, value * pair.token1.price]);
@@ -176,6 +178,15 @@ const Liquidity = () => {
   const handleAdd1InputChanged = (value: number) => {
     setAddInputValues([value * pair.token0.price, value]);
   };
+
+  const handleAddLiquidity = () => {
+    addLiquidity(pair, addInputValues[0], addInputValues[1], 0.5);
+  };
+
+  const handleRemoveLiquidity = () => {};
+
+  const token0BalanceInsufficient = addInputValues[0] > token0Balance;
+  const token1BalanceInsufficient = addInputValues[1] > token1Balance;
 
   return (
     <div className="flex flex-1 items-center justify-center p-6 lg:p-8">
@@ -299,8 +310,8 @@ const Liquidity = () => {
                       getTokenCount(
                         removeInputValue,
                         pair.token0.reserve,
-                        pair.totalSupply * pair.token0.priceUsd
-                      )
+                        pair.totalSupply
+                      ) * pair.token0.priceUsd
                     )}
                   </span>
                 </div>
@@ -321,8 +332,8 @@ const Liquidity = () => {
                       getTokenCount(
                         removeInputValue,
                         pair.token1.reserve,
-                        pair.totalSupply * pair.token1.priceUsd
-                      )
+                        pair.totalSupply
+                      ) * pair.token1.priceUsd
                     )}
                   </span>
                 </div>
@@ -330,7 +341,22 @@ const Liquidity = () => {
             )}
           </div>
         )}
-        <Button>{isAddLiquidity ? "Add" : "Remove"} Liquidity</Button>
+        <Button
+          disabled={token0BalanceInsufficient || token1BalanceInsufficient}
+          onClick={isAddLiquidity ? handleAddLiquidity : handleRemoveLiquidity}
+        >
+          {token0BalanceInsufficient || token1BalanceInsufficient ? (
+            <>
+              Insufficient{" "}
+              {token0BalanceInsufficient
+                ? pair.token0.symbol
+                : pair.token1.symbol}{" "}
+              Balance
+            </>
+          ) : (
+            <>{isAddLiquidity ? "Add" : "Remove"} Liquidity</>
+          )}
+        </Button>
       </div>
     </div>
   );

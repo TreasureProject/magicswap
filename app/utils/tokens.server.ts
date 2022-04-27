@@ -13,11 +13,13 @@ export const normalizeToken = ({
   id,
   symbol,
   name,
+  decimals,
   derivedETH,
 }: RawToken): Token => ({
   id,
   symbol,
   name,
+  decimals: parseInt(decimals),
   priceEth: parseFloat(derivedETH),
 });
 
