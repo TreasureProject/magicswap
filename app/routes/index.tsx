@@ -149,6 +149,7 @@ export default function Index() {
         <div className="mt-14 flex w-full flex-col lg:flex-row">
           <PairTokenInput
             id="inputToken"
+            label={`${data.inputToken.symbol} Amount`}
             token={data.inputToken}
             balance={inputCurrencyBalance}
             value={inputValues[0]}
@@ -171,6 +172,7 @@ export default function Index() {
           </div>
           <PairTokenInput
             id="outputToken"
+            label={`${data.outputToken.symbol} Amount`}
             token={data.outputToken}
             balance={outputCurrencyBalance}
             value={inputValues[1]}

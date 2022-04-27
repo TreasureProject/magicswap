@@ -10,7 +10,7 @@ import invariant from "tiny-invariant";
 import { Button } from "~/components/Button";
 import { Switch } from "@headlessui/react";
 import { formatUsd, getLpTokenCount, getTokenCount } from "~/utils/price";
-import { formatNumber, getFormatOptions } from "~/utils/number";
+import { formatNumber } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
 import type { Pair } from "~/types";
 import { useAddressBalance, useTokenBalance } from "~/hooks/useTokenBalance";
@@ -175,24 +175,22 @@ const Liquidity = () => {
           <div className="space-y-4">
             <TokenInput
               id="addLiquidityToken0"
-              label="Amount"
+              label={`${pair.token0.symbol} Amount`}
               token={pair.token0}
               balance={token0Balance}
               value={addInputValues[0]}
               onChange={handleAdd0InputChanged}
-              formatOptions={getFormatOptions(addInputValues[0])}
             />
             <div className="flex justify-center">
               <PlusIcon className="h-4 w-4 text-gray-400" />
             </div>
             <TokenInput
               id="addLiquidityToken1"
-              label="Amount"
+              label={`${pair.token1.symbol} Amount`}
               token={pair.token1}
               balance={token1Balance}
               value={addInputValues[1]}
               onChange={handleAdd1InputChanged}
-              formatOptions={getFormatOptions(addInputValues[1])}
             />
             {addInputValues.some((value) => value > 0) && (
               <div className="space-y-2 rounded-md bg-gray-900 p-4">
@@ -386,7 +384,15 @@ const Stake = () => {
             100%
           </button>
         </div>
-        <TokenInput tokenSymbol="SLP" />
+        <TokenInput
+          id="stakeLp"
+          label="LP Amount"
+          tokenSymbol="SLP"
+          price={0}
+          balance={0}
+          value={0}
+          onChange={() => {}}
+        />
         <Button>{isStake ? "Stake" : "Unstake"}</Button>
       </div>
     </div>

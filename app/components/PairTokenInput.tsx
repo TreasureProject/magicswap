@@ -4,7 +4,7 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/solid";
 import clsx from "clsx";
-import React, { useEffect, useState } from "react";
+import { useNumberInput } from "~/hooks/useNumberInput";
 import { PairToken } from "~/types";
 import { formatNumber, formatPercent } from "~/utils/number";
 import { formatUsd } from "~/utils/price";
@@ -12,6 +12,7 @@ import { TimeIntervalLineGraph } from "./Graph";
 
 export default function PairTokenInput({
   id,
+  label,
   token,
   balance,
   value,
@@ -19,38 +20,24 @@ export default function PairTokenInput({
   onTokenClick,
 }: {
   id: string;
+  label: string;
   token: PairToken;
   balance: number;
   value: number;
   onChange: (value: number) => void;
   onTokenClick: () => void;
 }) {
-  const [inputValue, setInputValue] = useState("");
+  const { inputValue, parsedValue, handleBlur, handleChange } = useNumberInput({
+    value,
+    onChange,
+  });
   const positive = token.price24hChange >= 0;
-  const parsedInput = Number.isNaN(parseFloat(inputValue))
-    ? 0
-    : parseFloat(inputValue);
-
-  useEffect(() => {
-    setInputValue(value ? value.toString() : "");
-  }, [value]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-  };
-
-  const handleBlur = () => {
-    const nextValue = parseFloat(inputValue);
-    if (nextValue !== value) {
-      onChange(nextValue);
-    }
-  };
 
   return (
     <div className="flex-1 space-y-6 rounded-md border border-transparent bg-gray-800 p-6 hover:border-gray-700">
       <div>
         <label htmlFor={id} className="sr-only">
-          Balance
+          {label}
         </label>
         <div className="relative border-b border-gray-600 focus-within:border-red-600">
           <input
@@ -65,7 +52,7 @@ export default function PairTokenInput({
           <div className="pointer-events-none absolute left-0 bottom-2 flex flex-col items-end pl-3">
             <span className="text-xs text-gray-500">
               ~{" "}
-              {formatUsd(token.priceUsd * (parsedInput > 0 ? parsedInput : 1))}
+              {formatUsd(token.priceUsd * (parsedValue > 0 ? parsedValue : 1))}
             </span>
           </div>
           <div className="absolute bottom-2 right-0 flex flex-col items-end pr-3">
@@ -79,7 +66,10 @@ export default function PairTokenInput({
                 onClick={onTokenClick}
               />
             </div>
-            <span className="text-xs text-gray-500">
+            <span
+              className="cursor-pointer text-xs text-gray-500"
+              onClick={() => onChange(balance)}
+            >
               Balance: {formatNumber(balance)}
             </span>
           </div>

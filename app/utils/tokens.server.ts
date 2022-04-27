@@ -84,6 +84,7 @@ export const getTokens = async (filter?: string): Promise<Token[]> => {
   const { pairs } = await exchangeSdk.getSwapPairs({
     where: {
       token0: "0x539bde0d7dbd336b79148aa742883198bbf60342",
+      trackedReserveETH_gt: 0,
     },
   });
 
