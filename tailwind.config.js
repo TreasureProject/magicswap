@@ -8,10 +8,6 @@ module.exports = {
       boxShadow: {
         glass: "0 4px 30px rgba(0, 0, 0, 0.1)",
       },
-      backgroundImage: {
-        darkGradient:
-          "linear-gradient(114deg, rgba(25,26,33,1) 17%, rgba(29,6,1,1) 44%, rgba(43,2,15,1) 60%, rgba(25,26,33,1) 80%)",
-      },
       fontFamily: {
         sans: ["Inter var", ...defaultTheme.fontFamily.sans],
       },
