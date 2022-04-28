@@ -114,12 +114,12 @@ const DotPattern = () => (
         <path
           d="M345.705 125.696L471.401 0H345.705L220.009 125.696L345.705 251.391L220.009 377.017L345.705 502.712H471.401L345.705 377.017L471.401 251.391L345.705 125.696Z"
           fill="currentColor"
-          className="text-[#1B1C22]"
+          className="text-[#1B1C22] opacity-50 blur-sm brightness-75 -hue-rotate-60 saturate-50 sepia"
         />
         <path
           d="M234.321 251.391L108.625 125.696L234.321 0H108.625L-17 125.696L108.625 251.391L-17 377.017L108.625 502.712H234.321L108.625 377.017L234.321 251.391Z"
           fill="currentColor"
-          className="text-[#1B1C22]"
+          className="text-[#1B1C22] opacity-50 blur-sm brightness-75 -hue-rotate-60 saturate-50 sepia"
         />
       </svg>
       <svg
@@ -215,7 +215,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="bg-[#191A21] text-white antialiased">
+      <body className="animate-drift bg-darkGradient bg-cover bg-fixed text-white antialiased">
         <Provider client={client}>
           <div className="z-10 flex h-16 items-center justify-center border-b border-gray-800 px-8">
             <div className="relative m-auto flex max-w-7xl flex-1 items-center justify-between sm:justify-center">
