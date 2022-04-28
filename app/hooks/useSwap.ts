@@ -1,7 +1,7 @@
 import { utils } from "ethers";
 import { useAccount, useContractWrite } from "wagmi";
 
-import { Pair, Token } from "~/types";
+import { Token } from "~/types";
 
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
 
@@ -56,7 +56,9 @@ export const useSwap = () => {
 
     const amountIn = utils.parseUnits(rawAmountIn.toFixed(inputToken.decimals));
     const amountOut = utils.parseUnits(
-      (rawAmountOut * (isExactOut ? 1 : slippageMultiplier)).toFixed(outputToken.decimals)
+      (rawAmountOut * (isExactOut ? 1 : slippageMultiplier)).toFixed(
+        outputToken.decimals
+      )
     );
     const path = [inputToken.id, outputToken.id];
     const deadline = (Math.ceil(Date.now() / 1000) + 60 * 30).toString(); // 30 minutes from now

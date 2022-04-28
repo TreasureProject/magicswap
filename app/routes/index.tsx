@@ -124,9 +124,11 @@ export default function Index() {
     setIsExactOut(false);
     const rawAmountOut = value * data.outputToken.price;
     const amountInWithFee = value * 0.997;
-    const amountOut =
+    const amountOut = Math.max(
       (amountInWithFee * outputPairToken.reserve) /
-      (inputPairToken.reserve + amountInWithFee);
+        (inputPairToken.reserve + amountInWithFee),
+      0
+    );
     console.log("Price Impact:", (1 - amountOut / rawAmountOut) * 100);
     setInputValues([value, amountOut]);
   };
@@ -134,9 +136,11 @@ export default function Index() {
   const handleOutputChange = (value: number) => {
     setIsExactOut(true);
     const rawAmountIn = value * data.inputToken.price;
-    const amountIn =
+    const amountIn = Math.max(
       (inputPairToken.reserve * value) /
-      ((outputPairToken.reserve - value) * 0.997);
+        ((outputPairToken.reserve - value) * 0.997),
+      0
+    );
     console.log("Price Impact:", (1 - rawAmountIn / amountIn) * 100);
     setInputValues([amountIn, value]);
   };
