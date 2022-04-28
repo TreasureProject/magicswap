@@ -18,7 +18,6 @@ export function Wallet() {
   } = useConnect();
   const { disconnect } = useDisconnect();
   const { data: accountData } = useAccount();
-  const { data: ensNameData } = useEnsName({ address: accountData?.address });
 
   const isConnected = isMounted && activeConnector && accountData;
   const isConnecting = isMounted && rawIsConnecting;
@@ -38,7 +37,7 @@ export function Wallet() {
         }
       >
         {isConnected ? (
-          <>{ensNameData ?? truncateEthAddress(accountData.address ?? "")}</>
+          truncateEthAddress(accountData.address ?? "")
         ) : (
           <>
             <GlobeAltIcon className="h-5 w-5" />
