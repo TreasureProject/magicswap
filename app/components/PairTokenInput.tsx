@@ -27,7 +27,7 @@ export default function PairTokenInput({
   onChange: (value: number) => void;
   onTokenClick: () => void;
 }) {
-  const { inputValue, parsedValue, handleBlur, handleChange } = useNumberInput({
+  const { inputValue, parsedValue, handleChange } = useNumberInput({
     value,
     onChange,
   });
@@ -47,7 +47,6 @@ export default function PairTokenInput({
             placeholder="0.00"
             value={inputValue}
             onChange={handleChange}
-            onBlur={handleBlur}
           />
           <div className="pointer-events-none absolute left-0 bottom-2 flex flex-col items-end pl-3">
             <span className="text-xs text-gray-500">

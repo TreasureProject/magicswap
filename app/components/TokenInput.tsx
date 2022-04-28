@@ -23,7 +23,7 @@ export default function TokenInput({
   value: number;
   onChange: (value: number) => void;
 }) {
-  const { inputValue, parsedValue, handleBlur, handleChange } = useNumberInput({
+  const { inputValue, parsedValue, handleChange } = useNumberInput({
     value,
     onChange,
   });
@@ -54,7 +54,6 @@ export default function TokenInput({
           placeholder="0.00"
           value={inputValue}
           onChange={handleChange}
-          onBlur={handleBlur}
         />
         <div
           className="absolute left-0 bottom-2 flex cursor-pointer flex-col items-end pl-3"

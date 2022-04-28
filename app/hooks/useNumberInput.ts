@@ -15,21 +15,28 @@ export const useNumberInput = ({ value, onChange }: Props) => {
     setInputValue(value ? value.toString() : "");
   }, [value]);
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const normalizedValue = e.target.value.replace(/,/g, ".");
-    setInputValue(normalizedValue);
-  }, []);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      let periodMatches = 0;
+      let nextInputValue = e.target.value
+        .replace(/,/g, ".") // Replace commas with periods
+        .replace(/[^0-9\.]/g, "") // Replace all non-numeric and non-period characters
+        .replace(/\./g, (match) => (++periodMatches > 1 ? "" : match)); // Replace all periods after the first one
 
-  const handleBlur = useCallback(() => {
-    if (parsedValue !== value) {
-      onChange(parsedValue);
-    }
-  }, [parsedValue, value, onChange]);
+      let numberValue = parseFloat(nextInputValue);
+      if (Number.isNaN(numberValue)) {
+        numberValue = 0;
+        nextInputValue = "";
+      }
+      setInputValue(nextInputValue);
+      onChange(numberValue);
+    },
+    [onChange]
+  );
 
   return {
     inputValue,
     parsedValue,
-    handleBlur,
     handleChange,
   };
 };
