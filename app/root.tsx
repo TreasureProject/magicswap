@@ -215,7 +215,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="animate-drift bg-darkGradient bg-cover bg-fixed text-white antialiased">
+      <body className="animate-drift bg-[url(/img/gradient.png)] bg-cover bg-fixed text-white antialiased">
         <Provider client={client}>
           <div className="z-10 flex h-16 items-center justify-center border-b border-gray-800 px-8">
             <div className="relative m-auto flex max-w-7xl flex-1 items-center justify-between sm:justify-center">
