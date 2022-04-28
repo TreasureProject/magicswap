@@ -5,7 +5,7 @@ import {
 } from "@heroicons/react/solid";
 import clsx from "clsx";
 import { useNumberInput } from "~/hooks/useNumberInput";
-import { PairToken } from "~/types";
+import type { PairToken } from "~/types";
 import { formatNumber, formatPercent } from "~/utils/number";
 import { formatUsd } from "~/utils/price";
 import { TimeIntervalLineGraph } from "./Graph";
@@ -34,7 +34,7 @@ export default function PairTokenInput({
   const positive = token.price24hChange >= 0;
 
   return (
-    <div className="flex-1 space-y-6 rounded-md border border-transparent bg-gray-800 p-6 hover:border-gray-700">
+    <div className="flex-1 space-y-6 rounded-xl border border-transparent bg-gray-700/25 p-6 shadow-glass backdrop-blur-md hover:border-gray-600/30">
       <div>
         <label htmlFor={id} className="sr-only">
           {label}
@@ -43,7 +43,7 @@ export default function PairTokenInput({
           <input
             id={id}
             type="text"
-            className="block w-full border-0 border-b border-transparent bg-gray-800 pr-12 pb-6 focus:border-red-600 focus:ring-0 sm:text-lg lg:text-2xl"
+            className="block w-full border-0 border-b border-transparent bg-transparent pr-12 pb-6 focus:border-red-600 focus:ring-0 sm:text-lg lg:text-2xl"
             placeholder="0.00"
             value={inputValue}
             onChange={handleChange}
@@ -75,7 +75,7 @@ export default function PairTokenInput({
           </div>
         </div>
       </div>
-      <div className="space-y-4 bg-gray-900 p-4">
+      <div className="space-y-4 bg-gray-900/70 p-4">
         <div className="flex items-center justify-between">
           <p className="font-bold">
             {token.symbol}{" "}
