@@ -4,6 +4,7 @@ import type {
   MetaFunction,
 } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
+import type { ShouldReloadFunction } from "@remix-run/react";
 import {
   Links,
   LiveReload,
@@ -27,13 +28,16 @@ import NProgress from "nprogress";
 import nProgressStyles from "./styles/nprogress.css";
 import { Wallet } from "./components/Wallet";
 import { getEnvVariable } from "./utils/env.server";
-import type { CloudFlareEnv } from "./types";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import { providers } from "ethers";
+import { getTokensImageAddress } from "./utils/tokens.server";
 
-type LoaderData = {
-  ENV: CloudFlareEnv;
+export type RootLoaderData = {
+  tokenImageList: Awaited<ReturnType<typeof getTokensImageAddress>>;
+  ENV: {
+    ALCHEMY_KEY: string;
+  };
 };
 
 export const links: LinksFunction = () => [
@@ -47,13 +51,16 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
-export const loader: LoaderFunction = ({ context }) => {
-  return json<LoaderData>({
+export const loader: LoaderFunction = async ({ context }) => {
+  return json<RootLoaderData>({
+    tokenImageList: await getTokensImageAddress(),
     ENV: {
       ALCHEMY_KEY: getEnvVariable("ALCHEMY_KEY", context),
     },
   });
 };
+
+export const unstable_shouldReload: ShouldReloadFunction = () => false;
 
 const chains = [chain.arbitrum, chain.arbitrumRinkeby];
 
@@ -153,7 +160,7 @@ const DotPattern = () => (
 
 export default function App() {
   const transition = useTransition();
-  const { ENV } = useLoaderData<LoaderData>();
+  const { ENV } = useLoaderData<RootLoaderData>();
 
   const client = createClient({
     autoConnect: true,
@@ -211,9 +218,9 @@ export default function App() {
       <body className="bg-[#191A21] text-white antialiased">
         <Provider client={client}>
           <div className="z-10 flex h-16 items-center justify-center border-b border-gray-800 px-8">
-            <div className="relative m-auto flex max-w-7xl flex-1 items-center justify-center">
+            <div className="relative m-auto flex max-w-7xl flex-1 items-center justify-between sm:justify-center">
               <TreasureLogoIcon className="h-8 w-8" />
-              <div className="absolute inset-y-0 right-5 flex items-center justify-center">
+              <div className="inset-y-0 right-5 flex items-center justify-center sm:absolute">
                 <Wallet />
               </div>
             </div>

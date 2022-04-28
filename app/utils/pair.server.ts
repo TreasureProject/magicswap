@@ -1,5 +1,8 @@
-import { GetSwapPairQuery, Pair_Filter } from "~/graphql/exchange.generated";
-import { Optional, Pair } from "~/types";
+import type {
+  GetSwapPairQuery,
+  Pair_Filter,
+} from "~/graphql/exchange.generated";
+import type { Optional, Pair } from "~/types";
 import { exchangeSdk } from "./api.server";
 import { getEthUsd, normalizeAdvancedToken } from "./tokens.server";
 
@@ -20,7 +23,7 @@ const normalizePair = (
     hourData,
     dayData,
   }: RawPair,
-  ethUsd: number = 0
+  ethUsd = 0
 ): Pair => {
   const liquidityUsd = parseFloat(reserveUSD);
   const totalSupply = parseFloat(rawTotalSupply);
