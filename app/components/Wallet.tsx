@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState, Fragment, useEffect } from "react";
 import { useAccount, useConnect, useDisconnect, useEnsName } from "wagmi";
 import { GlobeAltIcon } from "@heroicons/react/outline";
 
@@ -9,20 +9,33 @@ import { MetamaskIcon, WalletConnectIcon } from "./Icons";
 
 export function Wallet() {
   const isMounted = useIsMounted();
-  const [isOpenWalletModal, setIsOpenWalletModal] = React.useState(false);
-  const { connect, connectors, isConnecting: rawIsConnecting } = useConnect();
+  const [isOpenWalletModal, setIsOpenWalletModal] = useState(false);
+  const {
+    connect,
+    connectors,
+    isConnecting: rawIsConnecting,
+    activeConnector,
+  } = useConnect();
   const { disconnect } = useDisconnect();
   const { data: accountData } = useAccount();
   const { data: ensNameData } = useEnsName({ address: accountData?.address });
 
-  const isConnected = isMounted && accountData;
+  const isConnected = isMounted && activeConnector && accountData;
   const isConnecting = isMounted && rawIsConnecting;
+
+  useEffect(() => {
+    if (isConnected) {
+      setIsOpenWalletModal(false);
+    }
+  }, [isConnected]);
 
   return (
     <>
       <div
         className="flex cursor-pointer items-center justify-center gap-2 text-sm font-semibold text-gray-500 sm:text-base"
-        onClick={() => setIsOpenWalletModal(true)}
+        onClick={() =>
+          isConnected ? disconnect() : setIsOpenWalletModal(true)
+        }
       >
         {isConnected ? (
           <>{ensNameData ?? truncateEthAddress(accountData.address ?? "")}</>
@@ -33,7 +46,7 @@ export function Wallet() {
           </>
         )}
       </div>
-      <Transition.Root show={isOpenWalletModal} as={React.Fragment}>
+      <Transition.Root show={isOpenWalletModal} as={Fragment}>
         <Dialog
           as="div"
           className="fixed inset-0 z-40 overflow-y-auto"
@@ -41,7 +54,7 @@ export function Wallet() {
         >
           <div className="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <Transition.Child
-              as={React.Fragment}
+              as={Fragment}
               enter="ease-out duration-300"
               enterFrom="opacity-0"
               enterTo="opacity-100"
@@ -59,7 +72,7 @@ export function Wallet() {
               &#8203;
             </span>
             <Transition.Child
-              as={React.Fragment}
+              as={Fragment}
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               enterTo="opacity-100 translate-y-0 sm:scale-100"
