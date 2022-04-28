@@ -350,6 +350,7 @@ const Modal = ({
                           <div className="flex-shrink-0">
                             <TokenLogo
                               tokenAddress={token.id}
+                              symbol={token.symbol}
                               className="h-10 w-10 rounded-full"
                             />
                           </div>

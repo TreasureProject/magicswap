@@ -38,6 +38,7 @@ export default function TokenInput({
           {token ? (
             <TokenLogo
               tokenAddress={token.id}
+              symbol={token.symbol}
               alt="placeholder"
               className="z-10 h-4 w-4 rounded-full ring-1"
             />

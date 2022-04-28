@@ -201,10 +201,12 @@ export default function Pools() {
                   <div className="flex -space-x-4">
                     <TokenLogo
                       tokenAddress={selectedPool.token0.id}
+                      symbol={selectedPool.token0.symbol}
                       className="h-8 w-8 rounded-full ring-1"
                     />
                     <TokenLogo
                       tokenAddress={selectedPool.token1.id}
+                      symbol={selectedPool.token1.symbol}
                       className="h-8 w-8 rounded-full ring-1"
                     />
                   </div>
@@ -313,11 +315,13 @@ const PoolLink = ({ pair, lastPath }: { pair: Pair; lastPath: string }) => {
               <div className="flex -space-x-4">
                 <TokenLogo
                   tokenAddress={pair.token0.id}
+                  symbol={pair.token0.symbol}
                   alt="placeholder"
                   className="h-8 w-8 rounded-full"
                 />
                 <TokenLogo
                   tokenAddress={pair.token1.id}
+                  symbol={pair.token1.symbol}
                   alt="placeholder"
                   className="z-10 h-8 w-8 rounded-full"
                 />
