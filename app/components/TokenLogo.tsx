@@ -4,9 +4,11 @@ import type { RootLoaderData } from "~/root";
 
 export const TokenLogo = ({
   tokenAddress,
+  symbol,
   ...imgProps
 }: {
   tokenAddress: string;
+  symbol: string;
 } & React.ImgHTMLAttributes<HTMLImageElement>) => {
   const tokenImageListData = useRouteData<RootLoaderData>("root");
 
@@ -14,7 +16,9 @@ export const TokenLogo = ({
 
   const tokenImage =
     tokenImageList?.find(
-      (tokenImage) => tokenImage.address.toLowerCase() === tokenAddress
+      (tokenImage) =>
+        tokenImage.address.toLowerCase() === tokenAddress ||
+        tokenImage.symbol === symbol
     )?.logoURI ??
     "https://raw.githubusercontent.com/sushiswap/icons/master/token/unknown.png";
 
