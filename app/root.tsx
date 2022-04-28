@@ -43,6 +43,11 @@ export type RootLoaderData = {
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
   { rel: "stylesheet", href: nProgressStyles },
+  {
+    rel: "preload",
+    href: "/img/gradient.png",
+    as: "image",
+  },
 ];
 
 export const meta: MetaFunction = () => ({
