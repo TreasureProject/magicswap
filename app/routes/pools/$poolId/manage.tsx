@@ -16,6 +16,7 @@ import type { Pair } from "~/types";
 import { useAddressBalance, useTokenBalance } from "~/hooks/useTokenBalance";
 import { useAddLiquidity } from "~/hooks/useAddLiquidity";
 import TokenInput from "~/components/TokenInput";
+import { useRemoveLiquidity } from "~/hooks/useRemoveLiquidity";
 
 type LoaderData = {
   pair: Pair;
@@ -104,6 +105,19 @@ const Liquidity = () => {
   const token1Balance = useTokenBalance(pair.token1);
   const lpBalance = useAddressBalance(pair.id);
   const addLiquidity = useAddLiquidity();
+  const removeLiquidity = useRemoveLiquidity();
+
+  const token0BalanceInsufficient = addInputValues[0] > token0Balance;
+  const token1BalanceInsufficient = addInputValues[1] > token1Balance;
+  const lpBalanceInsufficient = removeInputValue > lpBalance;
+  const removeLiquidityToken0Estimate =
+    removeInputValue > 0
+      ? getTokenCount(removeInputValue, pair.token0.reserve, pair.totalSupply)
+      : 0;
+  const removeLiquidityToken1Estimate =
+    removeInputValue > 0
+      ? getTokenCount(removeInputValue, pair.token1.reserve, pair.totalSupply)
+      : 0;
 
   const handleAdd0InputChanged = (value: number) => {
     setAddInputValues([value, value * pair.token1.price]);
@@ -117,11 +131,15 @@ const Liquidity = () => {
     addLiquidity(pair, addInputValues[0], addInputValues[1], 0.5);
   };
 
-  const handleRemoveLiquidity = () => {};
-
-  const token0BalanceInsufficient = addInputValues[0] > token0Balance;
-  const token1BalanceInsufficient = addInputValues[1] > token1Balance;
-  const lpBalanceInsufficient = removeInputValue > lpBalance;
+  const handleRemoveLiquidity = () => {
+    removeLiquidity(
+      pair,
+      removeInputValue,
+      removeLiquidityToken0Estimate,
+      removeLiquidityToken1Estimate,
+      0.5
+    );
+  };
 
   return (
     <div className="flex flex-1 items-center justify-center p-6 lg:p-8">
@@ -229,45 +247,25 @@ const Liquidity = () => {
                 </p>
                 <div className="flex items-center justify-between">
                   <span className="font-medium">
-                    {formatNumber(
-                      getTokenCount(
-                        removeInputValue,
-                        pair.token0.reserve,
-                        pair.totalSupply
-                      )
-                    )}{" "}
+                    {formatNumber(removeLiquidityToken0Estimate)}{" "}
                     {pair.token0.symbol}
                   </span>
                   <span className="text-gray-200">
                     ≈{" "}
                     {formatUsd(
-                      getTokenCount(
-                        removeInputValue,
-                        pair.token0.reserve,
-                        pair.totalSupply
-                      ) * pair.token0.priceUsd
+                      removeLiquidityToken0Estimate * pair.token0.priceUsd
                     )}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-medium">
-                    {formatNumber(
-                      getTokenCount(
-                        removeInputValue,
-                        pair.token1.reserve,
-                        pair.totalSupply
-                      )
-                    )}{" "}
+                    {formatNumber(removeLiquidityToken1Estimate)}{" "}
                     {pair.token1.symbol}
                   </span>
                   <span className="text-gray-200">
                     ={" "}
                     {formatUsd(
-                      getTokenCount(
-                        removeInputValue,
-                        pair.token1.reserve,
-                        pair.totalSupply
-                      ) * pair.token1.priceUsd
+                      removeLiquidityToken1Estimate * pair.token1.priceUsd
                     )}
                   </span>
                 </div>
@@ -307,7 +305,7 @@ const Liquidity = () => {
           ) : (
             <>
               {lpBalanceInsufficient
-                ? "Insufficient LP Token Balance"
+                ? "Insufficient Balance"
                 : removeInputValue > 0
                 ? "Remove Liquidity"
                 : "Enter an Amount"}
