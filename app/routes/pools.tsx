@@ -13,8 +13,9 @@ import cn from "clsx";
 import { Dialog, Transition } from "@headlessui/react";
 import { SlashIcon, SpinnerIcon } from "~/components/Icons";
 import { formatPercent } from "~/utils/number";
-import { Pair } from "~/types";
+import type { Pair } from "~/types";
 import { getPairs } from "~/utils/pair.server";
+import { TokenLogo } from "~/components/TokenLogo";
 
 type LoaderData = {
   pairs: Pair[];
@@ -198,14 +199,12 @@ export default function Pools() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="flex -space-x-4">
-                    <img
-                      src="https://via.placeholder.com/400"
-                      alt="placeholder"
-                      className="z-10 h-8 w-8 rounded-full ring-1"
+                    <TokenLogo
+                      tokenAddress={selectedPool.token0.id}
+                      className="h-8 w-8 rounded-full ring-1"
                     />
-                    <img
-                      src="https://via.placeholder.com/400"
-                      alt="placeholder"
+                    <TokenLogo
+                      tokenAddress={selectedPool.token1.id}
                       className="h-8 w-8 rounded-full ring-1"
                     />
                   </div>
@@ -312,21 +311,15 @@ const PoolLink = ({ pair, lastPath }: { pair: Pair; lastPath: string }) => {
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="flex -space-x-4">
-                <img
-                  src="https://via.placeholder.com/400"
+                <TokenLogo
+                  tokenAddress={pair.token0.id}
                   alt="placeholder"
-                  className={cn("z-10 h-8 w-8 rounded-full ring-1", {
-                    "ring-red-400": isActive,
-                    "ring-gray-800": !isActive,
-                  })}
+                  className="h-8 w-8 rounded-full"
                 />
-                <img
-                  src="https://via.placeholder.com/400"
+                <TokenLogo
+                  tokenAddress={pair.token1.id}
                   alt="placeholder"
-                  className={cn("h-8 w-8 rounded-full ring-1", {
-                    "ring-red-400": isActive,
-                    "ring-gray-800": !isActive,
-                  })}
+                  className="z-10 h-8 w-8 rounded-full"
                 />
               </div>
               <p

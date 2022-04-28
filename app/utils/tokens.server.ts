@@ -1,8 +1,8 @@
-import {
+import type {
   GetSwapPairQuery,
   GetSwapPairsQuery,
 } from "~/graphql/exchange.generated";
-import { AdvancedToken, Optional, Token } from "~/types";
+import type { AdvancedToken, Optional, Token, TokenImageList } from "~/types";
 import { exchangeSdk } from "./api.server";
 
 type RawTokenList = GetSwapPairsQuery["pairs"];
@@ -105,4 +105,20 @@ export const getTokenBySymbol = (
 export const getEthUsd = async (): Promise<number> => {
   const { bundle } = await exchangeSdk.getEthPrice();
   return parseFloat(bundle?.ethPrice ?? 0);
+};
+
+export const getTokensImageAddress = async () => {
+  try {
+    const json: TokenImageList = await (
+      await fetch("https://bridge.arbitrum.io/token-list-42161.json")
+    ).json();
+
+    const { tokens } = json;
+
+    return tokens;
+  } catch (e) {
+    if (e instanceof Error) {
+      throw new Error(e.message);
+    }
+  }
 };

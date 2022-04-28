@@ -26,6 +26,8 @@ import { getPair } from "~/utils/pair.server";
 import PairTokenInput from "~/components/PairTokenInput";
 import { useState } from "react";
 import { useSwap } from "~/hooks/useSwap";
+import { formatUsd } from "~/utils/price";
+import { TokenLogo } from "~/components/TokenLogo";
 
 type LoaderData = {
   tokenList: Token[];
@@ -53,6 +55,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const outputCurrency = url.searchParams.get("outputCurrency") ?? "USDC";
 
   const tokenList = await getTokens();
+
   const inputToken = getTokenBySymbol(tokenList, inputCurrency);
   const outputToken = getTokenBySymbol(tokenList, outputCurrency);
 
@@ -345,9 +348,8 @@ const Modal = ({
                           )}
                         >
                           <div className="flex-shrink-0">
-                            <img
-                              src="https://via.placeholder.com/400"
-                              alt="placeholder"
+                            <TokenLogo
+                              tokenAddress={token.id}
                               className="h-10 w-10 rounded-full"
                             />
                           </div>

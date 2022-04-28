@@ -1,7 +1,8 @@
-import { PairToken } from "~/types";
+import type { PairToken } from "~/types";
 import { formatNumber } from "~/utils/number";
 import { formatUsd } from "~/utils/price";
 import { useNumberInput } from "~/hooks/useNumberInput";
+import { TokenLogo } from "~/components/TokenLogo";
 
 export default function TokenInput({
   id,
@@ -34,11 +35,13 @@ export default function TokenInput({
       </label>
       <div className="relative focus-within:border-red-600">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center space-x-2 pl-3 pb-4">
-          <img
-            src="https://via.placeholder.com/400"
-            alt="placeholder"
-            className="z-10 h-4 w-4 rounded-full ring-1"
-          />
+          {token ? (
+            <TokenLogo
+              tokenAddress={token.id}
+              alt="placeholder"
+              className="z-10 h-4 w-4 rounded-full ring-1"
+            />
+          ) : null}
           <span className="block font-semibold text-white sm:text-sm">
             {token?.symbol ?? tokenSymbol}
           </span>

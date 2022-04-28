@@ -21,7 +21,7 @@ export function Wallet() {
   return (
     <>
       <div
-        className="flex cursor-pointer items-center justify-center gap-2 font-semibold text-gray-500"
+        className="flex cursor-pointer items-center justify-center gap-2 text-sm font-semibold text-gray-500 sm:text-base"
         onClick={() => setIsOpenWalletModal(true)}
       >
         {isConnected ? (
@@ -71,7 +71,7 @@ export function Wallet() {
                 <div className="mt-3 text-center sm:mt-0 sm:text-left">
                   <div className="grid grid-cols-1 divide-y divide-gray-700 sm:grid-cols-2 sm:divide-y-0 sm:divide-x">
                     {connectors.map((x) => (
-                      <div key={x.id} className="p-4">
+                      <div key={x.id} className="py-4 sm:px-4 sm:py-0">
                         <div className="relative flex flex-col items-center justify-center rounded-md p-3 hover:bg-slate-700">
                           <p className="mb-2 font-medium text-slate-300 sm:text-lg md:text-xl">
                             {x.name}
