@@ -1,7 +1,7 @@
 import { utils } from "ethers";
 import { useAccount, useContractWrite } from "wagmi";
 
-import { Pair } from "~/types";
+import { Pair, Token } from "~/types";
 
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
 
@@ -43,28 +43,27 @@ export const useSwap = () => {
   );
 
   return (
-    pair: Pair,
+    inputToken: Token,
+    outputToken: Token,
     rawAmountIn: number,
     rawAmountOut: number,
     isExactOut = false,
     slippage = 0.5
   ) => {
     const slippageMultiplier = (100 - slippage) / 100;
-    const isToken1Eth = pair.token1.symbol === "WETH";
-    const isEth = pair.token0.symbol === "WETH" || isToken1Eth;
+    const isOutputEth = outputToken.symbol === "WETH";
+    const isEth = inputToken.symbol === "WETH" || isOutputEth;
 
-    const amountIn = utils.parseUnits(
-      rawAmountIn.toFixed(pair.token0.decimals)
-    );
+    const amountIn = utils.parseUnits(rawAmountIn.toFixed(inputToken.decimals));
     const amountOut = utils.parseUnits(
-      rawAmountOut.toFixed(pair.token1.decimals)
+      (rawAmountOut * (isExactOut ? 1 : slippageMultiplier)).toFixed(outputToken.decimals)
     );
-    const path = [pair.token0.id, pair.token1.id];
+    const path = [inputToken.id, outputToken.id];
     const deadline = (Math.ceil(Date.now() / 1000) + 60 * 30).toString(); // 30 minutes from now
 
     if (isExactOut) {
       if (isEth) {
-        if (isToken1Eth) {
+        if (isOutputEth) {
           writeSwapTokensForExactEth({
             args: [
               amountOut, // amountOut
@@ -100,7 +99,7 @@ export const useSwap = () => {
       }
     } else {
       if (isEth) {
-        if (isToken1Eth) {
+        if (isOutputEth) {
           writeSwapExactTokensForEth({
             args: [
               amountIn, // amountIn

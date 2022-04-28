@@ -99,6 +99,14 @@ export default function Index() {
   const inputCurrencyBalance = useTokenBalance(data.inputToken);
   const outputCurrencyBalance = useTokenBalance(data.outputToken);
   const swap = useSwap();
+  const inputPairToken =
+    data.pair.token0.id === data.inputToken.id
+      ? data.pair.token0
+      : data.pair.token1;
+  const outputPairToken =
+    data.pair.token0.id === data.outputToken.id
+      ? data.pair.token0
+      : data.pair.token1;
 
   const onClose = React.useCallback(
     () =>
@@ -114,8 +122,8 @@ export default function Index() {
     const rawAmountOut = value * data.outputToken.price;
     const amountInWithFee = value * 0.997;
     const amountOut =
-      (amountInWithFee * data.pair.token1.reserve) /
-      (data.pair.token0.reserve + amountInWithFee);
+      (amountInWithFee * outputPairToken.reserve) /
+      (inputPairToken.reserve + amountInWithFee);
     console.log("Price Impact:", (1 - amountOut / rawAmountOut) * 100);
     setInputValues([value, amountOut]);
   };
@@ -124,14 +132,20 @@ export default function Index() {
     setIsExactOut(true);
     const rawAmountIn = value * data.inputToken.price;
     const amountIn =
-      (data.pair.token0.reserve * value) /
-      ((data.pair.token1.reserve - value) * 0.997);
+      (inputPairToken.reserve * value) /
+      ((outputPairToken.reserve - value) * 0.997);
     console.log("Price Impact:", (1 - rawAmountIn / amountIn) * 100);
     setInputValues([amountIn, value]);
   };
 
   const handleSwap = () => {
-    swap(data.pair, inputValues[0], inputValues[1], isExactOut);
+    swap(
+      inputPairToken,
+      outputPairToken,
+      inputValues[0],
+      inputValues[1],
+      isExactOut
+    );
   };
 
   const insufficientBalance = inputCurrencyBalance < inputValues[0];
