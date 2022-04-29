@@ -1,6 +1,5 @@
-import { useContractWrite } from "wagmi";
-
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
+import { useContractWrite } from "./useContractWrite";
 
 const contractConfig = {
   addressOrName: "0x0a073b830cd4247d518c4f0d1bafd6edf7af507b",

@@ -34,33 +34,41 @@ export const useAddLiquidity = () => {
     );
     const deadline = (Math.ceil(Date.now() / 1000) + 60 * 30).toString(); // 30 minutes from now;
 
+    const statusHeader = `Add ${pair.name} Liquidity`;
+
     if (isEth) {
-      writeAddLiquidityEth({
-        overrides: {
-          value: isToken1Eth ? token1Amount : token0Amount,
+      writeAddLiquidityEth(
+        {
+          overrides: {
+            value: isToken1Eth ? token1Amount : token0Amount,
+          },
+          args: [
+            isToken1Eth ? pair.token0.id : pair.token1.id,
+            isToken1Eth ? token0Amount : token1Amount,
+            isToken1Eth ? token0AmountMin : token1AmountMin,
+            isToken1Eth ? token1AmountMin : token0AmountMin,
+            accountData?.address,
+            deadline,
+          ],
         },
-        args: [
-          isToken1Eth ? pair.token0.id : pair.token1.id,
-          isToken1Eth ? token0Amount : token1Amount,
-          isToken1Eth ? token0AmountMin : token1AmountMin,
-          isToken1Eth ? token1AmountMin : token0AmountMin,
-          accountData?.address,
-          deadline,
-        ],
-      });
+        statusHeader
+      );
     } else {
-      writeAddLiquidity({
-        args: [
-          pair.token0.id,
-          pair.token1.id,
-          token0Amount,
-          token1Amount,
-          token0AmountMin,
-          token1AmountMin,
-          accountData?.address,
-          deadline,
-        ],
-      });
+      writeAddLiquidity(
+        {
+          args: [
+            pair.token0.id,
+            pair.token1.id,
+            token0Amount,
+            token1Amount,
+            token0AmountMin,
+            token1AmountMin,
+            accountData?.address,
+            deadline,
+          ],
+        },
+        statusHeader
+      );
     }
   };
 };
