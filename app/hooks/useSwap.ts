@@ -2,6 +2,7 @@ import { utils } from "ethers";
 import { useAccount } from "wagmi";
 
 import type { Token } from "~/types";
+import { formatNumber } from "~/utils/number";
 
 import { useV2RouterWrite } from "./useV2RouterWrite";
 
@@ -38,19 +39,57 @@ export const useSwap = () => {
     const isOutputEth = outputToken.symbol === "WETH";
     const isEth = inputToken.symbol === "WETH" || isOutputEth;
 
-    const amountIn = utils.parseUnits(rawAmountIn.toFixed(inputToken.decimals));
+    const expectedAmountIn = rawAmountIn;
+    const expectedAmountOut =
+      rawAmountOut * (isExactOut ? 1 : slippageMultiplier);
+
+    const amountIn = utils.parseUnits(
+      expectedAmountIn.toFixed(inputToken.decimals)
+    );
     const amountOut = utils.parseUnits(
-      (rawAmountOut * (isExactOut ? 1 : slippageMultiplier)).toFixed(
-        outputToken.decimals
-      )
+      expectedAmountOut.toFixed(outputToken.decimals)
     );
     const path = [inputToken.id, outputToken.id];
     const deadline = (Math.ceil(Date.now() / 1000) + 60 * 30).toString(); // 30 minutes from now
 
+    const statusHeader = `Swap ${formatNumber(expectedAmountIn)} ${
+      inputToken.symbol
+    } to ${formatNumber(expectedAmountOut)} ${outputToken.symbol}`;
+
     if (isExactOut) {
       if (isEth) {
         if (isOutputEth) {
-          writeSwapTokensForExactEth({
+          writeSwapTokensForExactEth(
+            {
+              args: [
+                amountOut, // amountOut
+                amountIn, // amountInMax
+                path,
+                accountData?.address,
+                deadline,
+              ],
+            },
+            statusHeader
+          );
+        } else {
+          writeSwapEthForExactTokens(
+            {
+              overrides: {
+                value: amountIn,
+              },
+              args: [
+                amountOut, // amountOut
+                path,
+                accountData?.address,
+                deadline,
+              ],
+            },
+            statusHeader
+          );
+        }
+      } else {
+        writeSwapTokensForExactTokens(
+          {
             args: [
               amountOut, // amountOut
               amountIn, // amountInMax
@@ -58,35 +97,44 @@ export const useSwap = () => {
               accountData?.address,
               deadline,
             ],
-          });
-        } else {
-          writeSwapEthForExactTokens({
-            overrides: {
-              value: amountIn,
-            },
-            args: [
-              amountOut, // amountOut
-              path,
-              accountData?.address,
-              deadline,
-            ],
-          });
-        }
-      } else {
-        writeSwapTokensForExactTokens({
-          args: [
-            amountOut, // amountOut
-            amountIn, // amountInMax
-            path,
-            accountData?.address,
-            deadline,
-          ],
-        });
+          },
+          statusHeader
+        );
       }
     } else {
       if (isEth) {
         if (isOutputEth) {
-          writeSwapExactTokensForEth({
+          writeSwapExactTokensForEth(
+            {
+              args: [
+                amountIn, // amountIn
+                amountOut, // amountOutMin
+                path,
+                accountData?.address,
+                deadline,
+              ],
+            },
+            statusHeader
+          );
+        } else {
+          writeSwapExactEthForTokens(
+            {
+              overrides: {
+                value: amountIn,
+              },
+              args: [
+                amountOut, // amountOutMin
+                path,
+                accountData?.address,
+                deadline,
+              ],
+            },
+            statusHeader
+          );
+        }
+      } else {
+        writeSwapExactTokensForTokens(
+          {
             args: [
               amountIn, // amountIn
               amountOut, // amountOutMin
@@ -94,30 +142,9 @@ export const useSwap = () => {
               accountData?.address,
               deadline,
             ],
-          });
-        } else {
-          writeSwapExactEthForTokens({
-            overrides: {
-              value: amountIn,
-            },
-            args: [
-              amountOut, // amountOutMin
-              path,
-              accountData?.address,
-              deadline,
-            ],
-          });
-        }
-      } else {
-        writeSwapExactTokensForTokens({
-          args: [
-            amountIn, // amountIn
-            amountOut, // amountOutMin
-            path,
-            accountData?.address,
-            deadline,
-          ],
-        });
+          },
+          statusHeader
+        );
       }
     }
   };

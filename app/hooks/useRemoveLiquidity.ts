@@ -31,29 +31,37 @@ export const useRemoveLiquidity = () => {
     );
     const deadline = (Math.ceil(Date.now() / 1000) + 60 * 30).toString(); // 30 minutes from now;
 
+    const statusHeader = `Remove ${pair.name} Liquidity`;
+
     if (isEth) {
-      writeRemoveLiquidityEth({
-        args: [
-          isToken1Eth ? pair.token0.id : pair.token1.id,
-          lpAmount,
-          isToken1Eth ? token0AmountMin : token1AmountMin,
-          isToken1Eth ? token1AmountMin : token0AmountMin,
-          accountData?.address,
-          deadline,
-        ],
-      });
+      writeRemoveLiquidityEth(
+        {
+          args: [
+            isToken1Eth ? pair.token0.id : pair.token1.id,
+            lpAmount,
+            isToken1Eth ? token0AmountMin : token1AmountMin,
+            isToken1Eth ? token1AmountMin : token0AmountMin,
+            accountData?.address,
+            deadline,
+          ],
+        },
+        statusHeader
+      );
     } else {
-      writeRemoveLiquidity({
-        args: [
-          pair.token0.id,
-          pair.token1.id,
-          lpAmount,
-          token0AmountMin,
-          token1AmountMin,
-          accountData?.address,
-          deadline,
-        ],
-      });
+      writeRemoveLiquidity(
+        {
+          args: [
+            pair.token0.id,
+            pair.token1.id,
+            lpAmount,
+            token0AmountMin,
+            token1AmountMin,
+            accountData?.address,
+            deadline,
+          ],
+        },
+        statusHeader
+      );
     }
   };
 };

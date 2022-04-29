@@ -17,7 +17,7 @@ import {
   useLoaderData,
 } from "@remix-run/react";
 import cn from "clsx";
-
+import { Toaster } from "react-hot-toast";
 import { chain, createClient, Provider } from "wagmi";
 
 import styles from "./styles/tailwind.css";
@@ -247,6 +247,17 @@ export default function App() {
             </header>
           </div>
         </Provider>
+        <Toaster
+          position="bottom-left"
+          reverseOrder={false}
+          gutter={8}
+          toastOptions={{
+            style: {
+              backgroundColor: "#1F2937", // bg-gray-800
+              color: "#fff", // text-white
+            },
+          }}
+        />
         <Scripts />
         <LiveReload />
         {/* <script
