@@ -13,10 +13,11 @@
     "dev:remix": "remix watch",
     "dev:wrangler": "cross-env NODE_ENV=development wrangler pages dev ./public -b $(cat .env)",
     "generate:css": "npx tailwindcss -o ./app/styles/tailwind.css",
-    "start": "cross-env NODE_ENV=production npm run dev:wrangler",
     "codegen": "node -r dotenv/config node_modules/.bin/gql-gen",
-    "lint": "eslint --fix 'app/**/{*.ts,*.tsx}'",
-    "postinstall": "npx patch-package"
+    "start": "cross-env NODE_ENV=production npm run dev:wrangler",
+    "lint": "prettier --write 'app/**/{*.ts,*.tsx}' && eslint --fix --no-error-on-unmatched-pattern 'app/**/{*.ts,*.tsx}'",
+    "postinstall": "npx patch-package",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@headlessui/react": "^1.5.0",
@@ -62,6 +63,8 @@
     "@typescript-eslint/parser": "^5.19.0",
     "eslint": "^8.13.0",
     "eslint-config-prettier": "^8.5.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.4.1",
     "npm-run-all": "^4.1.5",
     "patch-package": "^6.4.7",
     "prettier": "^2.6.2",
@@ -75,5 +78,8 @@
   },
   "volta": {
     "node": "16.7.0"
+  },
+  "lint-staged": {
+    "app/**/{*.ts,*.tsx}": "npm run lint"
   }
 }

@@ -20,7 +20,7 @@ export const useNumberInput = ({ value, onChange }: Props) => {
       let periodMatches = 0;
       let nextInputValue = e.target.value
         .replace(/,/g, ".") // Replace commas with periods
-        .replace(/[^0-9\.]/g, "") // Replace all non-numeric and non-period characters
+        .replace(/[^0-9.]/g, "") // Replace all non-numeric and non-period characters
         .replace(/\./g, (match) => (++periodMatches > 1 ? "" : match)); // Replace all periods after the first one
 
       let numberValue = parseFloat(nextInputValue);
