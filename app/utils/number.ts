@@ -1,6 +1,6 @@
 export const getFormatOptions = (
   value: number,
-  isUsd: boolean = false
+  isUsd = false
 ): Intl.NumberFormatOptions => {
   const formatOptions: Intl.NumberFormatOptions = {
     minimumFractionDigits: isUsd ? 2 : 0,

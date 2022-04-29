@@ -1,7 +1,7 @@
 import { utils } from "ethers";
 import { useAccount } from "wagmi";
 
-import { Token } from "~/types";
+import type { Token } from "~/types";
 
 import { useV2RouterWrite } from "./useV2RouterWrite";
 

@@ -1,7 +1,7 @@
 import { utils } from "ethers";
 import { useAccount } from "wagmi";
 
-import { Pair } from "~/types";
+import type { Pair } from "~/types";
 
 import { useV2RouterWrite } from "./useV2RouterWrite";
 

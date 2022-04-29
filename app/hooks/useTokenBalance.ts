@@ -1,6 +1,6 @@
 import { useAccount, useBalance } from "wagmi";
 import { utils } from "ethers";
-import { Token } from "~/types";
+import type { Token } from "~/types";
 import { useIsMounted } from "./useIsMounted";
 
 export const useAddressBalance = (address?: string) => {

@@ -389,7 +389,9 @@ const Stake = () => {
           price={0}
           balance={0}
           value={0}
-          onChange={() => {}}
+          onChange={() => {
+            console.warn("Not implemented");
+          }}
         />
         <Button>{isStake ? "Stake" : "Unstake"}</Button>
       </div>

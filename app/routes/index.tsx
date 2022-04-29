@@ -26,7 +26,6 @@ import { getPair } from "~/utils/pair.server";
 import PairTokenInput from "~/components/PairTokenInput";
 import { useState } from "react";
 import { useSwap } from "~/hooks/useSwap";
-import { formatUsd } from "~/utils/price";
 import { TokenLogo } from "~/components/TokenLogo";
 
 type LoaderData = {

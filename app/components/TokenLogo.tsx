@@ -22,5 +22,5 @@ export const TokenLogo = ({
     )?.logoURI ??
     "https://raw.githubusercontent.com/sushiswap/icons/master/token/unknown.png";
 
-  return <img src={tokenImage} {...imgProps} />;
+  return <img src={tokenImage} alt={symbol} {...imgProps} />;
 };

@@ -1,5 +1,5 @@
 import { useState, Fragment, useEffect } from "react";
-import { useAccount, useConnect, useDisconnect, useEnsName } from "wagmi";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { GlobeAltIcon } from "@heroicons/react/outline";
 
 import { useIsMounted } from "~/hooks";
