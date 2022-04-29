@@ -1,44 +1,28 @@
 import { utils } from "ethers";
-import { useAccount, useContractWrite } from "wagmi";
+import { useAccount } from "wagmi";
 
 import { Token } from "~/types";
 
-import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
-
-const contractConfig = {
-  addressOrName: "0x0a073b830cd4247d518c4f0d1bafd6edf7af507b",
-  contractInterface: UniswapV2Router02Abi,
-};
+import { useV2RouterWrite } from "./useV2RouterWrite";
 
 export const useSwap = () => {
   const { data: accountData } = useAccount();
-  const { write: writeSwapEthForExactTokens } = useContractWrite(
-    contractConfig,
+  const { write: writeSwapEthForExactTokens } = useV2RouterWrite(
     "swapETHForExactTokens"
   );
-
-  const { write: writeSwapExactEthForTokens } = useContractWrite(
-    contractConfig,
+  const { write: writeSwapExactEthForTokens } = useV2RouterWrite(
     "swapExactETHForTokens"
   );
-
-  const { write: writeSwapExactTokensForEth } = useContractWrite(
-    contractConfig,
+  const { write: writeSwapExactTokensForEth } = useV2RouterWrite(
     "swapExactTokensForETH"
   );
-
-  const { write: writeSwapTokensForExactEth } = useContractWrite(
-    contractConfig,
+  const { write: writeSwapTokensForExactEth } = useV2RouterWrite(
     "swapTokensForExactETH"
   );
-
-  const { write: writeSwapExactTokensForTokens } = useContractWrite(
-    contractConfig,
+  const { write: writeSwapExactTokensForTokens } = useV2RouterWrite(
     "swapExactTokensForTokens"
   );
-
-  const { write: writeSwapTokensForExactTokens } = useContractWrite(
-    contractConfig,
+  const { write: writeSwapTokensForExactTokens } = useV2RouterWrite(
     "swapTokensForExactTokens"
   );
 

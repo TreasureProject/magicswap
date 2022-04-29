@@ -1,26 +1,14 @@
 import { utils } from "ethers";
-import { useAccount, useContractWrite } from "wagmi";
+import { useAccount } from "wagmi";
 
 import { Pair } from "~/types";
 
-import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
-
-const contractConfig = {
-  addressOrName: "0x0a073b830cd4247d518c4f0d1bafd6edf7af507b",
-  contractInterface: UniswapV2Router02Abi,
-};
+import { useV2RouterWrite } from "./useV2RouterWrite";
 
 export const useAddLiquidity = () => {
   const { data: accountData } = useAccount();
-  const { write: writeAddLiquidity } = useContractWrite(
-    contractConfig,
-    "addLiquidity"
-  );
-
-  const { write: writeAddLiquidityEth } = useContractWrite(
-    contractConfig,
-    "addLiquidityETH"
-  );
+  const { write: writeAddLiquidity } = useV2RouterWrite("addLiquidity");
+  const { write: writeAddLiquidityEth } = useV2RouterWrite("addLiquidityETH");
 
   return (
     pair: Pair,
