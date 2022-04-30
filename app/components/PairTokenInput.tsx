@@ -2,6 +2,7 @@ import {
   ArrowSmDownIcon,
   ArrowSmUpIcon,
   ChevronDownIcon,
+  MailIcon,
 } from "@heroicons/react/solid";
 import clsx from "clsx";
 import { useNumberInput } from "~/hooks/useNumberInput";
@@ -9,6 +10,7 @@ import type { PairToken } from "~/types";
 import { formatNumber, formatPercent } from "~/utils/number";
 import { formatUsd } from "~/utils/price";
 import { TimeIntervalLineGraph } from "./Graph";
+import { TokenLogo } from "./TokenLogo";
 
 export default function PairTokenInput({
   id,
@@ -74,14 +76,21 @@ export default function PairTokenInput({
           </div>
         </div>
       </div>
-      <div className="space-y-4 bg-gray-900/70 p-4">
+      <div className="space-y-4 rounded-lg bg-gray-900/70 p-4">
         <div className="flex items-center justify-between">
-          <p className="font-bold">
-            {token.symbol}{" "}
-            {token.symbol.toLowerCase() !== token.name.toLowerCase() && (
-              <>({token.name})</>
-            )}
-          </p>
+          <div className="flex items-center space-x-2">
+            <TokenLogo
+              tokenAddress={token.id}
+              symbol={token.symbol}
+              className="h-5 w-5 rounded-full"
+            />
+            <p className="font-bold">
+              {token.symbol}{" "}
+              {token.symbol.toLowerCase() !== token.name.toLowerCase() && (
+                <>({token.name})</>
+              )}
+            </p>
+          </div>
           <div className="flex items-baseline">
             <p className="text-sm font-normal text-gray-300 lg:text-lg">
               {formatUsd(token.priceUsd)} USD
