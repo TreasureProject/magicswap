@@ -86,10 +86,11 @@ const NavLink = ({
       {({ isActive }) => (
         <div
           className={cn(
-            "flex flex-1 items-center justify-center space-x-6 rounded-lg px-8 py-4 text-xl",
+            "flex flex-1 items-center justify-center space-x-6 rounded-lg px-8 py-4 text-xl font-medium tracking-wide",
             {
-              "bg-gray-800 text-white": isActive,
-              "text-gray-500 hover:bg-gray-800 hover:text-gray-500": !isActive,
+              "bg-gray-900 text-white": isActive,
+              "text-gray-500 hover:bg-gray-700/10 hover:text-gray-500":
+                !isActive,
             }
           )}
         >
