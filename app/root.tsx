@@ -37,6 +37,7 @@ export type RootLoaderData = {
   tokenImageList: Awaited<ReturnType<typeof getTokensImageAddress>>;
   ENV: {
     ALCHEMY_KEY: string;
+    NODE_ENV: string;
   };
 };
 
@@ -61,6 +62,7 @@ export const loader: LoaderFunction = async ({ context }) => {
     tokenImageList: await getTokensImageAddress(),
     ENV: {
       ALCHEMY_KEY: getEnvVariable("ALCHEMY_KEY", context),
+      NODE_ENV: getEnvVariable("NODE_ENV", context),
     },
   });
 };
@@ -168,32 +170,36 @@ export default function App() {
   const transition = useTransition();
   const { ENV } = useLoaderData<RootLoaderData>();
 
-  const client = createClient({
-    autoConnect: true,
-    connectors() {
-      return [
-        new InjectedConnector({ chains }),
-        new WalletConnectConnector({
-          chains,
-          options: {
-            rpc: {
-              [chain.arbitrum
-                .id]: `https://arb-mainnet.g.alchemy.com/v2/${ENV.ALCHEMY_KEY}`,
-              [chain.arbitrumRinkeby.id]:
-                "https://arb-rinkeby.g.alchemy.com/v2/ktPJku9xHYB37bA3I2jk79FwRLWGBrj2",
-            },
-            qrcode: true,
-          },
-        }),
-      ];
-    },
-    provider({ chainId }) {
-      return new providers.AlchemyProvider(
-        isChainSupported(chainId) ? chainId : chain.arbitrum.id,
-        ENV.ALCHEMY_KEY
-      );
-    },
-  });
+  const client = React.useMemo(
+    () =>
+      createClient({
+        autoConnect: true,
+        connectors() {
+          return [
+            new InjectedConnector({ chains }),
+            new WalletConnectConnector({
+              chains,
+              options: {
+                rpc: {
+                  [chain.arbitrum
+                    .id]: `https://arb-mainnet.g.alchemy.com/v2/${ENV.ALCHEMY_KEY}`,
+                  [chain.arbitrumRinkeby.id]:
+                    "https://arb-rinkeby.g.alchemy.com/v2/ktPJku9xHYB37bA3I2jk79FwRLWGBrj2",
+                },
+                qrcode: true,
+              },
+            }),
+          ];
+        },
+        provider({ chainId }) {
+          return new providers.AlchemyProvider(
+            isChainSupported(chainId) ? chainId : chain.arbitrum.id,
+            ENV.ALCHEMY_KEY
+          );
+        },
+      }),
+    [ENV.ALCHEMY_KEY]
+  );
 
   const fetchers = useFetchers();
 
@@ -221,7 +227,11 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="animate-drift bg-[url(/img/gradient.png)] bg-cover bg-fixed text-white antialiased">
+      <body className="bg-[#191A21] text-white antialiased">
+        <div className="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 transform flex-col items-center justify-center -space-x-8 sm:flex-row">
+          <div className="h-48 w-48 rounded-full bg-[#670F0F] blur-[146px] sm:h-[30rem] sm:w-[30rem]" />
+          <div className="h-48 w-48 rounded-full bg-[#4B0F67] blur-[146px] sm:h-[30rem] sm:w-[30rem]" />
+        </div>
         <Provider client={client}>
           <div className="z-10 flex h-16 items-center justify-center border-b border-gray-800 px-8">
             <div className="relative m-auto flex max-w-7xl flex-1 items-center justify-between sm:justify-center">
@@ -260,7 +270,7 @@ export default function App() {
           }}
         />
         <Scripts />
-        <LiveReload />
+        {ENV.NODE_ENV === "development" ? <LiveReload /> : null}
         {/* <script
           dangerouslySetInnerHTML={{
             __html: `window.env = ${JSON.stringify(env)}`,

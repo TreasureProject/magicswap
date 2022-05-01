@@ -27,6 +27,8 @@ import PairTokenInput from "~/components/PairTokenInput";
 import { useState } from "react";
 import { useSwap } from "~/hooks/useSwap";
 import { TokenLogo } from "~/components/TokenLogo";
+import { AdjustmentsIcon, CogIcon, XIcon } from "@heroicons/react/outline";
+import * as PopoverPrimitive from "@radix-ui/react-popover";
 
 type LoaderData = {
   tokenList: Token[];
@@ -156,6 +158,19 @@ export default function Index() {
 
   const insufficientBalance = inputCurrencyBalance < inputValues[0];
 
+  const items = [
+    {
+      id: "width",
+      label: "Slippage",
+      defaultValue: "0.5%",
+    },
+    {
+      id: "max-width",
+      label: "Transaction Deadline",
+      defaultValue: "20 minutes",
+    },
+  ];
+
   return (
     <>
       <div className="flex flex-col items-center">
@@ -166,44 +181,114 @@ export default function Index() {
         <p className="text-sm text-gray-500 sm:text-base">
           The easiest way to swap your tokens
         </p>
-        <div className="mt-14 flex w-full flex-col lg:flex-row">
-          <PairTokenInput
-            id="inputToken"
-            label={`${data.inputToken.symbol} Amount`}
-            token={data.inputToken}
-            balance={inputCurrencyBalance}
-            value={inputValues[0]}
-            onChange={handleInputChange}
-            onTokenClick={() =>
-              setOpenTokenListModalProps({
-                open: true,
-                type: "input",
-              })
-            }
-          />
-          <div className="flex basis-24 items-center justify-center lg:basis-32">
-            <Link
-              to={`/?inputCurrency=${data.outputToken.symbol}&outputCurrency=${data.inputToken.symbol}`}
-              className="group rounded-full p-2 transition duration-300 ease-in-out hover:bg-gray-500/20"
-            >
-              <ArrowRightIcon className="hidden h-6 w-6 animate-rotate-back text-gray-500 group-hover:animate-rotate-180 lg:block" />
-              <ArrowDownIcon className="block h-6 w-6 animate-rotate-back text-gray-500 group-hover:animate-rotate-180 lg:hidden" />
-            </Link>
+        <div className="mt-14 w-full rounded-xl bg-gray-700/25 p-6 shadow-glass backdrop-blur-md">
+          <div className="flex justify-end">
+            <div className="relative inline-block text-left">
+              <PopoverPrimitive.Root>
+                <PopoverPrimitive.Trigger asChild>
+                  <button className="group">
+                    <CogIcon
+                      className="h-6 w-6 text-gray-200/50 group-hover:text-white"
+                      aria-hidden="true"
+                    />
+                    <span className="sr-only">Open adjustment settings</span>
+                  </button>
+                </PopoverPrimitive.Trigger>
+                <PopoverPrimitive.Content
+                  align="center"
+                  sideOffset={4}
+                  className={cn(
+                    "radix-side-top:animate-slide-up radix-side-bottom:animate-slide-down",
+                    "w-48 rounded-lg p-4 shadow-md md:w-80",
+                    "bg-gray-900"
+                  )}
+                >
+                  <PopoverPrimitive.Arrow className="fill-current text-gray-900" />
+                  <h3 className="text-sm font-medium text-gray-100">
+                    Advanced Settings
+                  </h3>
+
+                  <form className="mt-4 space-y-2">
+                    {items.map(({ id, label, defaultValue }) => {
+                      return (
+                        <fieldset
+                          key={`popover-items-${id}`}
+                          className="flex items-center"
+                        >
+                          <label
+                            htmlFor={id}
+                            className="shrink-0 grow text-xs font-medium text-gray-400"
+                          >
+                            {label}
+                          </label>
+                          <input
+                            id={id}
+                            type="text"
+                            defaultValue={defaultValue}
+                            autoComplete="given-name"
+                            className={cn(
+                              "block w-1/2 rounded-md",
+                              "text-xs text-gray-400 placeholder:text-gray-600",
+                              "border border-gray-700 bg-gray-800 focus-visible:border-transparent",
+                              "focus:outline-none focus-visible:ring focus-visible:ring-red-500 focus-visible:ring-opacity-75"
+                            )}
+                          />
+                        </fieldset>
+                      );
+                    })}
+                  </form>
+
+                  <PopoverPrimitive.Close
+                    className={cn(
+                      "absolute top-3.5 right-3.5 inline-flex items-center justify-center rounded-full p-1",
+                      "focus:outline-none focus-visible:ring focus-visible:ring-red-500 focus-visible:ring-opacity-75"
+                    )}
+                  >
+                    <XIcon className="h-4 w-4 text-gray-500 hover:text-gray-400" />
+                  </PopoverPrimitive.Close>
+                </PopoverPrimitive.Content>
+              </PopoverPrimitive.Root>
+            </div>
           </div>
-          <PairTokenInput
-            id="outputToken"
-            label={`${data.outputToken.symbol} Amount`}
-            token={data.outputToken}
-            balance={outputCurrencyBalance}
-            value={inputValues[1]}
-            onChange={handleOutputChange}
-            onTokenClick={() =>
-              setOpenTokenListModalProps({
-                open: true,
-                type: "output",
-              })
-            }
-          />
+          <div className="mt-6 flex flex-col xl:flex-row">
+            <PairTokenInput
+              id="inputToken"
+              label={`${data.inputToken.symbol} Amount`}
+              token={data.inputToken}
+              balance={inputCurrencyBalance}
+              value={inputValues[0]}
+              onChange={handleInputChange}
+              onTokenClick={() =>
+                setOpenTokenListModalProps({
+                  open: true,
+                  type: "input",
+                })
+              }
+            />
+            <div className="flex basis-24 items-center justify-center lg:basis-32">
+              <Link
+                to={`/?inputCurrency=${data.outputToken.symbol}&outputCurrency=${data.inputToken.symbol}`}
+                className="group rounded-full p-2 transition duration-300 ease-in-out hover:bg-gray-500/20"
+              >
+                <ArrowRightIcon className="hidden h-6 w-6 animate-rotate-back text-gray-500 group-hover:animate-rotate-180 lg:block" />
+                <ArrowDownIcon className="block h-6 w-6 animate-rotate-back text-gray-500 group-hover:animate-rotate-180 lg:hidden" />
+              </Link>
+            </div>
+            <PairTokenInput
+              id="outputToken"
+              label={`${data.outputToken.symbol} Amount`}
+              token={data.outputToken}
+              balance={outputCurrencyBalance}
+              value={inputValues[1]}
+              onChange={handleOutputChange}
+              onTokenClick={() =>
+                setOpenTokenListModalProps({
+                  open: true,
+                  type: "output",
+                })
+              }
+            />
+          </div>
         </div>
         <div className="mt-12 w-full px-0 lg:px-72">
           <Button
