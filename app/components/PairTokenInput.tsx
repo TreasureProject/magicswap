@@ -36,7 +36,7 @@ export default function PairTokenInput({
   const positive = token.price24hChange >= 0;
 
   return (
-    <div className="flex-1 space-y-6 rounded-xl border border-transparent bg-gray-700/25 p-6 shadow-glass backdrop-blur-md hover:border-gray-600/30">
+    <div className="flex-1 space-y-6 rounded-md border border-transparent bg-[#20232d] p-6 hover:border-gray-700">
       <div>
         <label htmlFor={id} className="sr-only">
           {label}
@@ -76,7 +76,7 @@ export default function PairTokenInput({
           </div>
         </div>
       </div>
-      <div className="space-y-4 rounded-lg bg-gray-900/70 p-4">
+      <div className="space-y-4 rounded-lg bg-[#1c1c25] p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <TokenLogo
@@ -84,20 +84,20 @@ export default function PairTokenInput({
               symbol={token.symbol}
               className="h-5 w-5 rounded-full"
             />
-            <p className="font-bold">
+            <p className="truncate text-xs font-bold sm:text-base">
               {token.symbol}{" "}
               {token.symbol.toLowerCase() !== token.name.toLowerCase() && (
                 <>({token.name})</>
               )}
             </p>
           </div>
-          <div className="flex items-baseline">
-            <p className="text-sm font-normal text-gray-300 lg:text-lg">
+          <div className="flex flex-col items-end sm:flex-row sm:items-baseline">
+            <p className="whitespace-nowrap text-xs font-normal text-gray-300 sm:text-lg">
               {formatUsd(token.priceUsd)} USD
             </p>
             <p
               className={clsx(
-                "ml-1 flex items-baseline text-[0.6rem] font-semibold lg:text-xs",
+                "flex items-baseline text-[0.5rem] font-semibold sm:ml-1 sm:text-xs",
                 {
                   "text-red-600": !positive,
                   "text-green-600": positive,
@@ -106,12 +106,12 @@ export default function PairTokenInput({
             >
               {positive ? (
                 <ArrowSmUpIcon
-                  className="h-3 w-3 flex-shrink-0 self-center text-green-500 lg:h-4 lg:w-4"
+                  className="h-3 w-3 flex-shrink-0 self-center text-green-500 sm:h-4 sm:w-4"
                   aria-hidden="true"
                 />
               ) : (
                 <ArrowSmDownIcon
-                  className="h-3 w-3 flex-shrink-0 self-center text-red-500 lg:h-4 lg:w-4"
+                  className="h-3 w-3 flex-shrink-0 self-center text-red-500 sm:h-4 sm:w-4"
                   aria-hidden="true"
                 />
               )}

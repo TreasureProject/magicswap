@@ -53,6 +53,14 @@ module.exports = {
             "background-position-x": "100vw",
           },
         },
+        "slide-up": {
+          "0%": { opacity: 0, transform: "translateY(10px)" },
+          "100%": { opacity: 1, transform: "translateY(0)" },
+        },
+        "slide-down": {
+          "0%": { opacity: 0, transform: "translateY(-10px)" },
+          "100%": { opacity: 1, transform: "translateY(0)" },
+        },
       },
       animation: {
         "bounce-right-to-left": "bounce-right-to-left 1s ease-in-out infinite",
@@ -60,8 +68,14 @@ module.exports = {
         "rotate-180": "rotate-right-to-left 0.2s forwards linear",
         "rotate-back": "rotate-back 0.2s forwards linear",
         drift: "drift 30s linear infinite",
+        "slide-down": "slide-down 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+        "slide-up": "slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
       },
     },
   },
-  plugins: [require("@tailwindcss/forms")],
+  plugins: [
+    require("@tailwindcss/forms"),
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require("tailwindcss-radix")(),
+  ],
 };

@@ -100,7 +100,7 @@ export default function Pools() {
             leaveFrom="translate-x-0"
             leaveTo="translate-x-full"
           >
-            <div className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-gray-800 pt-4 shadow-xl">
+            <div className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-[#20232d] pt-4 shadow-xl">
               <div className="flex items-center justify-between px-4">
                 <h2 className="text-lg font-medium text-gray-200">
                   Choose Pool
@@ -194,7 +194,7 @@ export default function Pools() {
           </ol>
         ) : null}
         <div className="relative col-span-6 mt-4 block lg:hidden">
-          <div className="group block rounded-md bg-gray-800 p-4 focus-within:ring-2 focus-within:ring-red-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
+          <div className="group block rounded-md bg-[#20232d] p-4 focus-within:ring-2 focus-within:ring-red-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
             {selectedPool ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
@@ -244,7 +244,7 @@ export default function Pools() {
         </div>
       </div>
       <div className="mt-2 grid flex-1 grid-cols-6 gap-x-4">
-        <div className="hidden h-[calc(100vh-256px)] flex-col overflow-hidden rounded-md bg-gray-800 lg:col-span-2 lg:flex">
+        <div className="hidden h-[calc(100vh-256px)] flex-col overflow-hidden rounded-md bg-[#20232d] lg:col-span-2 lg:flex">
           <div className="p-6">
             <fetcher.Form>
               <label htmlFor="liquidity-pools" className="sr-only">
@@ -286,7 +286,7 @@ export default function Pools() {
             </div>
           </div>
         </div>
-        <div className="col-span-6 overflow-hidden rounded-md bg-gray-800 lg:col-span-4 lg:h-[calc(100vh-256px)]">
+        <div className="col-span-6 overflow-hidden rounded-md bg-[#20232d] lg:col-span-4 lg:h-[calc(100vh-256px)]">
           <Outlet />
         </div>
       </div>
