@@ -1,8 +1,9 @@
+import { getEnvVariable } from "~/utils/env";
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
 import { useContractWrite } from "./useContractWrite";
 
 const contractConfig = {
-  addressOrName: "0x0a073b830cd4247d518c4f0d1bafd6edf7af507b",
+  addressOrName: getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS"),
   contractInterface: UniswapV2Router02Abi,
 };
 
