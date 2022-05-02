@@ -12,9 +12,9 @@ const renderStatusWithHeader = (message: string, headerMessage?: string) => {
   }
 
   return (
-    <div>
-      <span className="block font-bold">{headerMessage}</span>
-      {message}
+    <div className="ml-1">
+      <p className="truncate text-sm font-medium text-white">{headerMessage}</p>
+      <p className="mt-1 text-sm text-gray-500">{message}</p>
     </div>
   );
 };
@@ -32,15 +32,23 @@ export const useContractWrite = (...args: UseContractWriteArgs) => {
       errorMessage = "Transaction failed"
     ) => {
       const promise = writeAsync(overrideConfig);
-      toast.promise(promise, {
-        loading: renderStatusWithHeader(loadingMessage, statusHeader),
-        success: renderStatusWithHeader(successMessage, statusHeader),
-        error: (err: Error) =>
-          renderStatusWithHeader(
-            `${errorMessage}: ${err.message}`,
-            statusHeader
-          ),
-      });
+      toast.promise(
+        promise,
+        {
+          loading: renderStatusWithHeader(loadingMessage, statusHeader),
+          success: renderStatusWithHeader(successMessage, statusHeader),
+          error: (err: Error) =>
+            renderStatusWithHeader(
+              `${errorMessage}: ${err.message}`,
+              statusHeader
+            ),
+        },
+        {
+          style: {
+            minWidth: "250px",
+          },
+        }
+      );
     },
     [writeAsync]
   );

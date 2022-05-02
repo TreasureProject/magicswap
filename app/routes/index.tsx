@@ -32,6 +32,12 @@ import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
 import { useApproval } from "~/hooks/useApproval";
 import { getEnvVariable } from "~/utils/env";
+import { useLocale } from "@react-aria/i18n";
+import { useNumberField } from "@react-aria/numberfield";
+import { useNumberFieldState } from "@react-stately/numberfield";
+import { useIsMounted } from "~/hooks";
+import { useAccount, useConnect } from "wagmi";
+import { useUser } from "~/context/userContext";
 
 type LoaderData = {
   tokenList: Token[];
@@ -101,13 +107,17 @@ export default function Index() {
     open: false,
     type: "input",
   });
-
+  const [advancedSettings, setAdvancedSettings] = React.useState({
+    slippage: 0.005,
+    deadline: 20,
+  });
   const [isExactOut, setIsExactOut] = useState(false);
   const [inputValues, setInputValues] = useState([0, 0]);
   const inputCurrencyBalance = useTokenBalance(data.inputToken);
   const outputCurrencyBalance = useTokenBalance(data.outputToken);
   const { isApproved, approve } = useApproval(data.inputToken);
-  console.log(isApproved);
+  const { openWalletModal, isConnected } = useUser();
+
   const swap = useSwap();
   const inputPairToken =
     data.pair.token0.id === data.inputToken.id
@@ -153,29 +163,20 @@ export default function Index() {
   };
 
   const handleSwap = () => {
-    swap(
-      inputPairToken,
-      outputPairToken,
-      inputValues[0],
-      inputValues[1],
-      isExactOut
-    );
+    if (!isConnected) {
+      openWalletModal();
+    } else {
+      swap(
+        inputPairToken,
+        outputPairToken,
+        inputValues[0],
+        inputValues[1],
+        isExactOut
+      );
+    }
   };
 
   const insufficientBalance = inputCurrencyBalance < inputValues[0];
-
-  const items = [
-    {
-      id: "width",
-      label: "Slippage",
-      defaultValue: "0.5%",
-    },
-    {
-      id: "max-width",
-      label: "Deadline",
-      defaultValue: "20 minutes",
-    },
-  ];
 
   return (
     <>
@@ -201,39 +202,97 @@ export default function Index() {
                   </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-80 rounded-lg p-4 shadow-md">
-                  <h3 className="text-sm font-medium text-gray-100">
-                    Advanced Settings
-                  </h3>
+                  <h3 className="font-medium text-white">Advanced Settings</h3>
 
-                  <form className="mt-4 space-y-2">
-                    {items.map(({ id, label, defaultValue }) => {
-                      return (
-                        <fieldset
-                          key={`popover-items-${id}`}
-                          className="flex items-center"
+                  <div className="mt-2 flex flex-col">
+                    <div className="flex flex-col">
+                      <p className="text-sm text-gray-200">Slippage</p>
+                      {advancedSettings.slippage >= 0.06 ? (
+                        <p className="text-[0.6rem] text-yellow-500">
+                          Your transaction may be frontrun
+                        </p>
+                      ) : null}
+                      <div className="mt-1 flex space-x-2">
+                        <button
+                          className="rounded-md bg-gray-800 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-xs"
+                          onClick={() =>
+                            setAdvancedSettings({
+                              ...advancedSettings,
+                              slippage: 0.001,
+                            })
+                          }
                         >
-                          <label
-                            htmlFor={id}
-                            className="shrink-0 grow text-xs font-medium text-gray-400"
-                          >
-                            {label}
-                          </label>
-                          <input
-                            id={id}
-                            type="text"
-                            defaultValue={defaultValue}
-                            autoComplete="given-name"
-                            className={cn(
-                              "block w-1/2 rounded-md",
-                              "text-xs text-gray-400 placeholder:text-gray-600",
-                              "border border-gray-700 bg-gray-800 focus-visible:border-transparent",
-                              "focus:outline-none focus-visible:ring focus-visible:ring-red-500 focus-visible:ring-opacity-75"
-                            )}
-                          />
-                        </fieldset>
-                      );
-                    })}
-                  </form>
+                          0.1%
+                        </button>
+                        <button
+                          className="rounded-md bg-gray-800 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-xs"
+                          onClick={() =>
+                            setAdvancedSettings({
+                              ...advancedSettings,
+                              slippage: 0.005,
+                            })
+                          }
+                        >
+                          0.5%
+                        </button>
+                        <button
+                          className="rounded-md bg-gray-800 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-xs"
+                          onClick={() =>
+                            setAdvancedSettings({
+                              ...advancedSettings,
+                              slippage: 0.01,
+                            })
+                          }
+                        >
+                          1.0%
+                        </button>
+                        <NumberField
+                          label="Slippage"
+                          value={advancedSettings.slippage}
+                          onChange={(value) =>
+                            setAdvancedSettings({
+                              ...advancedSettings,
+                              slippage: value,
+                            })
+                          }
+                          minValue={0.001}
+                          maxValue={0.49}
+                          placeholder="0.5%"
+                          formatOptions={{
+                            style: "percent",
+                            minimumFractionDigits: 1,
+                            maximumFractionDigits: 2,
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-4 flex flex-col">
+                      <p className="text-sm text-gray-200">
+                        Transaction Deadline
+                      </p>
+                      <div className="mt-1">
+                        <NumberField
+                          label="Transaction Deadline"
+                          value={advancedSettings.deadline}
+                          onChange={(value) =>
+                            setAdvancedSettings({
+                              ...advancedSettings,
+                              deadline: value,
+                            })
+                          }
+                          minValue={1}
+                          maxValue={60}
+                          placeholder="20"
+                        >
+                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                            <span className="text-sm text-gray-400">
+                              Minutes
+                            </span>
+                          </div>
+                        </NumberField>
+                      </div>
+                    </div>
+                  </div>
                 </PopoverContent>
               </Popover>
             </div>
@@ -284,14 +343,17 @@ export default function Index() {
           )}
           <Button
             disabled={
-              !inputValues[0] ||
-              !inputValues[1] ||
-              insufficientBalance ||
-              !isApproved
+              isConnected &&
+              (!inputValues[0] ||
+                !inputValues[1] ||
+                insufficientBalance ||
+                !isApproved)
             }
             onClick={handleSwap}
           >
-            {insufficientBalance
+            {!isConnected
+              ? "Connect to a wallet"
+              : insufficientBalance
               ? "Insufficient Balance"
               : inputValues[0] && inputValues[1]
               ? "Swap"
@@ -495,6 +557,34 @@ const Modal = ({
         </div>
       </Dialog>
     </Transition.Root>
+  );
+};
+
+const NumberField = ({
+  children,
+  ...props
+}: Parameters<typeof useNumberField>[0] & {
+  children?: React.ReactNode;
+}) => {
+  const { locale } = useLocale();
+  const state = useNumberFieldState({ ...props, locale });
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const { labelProps, inputProps } = useNumberField(props, state, inputRef);
+  return (
+    <div className="flex-1">
+      <label className="sr-only" {...labelProps}>
+        {props.label}
+      </label>
+      <div className="relative rounded-md shadow-sm">
+        <input
+          {...inputProps}
+          ref={inputRef}
+          className="block w-full rounded-md border-gray-700 bg-gray-800/60 pr-10 text-sm focus:border-gray-500 focus:ring-gray-500"
+          placeholder={props.placeholder}
+        />
+        {children}
+      </div>
+    </div>
   );
 };
 
