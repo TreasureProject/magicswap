@@ -159,6 +159,9 @@ export const getSwaps = gql`
       amount0Out
       amount1Out
       amountUSD
+      transaction {
+        id
+      }
     }
   }
 `;

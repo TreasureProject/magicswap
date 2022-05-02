@@ -13,6 +13,7 @@ const normalizeSwap = ({
   amount0Out: rawAmount0Out,
   amount1Out: rawAmount1Out,
   amountUSD,
+  transaction: { id: transactionId },
 }: RawSwap): Swap => {
   const amount0In = parseFloat(rawAmount0In);
   const amount1In = parseFloat(rawAmount1In);
@@ -22,6 +23,7 @@ const normalizeSwap = ({
     id,
     date: timestamp,
     formattedDate: getTimeAgo(timestamp),
+    transactionId,
     isAmount0In: amount0In > 0,
     isAmount0Out: amount0Out > 0,
     inAmount: amount0In || amount1In,
