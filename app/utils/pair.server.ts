@@ -130,5 +130,10 @@ export const getPairs = async (
       },
     }),
   ]);
-  return pairs.map((pair) => normalizePair(pair as RawPair, ethUsd));
+  return pairs
+    .map((pair) => normalizePair(pair as RawPair, ethUsd))
+    .filter(
+      ({ token0, token1 }) =>
+        token0.symbol === "MAGIC" || token1.symbol === "MAGIC"
+    );
 };
