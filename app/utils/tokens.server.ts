@@ -26,7 +26,7 @@ export const normalizeToken = ({
     isMagic: symbol === "MAGIC",
     name,
     decimals: parseInt(decimals),
-    priceEth: parseFloat(derivedETH),
+    priceMagic: parseFloat(derivedETH),
   };
 };
 
@@ -35,20 +35,9 @@ export const normalizeAdvancedToken = (
   ethUsd: number
 ): AdvancedToken => {
   const token = normalizeToken(rawToken);
-  const priceUsd = token.priceEth * ethUsd;
-
-  let price24hChange = -1;
-  if (dayData.length > 1) {
-    const priceYesterdayUsd = parseFloat(dayData[1].priceUSD);
-    price24hChange = parseFloat(
-      ((priceUsd - priceYesterdayUsd) / priceYesterdayUsd).toFixed(4)
-    );
-  }
-
   return {
     ...token,
-    priceUsd,
-    price24hChange,
+    priceUsd: token.priceMagic * ethUsd,
     price1dUsdIntervals: hourData.map(({ date, priceUSD }) => ({
       date,
       value: parseFloat(priceUSD),

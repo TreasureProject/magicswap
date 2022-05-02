@@ -34,6 +34,7 @@ import { getEnvVariable } from "~/utils/env";
 
 import { useUser } from "~/context/userContext";
 import { NumberField } from "~/components/NumberField";
+import { usePair } from "~/hooks/usePair";
 
 type LoaderData = {
   tokenList: Token[];
@@ -111,18 +112,15 @@ export default function Index() {
   const [inputValues, setInputValues] = useState([0, 0]);
   const inputCurrencyBalance = useTokenBalance(data.inputToken);
   const outputCurrencyBalance = useTokenBalance(data.outputToken);
+  const pair = usePair(data.pair);
   const { isApproved, approve } = useApproval(data.inputToken);
   const { openWalletModal, isConnected } = useUser();
 
   const swap = useSwap();
   const inputPairToken =
-    data.pair.token0.id === data.inputToken.id
-      ? data.pair.token0
-      : data.pair.token1;
+    pair.token0.id === data.inputToken.id ? pair.token0 : pair.token1;
   const outputPairToken =
-    data.pair.token0.id === data.outputToken.id
-      ? data.pair.token0
-      : data.pair.token1;
+    pair.token0.id === data.outputToken.id ? pair.token0 : pair.token1;
 
   const onClose = React.useCallback(
     () =>
@@ -135,7 +133,7 @@ export default function Index() {
 
   const handleInputChange = (value: number) => {
     setIsExactOut(false);
-    const rawAmountOut = value * data.outputToken.price;
+    const rawAmountOut = value * outputPairToken.price;
     const amountInWithFee = value * 0.997;
     const amountOut = Math.max(
       (amountInWithFee * outputPairToken.reserve) /
@@ -148,7 +146,7 @@ export default function Index() {
 
   const handleOutputChange = (value: number) => {
     setIsExactOut(true);
-    const rawAmountIn = value * data.inputToken.price;
+    const rawAmountIn = value * inputPairToken.price;
     const amountIn = Math.max(
       (inputPairToken.reserve * value) /
         ((outputPairToken.reserve - value) * 0.997),
@@ -181,7 +179,7 @@ export default function Index() {
       <div className="flex flex-col items-center">
         <StarIcon className="h-8 w-8" />
         <h2 className="mt-14 text-base font-bold sm:text-lg">
-          Swap {data.inputToken.symbol} to {data.outputToken.symbol}
+          Swap {inputPairToken.symbol} to {outputPairToken.symbol}
         </h2>
         <p className="text-sm text-gray-500 sm:text-base">
           The easiest way to swap your tokens
@@ -304,8 +302,8 @@ export default function Index() {
           <div className="mt-6 flex flex-col xl:flex-row">
             <PairTokenInput
               id="inputToken"
-              label={`${data.inputToken.symbol} Amount`}
-              token={data.inputToken}
+              label={`${inputPairToken.symbol} Amount`}
+              token={inputPairToken}
               balance={inputCurrencyBalance}
               value={inputValues[0]}
               onChange={handleInputChange}
@@ -318,7 +316,7 @@ export default function Index() {
             />
             <div className="flex basis-24 items-center justify-center lg:basis-32">
               <Link
-                to={`/?inputCurrency=${data.outputToken.symbol}&outputCurrency=${data.inputToken.symbol}`}
+                to={`/?inputCurrency=${outputPairToken.symbol}&outputCurrency=${inputPairToken.symbol}`}
                 className="group rounded-full p-2 transition duration-300 ease-in-out hover:bg-gray-500/20"
               >
                 <ArrowRightIcon className="hidden h-6 w-6 animate-rotate-back text-gray-500 group-hover:animate-rotate-180 lg:block" />
@@ -327,8 +325,8 @@ export default function Index() {
             </div>
             <PairTokenInput
               id="outputToken"
-              label={`${data.outputToken.symbol} Amount`}
-              token={data.outputToken}
+              label={`${outputPairToken.symbol} Amount`}
+              token={outputPairToken}
               balance={outputCurrencyBalance}
               value={inputValues[1]}
               onChange={handleOutputChange}
@@ -343,7 +341,7 @@ export default function Index() {
         </div>
         <div className="mt-12 w-full space-y-4 px-0 lg:px-72">
           {inputValues[0] > 0 && !isApproved && !insufficientBalance && (
-            <Button onClick={approve}>Approve {data.inputToken.symbol}</Button>
+            <Button onClick={approve}>Approve {inputPairToken.symbol}</Button>
           )}
           <Button
             disabled={
