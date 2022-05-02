@@ -27,18 +27,16 @@ import { PieIcon, SplitIcon, TreasureLogoIcon } from "./components/Icons";
 import NProgress from "nprogress";
 import nProgressStyles from "./styles/nprogress.css";
 import { Wallet } from "./components/Wallet";
-import { getEnvVariable } from "./utils/env.server";
+import { getEnvVariable } from "./utils/env";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import { providers } from "ethers";
 import { getTokensImageAddress } from "./utils/tokens.server";
+import type { CloudFlareEnv } from "./types";
 
 export type RootLoaderData = {
   tokenImageList: Awaited<ReturnType<typeof getTokensImageAddress>>;
-  ENV: {
-    ALCHEMY_KEY: string;
-    NODE_ENV: string;
-  };
+  ENV: Partial<CloudFlareEnv>;
 };
 
 export const links: LinksFunction = () => [
@@ -58,6 +56,10 @@ export const loader: LoaderFunction = async ({ context }) => {
     ENV: {
       ALCHEMY_KEY: getEnvVariable("ALCHEMY_KEY", context),
       NODE_ENV: getEnvVariable("NODE_ENV", context),
+      UNISWAP_V2_ROUTER_ADDRESS: getEnvVariable(
+        "UNISWAP_V2_ROUTER_ADDRESS",
+        context
+      ),
     },
   });
 };
@@ -266,11 +268,11 @@ export default function App() {
         />
         <Scripts />
         {ENV.NODE_ENV === "development" ? <LiveReload /> : null}
-        {/* <script
+        <script
           dangerouslySetInnerHTML={{
             __html: `window.env = ${JSON.stringify(ENV)};`,
           }}
-        /> */}
+        />
       </body>
     </html>
   );
