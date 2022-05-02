@@ -44,11 +44,6 @@ export type RootLoaderData = {
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
   { rel: "stylesheet", href: nProgressStyles },
-  {
-    rel: "preload",
-    href: "/img/gradient.png",
-    as: "image",
-  },
 ];
 
 export const meta: MetaFunction = () => ({
@@ -273,7 +268,7 @@ export default function App() {
         {ENV.NODE_ENV === "development" ? <LiveReload /> : null}
         {/* <script
           dangerouslySetInnerHTML={{
-            __html: `window.env = ${JSON.stringify(env)}`,
+            __html: `window.env = ${JSON.stringify(ENV)};`,
           }}
         /> */}
       </body>

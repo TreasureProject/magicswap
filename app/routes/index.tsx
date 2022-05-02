@@ -30,6 +30,7 @@ import { TokenLogo } from "~/components/TokenLogo";
 import { CogIcon, XIcon } from "@heroicons/react/outline";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
+import { useApproval } from "~/hooks/useApproval";
 
 type LoaderData = {
   tokenList: Token[];
@@ -103,6 +104,8 @@ export default function Index() {
   const [inputValues, setInputValues] = useState([0, 0]);
   const inputCurrencyBalance = useTokenBalance(data.inputToken);
   const outputCurrencyBalance = useTokenBalance(data.outputToken);
+  const { isApproved, approve } = useApproval(data.inputToken);
+  console.log(isApproved);
   const swap = useSwap();
   const inputPairToken =
     data.pair.token0.id === data.inputToken.id
@@ -273,9 +276,17 @@ export default function Index() {
             />
           </div>
         </div>
-        <div className="mt-12 w-full px-0 lg:px-72">
+        <div className="mt-12 w-full space-y-4 px-0 lg:px-72">
+          {inputValues[0] > 0 && !isApproved && !insufficientBalance && (
+            <Button onClick={approve}>Approve {data.inputToken.symbol}</Button>
+          )}
           <Button
-            disabled={!inputValues[0] || !inputValues[1] || insufficientBalance}
+            disabled={
+              !inputValues[0] ||
+              !inputValues[1] ||
+              insufficientBalance ||
+              !isApproved
+            }
             onClick={handleSwap}
           >
             {insufficientBalance

@@ -58,6 +58,7 @@ export const Graph = ({
           from={gradient.from}
           to={gradient.to}
           vertical={false}
+          gradientUnits="userSpaceOnUse"
         />
         <LinePath
           data={data}
