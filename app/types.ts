@@ -51,6 +51,7 @@ export type Swap = {
   id: string;
   date: number;
   formattedDate: string;
+  transactionId: string;
   isAmount0In: boolean;
   isAmount0Out: boolean;
   inAmount: number;

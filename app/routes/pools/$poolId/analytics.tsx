@@ -17,6 +17,8 @@ import { getPairById } from "~/utils/pair.server";
 import type { Pair, Swap } from "~/types";
 import { getSwaps } from "~/utils/swap.server";
 import { getEnvVariable } from "~/utils/env";
+import { ExternalLinkIcon } from "@heroicons/react/outline";
+import { chain, useNetwork } from "wagmi";
 
 type LoaderData = {
   randomNumber: number;
@@ -62,6 +64,7 @@ export default function Analytics() {
   const { poolId } = useParams();
 
   const { load, data: fetchedData } = useFetcher<LoaderData>();
+  const { activeChain } = useNetwork();
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -207,7 +210,20 @@ export default function Analytics() {
                   className="whitespace-nowrap px-3 py-2.5 text-[0.6rem] text-gray-500 sm:text-sm"
                   title={new Date(swap.date * 1000).toLocaleString()}
                 >
-                  {swap.formattedDate}
+                  <a
+                    href={`${
+                      (activeChain ?? chain.arbitrum).blockExplorers?.default
+                        .url ?? "https://arbiscan.io"
+                    }/tx/${swap.transactionId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center gap-1"
+                  >
+                    <span className="group-hover:underline">
+                      {swap.formattedDate}
+                    </span>
+                    <ExternalLinkIcon className="h-4 w-4" />
+                  </a>
                 </td>
               </tr>
             ))}
