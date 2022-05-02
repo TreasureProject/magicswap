@@ -26,8 +26,8 @@ type LoaderData = {
 
 const tabs = [
   { name: "Liquidity", query: "liquidity" },
-  { name: "Stake", query: "stake" },
-  { name: "Rewards", query: "rewards" },
+  // { name: "Stake", query: "stake" },
+  // { name: "Rewards", query: "rewards" },
 ] as const;
 
 export const meta: MetaFunction = ({ data }: { data: LoaderData }) => ({
@@ -90,10 +90,10 @@ export default function Manage() {
         switch (selectedTab.query) {
           case "liquidity":
             return <Liquidity />;
-          case "stake":
-            return <Stake />;
-          case "rewards":
-            return <div>Rewards</div>;
+          // case "stake":
+          //   return <Stake />;
+          // case "rewards":
+          //   return <div>Rewards</div>;
         }
       })()}
     </div>
