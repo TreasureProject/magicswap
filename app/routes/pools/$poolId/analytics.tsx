@@ -16,7 +16,7 @@ import { formatNumber } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
 import type { Pair, Swap } from "~/types";
 import { getSwaps } from "~/utils/swap.server";
-import { getEnvVariable } from "~/utils/env.server";
+import { getEnvVariable } from "~/utils/env";
 
 type LoaderData = {
   randomNumber: number;

@@ -31,7 +31,7 @@ import { CogIcon, XIcon } from "@heroicons/react/outline";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
 import { useApproval } from "~/hooks/useApproval";
-import { getEnvVariable } from "~/utils/env.server";
+import { getEnvVariable } from "~/utils/env";
 
 type LoaderData = {
   tokenList: Token[];
