@@ -27,17 +27,13 @@ import PairTokenInput from "~/components/PairTokenInput";
 import { useState } from "react";
 import { useSwap } from "~/hooks/useSwap";
 import { TokenLogo } from "~/components/TokenLogo";
-import { CogIcon, XIcon } from "@heroicons/react/outline";
-import * as PopoverPrimitive from "@radix-ui/react-popover";
+import { CogIcon } from "@heroicons/react/outline";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
 import { useApproval } from "~/hooks/useApproval";
 import { getEnvVariable } from "~/utils/env";
-import { useLocale } from "@react-aria/i18n";
-import { useNumberField } from "@react-aria/numberfield";
-import { useNumberFieldState } from "@react-stately/numberfield";
-import { useIsMounted } from "~/hooks";
-import { useAccount, useConnect } from "wagmi";
+
 import { useUser } from "~/context/userContext";
+import { NumberField } from "~/components/NumberField";
 
 type LoaderData = {
   tokenList: Token[];
@@ -216,7 +212,7 @@ export default function Index() {
                       ) : null}
                       <div className="mt-2 flex space-x-2">
                         <button
-                          className="rounded-md bg-gray-800 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-1 sm:text-xs"
+                          className="rounded-md bg-gray-800/50 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 hover:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-1 sm:text-xs"
                           onClick={() =>
                             setAdvancedSettings({
                               ...advancedSettings,
@@ -227,7 +223,7 @@ export default function Index() {
                           0.1%
                         </button>
                         <button
-                          className="rounded-md bg-gray-800 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-1 sm:text-xs"
+                          className="rounded-md bg-gray-800/50 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 hover:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-1 sm:text-xs"
                           onClick={() =>
                             setAdvancedSettings({
                               ...advancedSettings,
@@ -238,7 +234,7 @@ export default function Index() {
                           0.5%
                         </button>
                         <button
-                          className="rounded-md bg-gray-800 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-1 sm:text-xs"
+                          className="rounded-md bg-gray-800/50 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 hover:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-1 sm:text-xs"
                           onClick={() =>
                             setAdvancedSettings({
                               ...advancedSettings,
@@ -565,49 +561,6 @@ const Modal = ({
         </div>
       </Dialog>
     </Transition.Root>
-  );
-};
-
-const NumberField = ({
-  children,
-  errorCondition,
-  ...props
-}: Parameters<typeof useNumberField>[0] & {
-  errorCondition: (value: number) => boolean;
-  children?: React.ReactNode;
-}) => {
-  const { locale } = useLocale();
-  const state = useNumberFieldState({ ...props, locale });
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
-  const { labelProps, inputProps } = useNumberField(props, state, inputRef);
-
-  const sanitizedValue = parseFloat(state.inputValue.replace(/[^0-9.]/g, ""));
-
-  return (
-    <>
-      <div className="flex-1">
-        <label className="sr-only" {...labelProps}>
-          {props.label}
-        </label>
-        <div className="relative rounded-md shadow-sm">
-          <input
-            {...inputProps}
-            ref={inputRef}
-            className={cn(
-              sanitizedValue > 49
-                ? "focus:border-red-500 focus:ring-red-500"
-                : "focus:border-gray-500 focus:ring-gray-500",
-              "block w-full rounded-md bg-gray-800/60 text-sm focus:border-gray-500"
-            )}
-            placeholder={props.placeholder}
-          />
-          {children}
-        </div>
-      </div>
-      {props.errorMessage && errorCondition(sanitizedValue) ? (
-        <p className="mt-2 text-sm text-red-600">{props.errorMessage}</p>
-      ) : null}
-    </>
   );
 };
 
