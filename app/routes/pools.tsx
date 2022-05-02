@@ -124,7 +124,7 @@ export default function Pools() {
                       name="liquidity-pools"
                       id="liquidity-pools"
                       onChange={handleChange}
-                      className="block w-full rounded-md border-gray-700 bg-gray-900 pr-10 text-sm focus:border-gray-500 focus:ring-gray-500"
+                      className="block w-full rounded-md border-gray-700 bg-[#1C1C24] pr-10 text-sm focus:border-gray-500 focus:ring-gray-500"
                       placeholder="Search for liquidity pools"
                     />
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
@@ -256,7 +256,7 @@ export default function Pools() {
                   name="liquidity-pools"
                   id="liquidity-pools"
                   onChange={handleChange}
-                  className="block w-full rounded-md border-gray-700 bg-gray-900 pr-10 focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
+                  className="block w-full rounded-md border-gray-700 bg-[#1C1C24] pr-10 focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
                   placeholder="Search for liquidity pools"
                 />
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">

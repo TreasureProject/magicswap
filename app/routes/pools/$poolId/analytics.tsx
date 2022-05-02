@@ -130,7 +130,7 @@ export default function Analytics() {
       </div>
       <div className="max-h-96 flex-1 overflow-auto border-t border-gray-700 sm:-mx-6 md:mx-0 lg:max-h-full">
         <table className="min-w-full divide-y divide-gray-700">
-          <thead className="sticky top-0 z-10 bg-gray-900">
+          <thead className="sticky top-0 z-10 bg-[#1C1C24]">
             <tr>
               <th
                 scope="col"
