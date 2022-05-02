@@ -16,7 +16,7 @@ import { formatPercent } from "~/utils/number";
 import type { Pair } from "~/types";
 import { getPairs } from "~/utils/pair.server";
 import { TokenLogo } from "~/components/TokenLogo";
-import { getEnvVariable } from "~/utils/env.server";
+import { getEnvVariable } from "~/utils/env";
 
 type LoaderData = {
   pairs: Pair[];

@@ -18,7 +18,7 @@ import { useAddLiquidity } from "~/hooks/useAddLiquidity";
 import TokenInput from "~/components/TokenInput";
 import { useRemoveLiquidity } from "~/hooks/useRemoveLiquidity";
 import { useApproval } from "~/hooks/useApproval";
-import { getEnvVariable } from "~/utils/env.server";
+import { getEnvVariable } from "~/utils/env";
 
 type LoaderData = {
   pair: Pair;
