@@ -11,9 +11,8 @@ type RawPair = GetSwapPairQuery["pairs"][0];
 const normalizePair = (
   {
     id,
-    name,
-    token0,
-    token1,
+    token0: rawToken0,
+    token1: rawToken1,
     token0Price,
     token1Price,
     reserve0,
@@ -25,21 +24,23 @@ const normalizePair = (
   }: RawPair,
   ethUsd = 0
 ): Pair => {
+  const token0 = {
+    ...normalizeAdvancedToken(rawToken0, ethUsd),
+    price: parseFloat(token0Price),
+    reserve: parseFloat(reserve0),
+  };
+  const token1 = {
+    ...normalizeAdvancedToken(rawToken1, ethUsd),
+    price: parseFloat(token1Price),
+    reserve: parseFloat(reserve1),
+  };
   const liquidityUsd = parseFloat(reserveUSD);
   const totalSupply = parseFloat(rawTotalSupply);
   return {
     id,
-    name: name,
-    token0: {
-      ...normalizeAdvancedToken(token0, ethUsd),
-      price: parseFloat(token0Price),
-      reserve: parseFloat(reserve0),
-    },
-    token1: {
-      ...normalizeAdvancedToken(token1, ethUsd),
-      price: parseFloat(token1Price),
-      reserve: parseFloat(reserve1),
-    },
+    name: `${token0.symbol}-${token1.symbol}`,
+    token0,
+    token1,
     totalSupply,
     liquidityUsd,
     lpPriceUsd: liquidityUsd / totalSupply,

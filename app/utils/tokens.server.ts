@@ -9,6 +9,8 @@ type RawTokenList = GetSwapPairsQuery["pairs"];
 type RawToken = RawTokenList[0]["token0"];
 type RawPairToken = GetSwapPairQuery["pairs"][0]["token0"];
 
+const normalizeSymbol = (symbol: string) => symbol.replace("$", "");
+
 export const normalizeToken = ({
   id,
   symbol,
@@ -17,7 +19,7 @@ export const normalizeToken = ({
   derivedETH,
 }: RawToken): Token => ({
   id,
-  symbol,
+  symbol: normalizeSymbol(symbol),
   name,
   decimals: parseInt(decimals),
   priceEth: parseFloat(derivedETH),
@@ -102,7 +104,10 @@ export const getTokenBySymbol = (
   tokens: Token[],
   symbol: string
 ): Optional<Token> =>
-  tokens.find((token) => token.symbol.toLowerCase() === symbol.toLowerCase());
+  tokens.find(
+    (token) =>
+      token.symbol.toLowerCase() === normalizeSymbol(symbol).toLowerCase()
+  );
 
 export const getEthUsd = async (): Promise<number> => {
   const { bundle } = await exchangeSdk.getEthPrice();
