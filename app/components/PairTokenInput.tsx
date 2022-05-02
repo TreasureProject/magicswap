@@ -2,13 +2,12 @@ import {
   ArrowSmDownIcon,
   ArrowSmUpIcon,
   ChevronDownIcon,
-  MailIcon,
 } from "@heroicons/react/solid";
 import clsx from "clsx";
 import { useNumberInput } from "~/hooks/useNumberInput";
 import type { PairToken } from "~/types";
 import { formatNumber, formatPercent } from "~/utils/number";
-import { formatUsd } from "~/utils/price";
+import { formatUsd, getPrice24hChange } from "~/utils/price";
 import { TimeIntervalLineGraph } from "./Graph";
 import { TokenLogo } from "./TokenLogo";
 
@@ -33,7 +32,8 @@ export default function PairTokenInput({
     value,
     onChange,
   });
-  const positive = token.price24hChange >= 0;
+  const price24hChange = getPrice24hChange(token);
+  const positive = price24hChange >= 0;
 
   return (
     <div className="flex-1 space-y-6 rounded-md border border-transparent bg-[#20232d] p-6 hover:border-gray-700">
@@ -118,7 +118,7 @@ export default function PairTokenInput({
               <span className="sr-only">
                 {positive ? "Increased by" : "Decreased by"}
               </span>
-              {formatPercent(token.price24hChange)}
+              {formatPercent(price24hChange)}
             </p>
           </div>
         </div>

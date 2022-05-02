@@ -12,12 +12,11 @@ export type Token = {
   isMagic: boolean;
   name: string;
   decimals: number;
-  priceEth: number;
+  priceMagic: number;
 };
 
 export type AdvancedToken = Token & {
   priceUsd: number;
-  price24hChange: number;
   price1dUsdIntervals: TimeInterval[];
   price1wUsdIntervals: TimeInterval[];
   volume1dUsd: number;
@@ -63,7 +62,8 @@ export type CloudFlareEnvVar =
   | "ALCHEMY_KEY"
   | "NODE_ENV"
   | "EXCHANGE_ENDPOINT"
-  | "UNISWAP_V2_ROUTER_ADDRESS";
+  | "UNISWAP_V2_ROUTER_ADDRESS"
+  | "USDC_MAGIC_PAIR_ADDRESS";
 
 export type CloudFlareEnv = {
   [key in CloudFlareEnvVar]: string;
