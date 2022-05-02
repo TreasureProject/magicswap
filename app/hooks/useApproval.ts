@@ -1,8 +1,9 @@
-import { BigNumber, utils } from "ethers";
+import { utils } from "ethers";
 import { MaxUint256 } from "@ethersproject/constants";
 import { erc20ABI, useAccount, useContractRead } from "wagmi";
 import type { Token } from "~/types";
 import { useContractWrite } from "./useContractWrite";
+import { getEnvVariable } from "~/utils/env";
 
 export const useApproval = (token: Token) => {
   const contractConfig = {
@@ -12,7 +13,7 @@ export const useApproval = (token: Token) => {
 
   const { data: accountData } = useAccount();
   const { data: allowance } = useContractRead(contractConfig, "allowance", {
-    args: [accountData?.address, "0x0a073b830cd4247d518c4f0d1bafd6edf7af507b"],
+    args: [accountData?.address, getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS")],
     enabled: !!accountData?.address,
   });
 
@@ -25,7 +26,7 @@ export const useApproval = (token: Token) => {
       writeApprove(
         {
           args: [
-            "0x0a073b830cd4247d518c4f0d1bafd6edf7af507b",
+            getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS"),
             MaxUint256.toString(),
           ],
         },

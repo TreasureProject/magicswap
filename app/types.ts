@@ -54,7 +54,10 @@ export type Swap = {
   amountUsd: number;
 };
 
-export type CloudFlareEnvVar = "ALCHEMY_KEY" | "NODE_ENV";
+export type CloudFlareEnvVar =
+  | "ALCHEMY_KEY"
+  | "NODE_ENV"
+  | "UNISWAP_V2_ROUTER_ADDRESS";
 
 export type CloudFlareEnv = {
   [key in CloudFlareEnvVar]: string;
