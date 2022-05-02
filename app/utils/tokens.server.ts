@@ -13,17 +13,22 @@ const normalizeSymbol = (symbol: string) => symbol.replace("$", "");
 
 export const normalizeToken = ({
   id,
-  symbol,
+  symbol: rawSymbol,
   name,
   decimals,
   derivedETH,
-}: RawToken): Token => ({
-  id,
-  symbol: normalizeSymbol(symbol),
-  name,
-  decimals: parseInt(decimals),
-  priceEth: parseFloat(derivedETH),
-});
+}: RawToken): Token => {
+  const symbol = normalizeSymbol(rawSymbol);
+  return {
+    id,
+    symbol,
+    isEth: symbol === "ETH" || symbol === "WETH",
+    isMagic: symbol === "MAGIC",
+    name,
+    decimals: parseInt(decimals),
+    priceEth: parseFloat(derivedETH),
+  };
+};
 
 export const normalizeAdvancedToken = (
   { hourData, dayData, ...rawToken }: RawPairToken,
@@ -69,15 +74,18 @@ const normalizeTokenList = (pairs: RawTokenList): Token[] => {
 
   pairs.forEach(({ token0, token1 }) => {
     const normalizedToken0 = normalizeToken(token0);
-    if (!tokenSymbols.includes(normalizedToken0.symbol)) {
-      tokenSymbols.push(normalizedToken0.symbol);
-      tokens.push(normalizedToken0);
-    }
-
     const normalizedToken1 = normalizeToken(token1);
-    if (!tokenSymbols.includes(normalizedToken1.symbol)) {
-      tokenSymbols.push(normalizedToken1.symbol);
-      tokens.push(normalizedToken1);
+
+    if (normalizedToken0.isMagic || normalizedToken1.isMagic) {
+      if (!tokenSymbols.includes(normalizedToken0.symbol)) {
+        tokenSymbols.push(normalizedToken0.symbol);
+        tokens.push(normalizedToken0);
+      }
+
+      if (!tokenSymbols.includes(normalizedToken1.symbol)) {
+        tokenSymbols.push(normalizedToken1.symbol);
+        tokens.push(normalizedToken1);
+      }
     }
   });
 
