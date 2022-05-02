@@ -33,7 +33,8 @@ export const useSwap = () => {
     rawAmountIn: number,
     rawAmountOut: number,
     isExactOut = false,
-    slippage = 0.5
+    slippage: number,
+    deadline: number
   ) => {
     const slippageMultiplier = (100 - slippage) / 100;
     const isOutputEth = outputToken.symbol === "WETH";
@@ -50,8 +51,11 @@ export const useSwap = () => {
       expectedAmountOut.toFixed(outputToken.decimals)
     );
     const path = [inputToken.id, outputToken.id];
-    const deadline = (Math.ceil(Date.now() / 1000) + 60 * 30).toString(); // 30 minutes from now
-    console.log(deadline);
+    const transactionDeadline = (
+      Math.ceil(Date.now() / 1000) +
+      60 * deadline
+    ).toString(); // 30 minutes from now
+    console.log(transactionDeadline);
     const statusHeader = `Swap ${formatNumber(expectedAmountIn)} ${
       inputToken.symbol
     } to ${formatNumber(expectedAmountOut)} ${outputToken.symbol}`;
@@ -66,7 +70,7 @@ export const useSwap = () => {
                 amountIn, // amountInMax
                 path,
                 accountData?.address,
-                deadline,
+                transactionDeadline,
               ],
             },
             statusHeader
@@ -81,7 +85,7 @@ export const useSwap = () => {
                 amountOut, // amountOut
                 path,
                 accountData?.address,
-                deadline,
+                transactionDeadline,
               ],
             },
             statusHeader
@@ -95,7 +99,7 @@ export const useSwap = () => {
               amountIn, // amountInMax
               path,
               accountData?.address,
-              deadline,
+              transactionDeadline,
             ],
           },
           statusHeader
@@ -111,7 +115,7 @@ export const useSwap = () => {
                 amountOut, // amountOutMin
                 path,
                 accountData?.address,
-                deadline,
+                transactionDeadline,
               ],
             },
             statusHeader
@@ -126,7 +130,7 @@ export const useSwap = () => {
                 amountOut, // amountOutMin
                 path,
                 accountData?.address,
-                deadline,
+                transactionDeadline,
               ],
             },
             statusHeader
@@ -140,7 +144,7 @@ export const useSwap = () => {
               amountOut, // amountOutMin
               path,
               accountData?.address,
-              deadline,
+              transactionDeadline,
             ],
           },
           statusHeader
