@@ -54,7 +54,7 @@ export const useSwap = () => {
     const transactionDeadline = (
       Math.ceil(Date.now() / 1000) +
       60 * deadline
-    ).toString(); // 30 minutes from now
+    ).toString();
     console.log(transactionDeadline);
     const statusHeader = `Swap ${formatNumber(expectedAmountIn)} ${
       inputToken.symbol
