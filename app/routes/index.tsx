@@ -214,9 +214,9 @@ export default function Index() {
                           Your transaction may be frontrun
                         </p>
                       ) : null}
-                      <div className="mt-1 flex space-x-2">
+                      <div className="mt-2 flex space-x-2">
                         <button
-                          className="rounded-md bg-gray-800 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-xs"
+                          className="rounded-md bg-gray-800 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-1 sm:text-xs"
                           onClick={() =>
                             setAdvancedSettings({
                               ...advancedSettings,
@@ -227,7 +227,7 @@ export default function Index() {
                           0.1%
                         </button>
                         <button
-                          className="rounded-md bg-gray-800 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-xs"
+                          className="rounded-md bg-gray-800 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-1 sm:text-xs"
                           onClick={() =>
                             setAdvancedSettings({
                               ...advancedSettings,
@@ -238,7 +238,7 @@ export default function Index() {
                           0.5%
                         </button>
                         <button
-                          className="rounded-md bg-gray-800 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-xs"
+                          className="rounded-md bg-gray-800 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-1 sm:text-xs"
                           onClick={() =>
                             setAdvancedSettings({
                               ...advancedSettings,
@@ -248,6 +248,8 @@ export default function Index() {
                         >
                           1.0%
                         </button>
+                      </div>
+                      <div className="mt-2">
                         <NumberField
                           label="Slippage"
                           value={advancedSettings.slippage}
@@ -265,6 +267,8 @@ export default function Index() {
                             minimumFractionDigits: 1,
                             maximumFractionDigits: 2,
                           }}
+                          errorMessage="Slippage must be between 0.1% and 49%"
+                          errorCondition={(value) => value > 49}
                         />
                       </div>
                     </div>
@@ -272,7 +276,7 @@ export default function Index() {
                       <p className="text-sm text-gray-200">
                         Transaction Deadline
                       </p>
-                      <div className="mt-1">
+                      <div className="mt-2">
                         <NumberField
                           label="Transaction Deadline"
                           value={advancedSettings.deadline}
@@ -285,6 +289,8 @@ export default function Index() {
                           minValue={1}
                           maxValue={60}
                           placeholder="20"
+                          errorMessage="Deadline must be between 1 and 60"
+                          errorCondition={(value) => value > 60}
                         >
                           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                             <span className="text-sm text-gray-400">
@@ -564,8 +570,10 @@ const Modal = ({
 
 const NumberField = ({
   children,
+  errorCondition,
   ...props
 }: Parameters<typeof useNumberField>[0] & {
+  errorCondition: (value: number) => boolean;
   children?: React.ReactNode;
 }) => {
   const { locale } = useLocale();
@@ -573,21 +581,33 @@ const NumberField = ({
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const { labelProps, inputProps } = useNumberField(props, state, inputRef);
 
+  const sanitizedValue = parseFloat(state.inputValue.replace(/[^0-9.]/g, ""));
+
   return (
-    <div className="flex-1">
-      <label className="sr-only" {...labelProps}>
-        {props.label}
-      </label>
-      <div className="relative rounded-md shadow-sm">
-        <input
-          {...inputProps}
-          ref={inputRef}
-          className="block w-full rounded-md border-gray-700 bg-gray-800/60 pr-10 text-sm focus:border-gray-500 focus:ring-gray-500"
-          placeholder={props.placeholder}
-        />
-        {children}
+    <>
+      <div className="flex-1">
+        <label className="sr-only" {...labelProps}>
+          {props.label}
+        </label>
+        <div className="relative rounded-md shadow-sm">
+          <input
+            {...inputProps}
+            ref={inputRef}
+            className={cn(
+              sanitizedValue > 49
+                ? "focus:border-red-500 focus:ring-red-500"
+                : "focus:border-gray-500 focus:ring-gray-500",
+              "block w-full rounded-md bg-gray-800/60 text-sm focus:border-gray-500"
+            )}
+            placeholder={props.placeholder}
+          />
+          {children}
+        </div>
       </div>
-    </div>
+      {props.errorMessage && errorCondition(sanitizedValue) ? (
+        <p className="mt-2 text-sm text-red-600">{props.errorMessage}</p>
+      ) : null}
+    </>
   );
 };
 
