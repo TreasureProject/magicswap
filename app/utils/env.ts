@@ -1,4 +1,4 @@
-import type { CloudFlareEnv, CloudFlareEnvVar } from "~/types";
+import type { CloudFlareEnv, CloudFlareEnvVar, Optional } from "~/types";
 
 const isBrowser = typeof document !== "undefined";
 
@@ -9,8 +9,11 @@ const isBrowser = typeof document !== "undefined";
  *
  * For `window.env`, please consult the render method in root.tsx for details.
  */
-const getEnvVariable = (name: CloudFlareEnvVar, env: CloudFlareEnv): string => {
-  return isBrowser ? window.env[name] : env ? env[name] : process.env[name];
+const getEnvVariable = (
+  name: CloudFlareEnvVar,
+  env: Optional<CloudFlareEnv> = undefined
+): string => {
+  return isBrowser ? window.env[name] : env?.[name] ?? "";
 };
 
 export { getEnvVariable };
