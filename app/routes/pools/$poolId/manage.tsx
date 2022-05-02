@@ -17,6 +17,7 @@ import { useAddressBalance, useTokenBalance } from "~/hooks/useTokenBalance";
 import { useAddLiquidity } from "~/hooks/useAddLiquidity";
 import TokenInput from "~/components/TokenInput";
 import { useRemoveLiquidity } from "~/hooks/useRemoveLiquidity";
+import { useApproval } from "~/hooks/useApproval";
 
 type LoaderData = {
   pair: Pair;
@@ -104,11 +105,20 @@ const Liquidity = () => {
   const token0Balance = useTokenBalance(pair.token0);
   const token1Balance = useTokenBalance(pair.token1);
   const lpBalance = useAddressBalance(pair.id);
+  const { isApproved: isToken0Approved, approve: approveToken0 } = useApproval(
+    pair.token0
+  );
+  const { isApproved: isToken1Approved, approve: approveToken1 } = useApproval(
+    pair.token1
+  );
   const addLiquidity = useAddLiquidity();
   const removeLiquidity = useRemoveLiquidity();
 
   const token0BalanceInsufficient = addInputValues[0] > token0Balance;
   const token1BalanceInsufficient = addInputValues[1] > token1Balance;
+  const insufficientBalance =
+    token0BalanceInsufficient || token1BalanceInsufficient;
+  const isPairApproved = isToken0Approved && isToken1Approved;
   const lpBalanceInsufficient = removeInputValue > lpBalance;
   const removeLiquidityToken0Estimate =
     removeInputValue > 0
@@ -273,20 +283,30 @@ const Liquidity = () => {
             )}
           </div>
         )}
+        {isAddLiquidity &&
+          addInputValues[0] > 0 &&
+          addInputValues[1] > 0 &&
+          !isPairApproved &&
+          !insufficientBalance && (
+            <Button onClick={isToken0Approved ? approveToken1 : approveToken0}>
+              Approve{" "}
+              {isToken0Approved ? pair.token1.symbol : pair.token0.symbol}
+            </Button>
+          )}
         <Button
           disabled={
             isAddLiquidity
               ? !addInputValues[0] ||
                 !addInputValues[1] ||
-                token0BalanceInsufficient ||
-                token1BalanceInsufficient
+                insufficientBalance ||
+                !isPairApproved
               : !removeInputValue || lpBalanceInsufficient
           }
           onClick={isAddLiquidity ? handleAddLiquidity : handleRemoveLiquidity}
         >
           {isAddLiquidity ? (
             <>
-              {token0BalanceInsufficient || token1BalanceInsufficient ? (
+              {insufficientBalance ? (
                 <>
                   Insufficient{" "}
                   {token0BalanceInsufficient
@@ -296,7 +316,7 @@ const Liquidity = () => {
                 </>
               ) : (
                 <>
-                  {addInputValues[0] > 0 && addInputValues[1] > 0
+                  {addInputValues[0] && addInputValues[1]
                     ? "Add Liquidity"
                     : "Enter an Amount"}
                 </>
