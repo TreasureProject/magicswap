@@ -18,4 +18,4 @@ export const useAddressBalance = (address?: string) => {
 };
 
 export const useTokenBalance = (token: Token) =>
-  useAddressBalance(token.symbol === "WETH" ? undefined : token.id);
+  useAddressBalance(token.isEth ? undefined : token.id);
