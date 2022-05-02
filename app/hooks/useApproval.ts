@@ -19,7 +19,7 @@ export const useApproval = (token: Token) => {
   const { write: writeApprove } = useContractWrite(contractConfig, "approve");
   return {
     isApproved: allowance
-      ? BigNumber.from(utils.formatEther(allowance)) >= MaxUint256
+      ? parseFloat(utils.formatEther(allowance)) >= 0
       : false,
     approve: () =>
       writeApprove(
