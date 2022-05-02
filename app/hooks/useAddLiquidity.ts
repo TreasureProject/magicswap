@@ -17,8 +17,7 @@ export const useAddLiquidity = () => {
     slippage = 0.5
   ) => {
     const slippageMultiplier = (100 - slippage) / 100;
-    const isToken1Eth = pair.token1.symbol === "WETH";
-    const isEth = pair.token0.symbol === "WETH" || isToken1Eth;
+    const isToken1Eth = pair.token1.isEth;
 
     const token0Amount = utils.parseUnits(
       rawToken0Amount.toFixed(pair.token0.decimals)
@@ -36,7 +35,7 @@ export const useAddLiquidity = () => {
 
     const statusHeader = `Add ${pair.name} Liquidity`;
 
-    if (isEth) {
+    if (pair.hasEth) {
       writeAddLiquidityEth(
         {
           overrides: {

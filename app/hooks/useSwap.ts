@@ -36,8 +36,8 @@ export const useSwap = () => {
     slippage: number,
     deadline: number
   ) => {
-    const isOutputEth = outputToken.symbol === "WETH";
-    const isEth = inputToken.symbol === "WETH" || isOutputEth;
+    const isOutputEth = outputToken.isEth;
+    const isEth = inputToken.isEth || isOutputEth;
 
     const worstAmountIn =
       rawAmountIn * (isExactOut ? (100 + slippage) / 100 : 1);

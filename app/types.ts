@@ -8,6 +8,8 @@ export type TimeInterval = {
 export type Token = {
   id: string;
   symbol: string;
+  isEth: boolean;
+  isMagic: boolean;
   name: string;
   decimals: number;
   priceEth: number;
@@ -32,6 +34,8 @@ export type Pair = {
   name: string;
   token0: PairToken;
   token1: PairToken;
+  hasEth: boolean;
+  hasMagic: boolean;
   totalSupply: number;
   liquidityUsd: number;
   lpPriceUsd: number;

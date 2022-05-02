@@ -41,6 +41,8 @@ const normalizePair = (
     name: `${token0.symbol}-${token1.symbol}`,
     token0,
     token1,
+    hasEth: token0.isEth || token1.isEth,
+    hasMagic: token0.isMagic || token1.isMagic,
     totalSupply,
     liquidityUsd,
     lpPriceUsd: liquidityUsd / totalSupply,
@@ -132,8 +134,5 @@ export const getPairs = async (
   ]);
   return pairs
     .map((pair) => normalizePair(pair as RawPair, ethUsd))
-    .filter(
-      ({ token0, token1 }) =>
-        token0.symbol === "MAGIC" || token1.symbol === "MAGIC"
-    );
+    .filter(({ token0, token1 }) => token0.isMagic || token1.isMagic);
 };
