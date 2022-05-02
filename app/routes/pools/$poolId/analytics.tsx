@@ -16,6 +16,7 @@ import { formatNumber } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
 import type { Pair, Swap } from "~/types";
 import { getSwaps } from "~/utils/swap.server";
+import { getEnvVariable } from "~/utils/env.server";
 
 type LoaderData = {
   randomNumber: number;
@@ -27,14 +28,19 @@ export const meta: MetaFunction = ({ data }: { data: LoaderData }) => ({
   title: `${data.pair.name} - Analytics | Magicswap`,
 });
 
-export const loader: LoaderFunction = async ({ params: { poolId } }) => {
+export const loader: LoaderFunction = async ({
+  params: { poolId },
+  context,
+}) => {
+  const exchangeUrl = getEnvVariable("EXCHANGE_ENDPOINT", context);
+
   const randomNumber = Math.floor(Math.random() * 6);
 
   invariant(poolId, `poolId is required`);
 
   const [pair, swaps] = await Promise.all([
-    getPairById(poolId),
-    getSwaps(poolId),
+    getPairById(poolId, exchangeUrl),
+    getSwaps(poolId, exchangeUrl),
   ]);
 
   if (!pair) {

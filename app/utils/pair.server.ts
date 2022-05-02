@@ -72,8 +72,10 @@ const normalizePair = (
 
 export const getPair = async (
   tokenA: string,
-  tokenB: string
+  tokenB: string,
+  url: string
 ): Promise<Optional<Pair>> => {
+  const sdk = exchangeSdk(url);
   const [token0, token1] = [tokenA, tokenB].sort();
   const [
     ethUsd,
@@ -81,8 +83,8 @@ export const getPair = async (
       pairs: [pair],
     },
   ] = await Promise.all([
-    getEthUsd(),
-    exchangeSdk.getSwapPair({
+    getEthUsd(url),
+    sdk.getSwapPair({
       token0,
       token1,
     }),
@@ -95,10 +97,14 @@ export const getPair = async (
   return normalizePair(pair, ethUsd);
 };
 
-export const getPairById = async (id: string): Promise<Optional<Pair>> => {
+export const getPairById = async (
+  id: string,
+  url: string
+): Promise<Optional<Pair>> => {
+  const sdk = exchangeSdk(url);
   const [ethUsd, { pair }] = await Promise.all([
-    getEthUsd(),
-    exchangeSdk.getPair({ id }),
+    getEthUsd(url),
+    sdk.getPair({ id }),
   ]);
 
   if (!pair) {
@@ -108,10 +114,15 @@ export const getPairById = async (id: string): Promise<Optional<Pair>> => {
   return normalizePair(pair, ethUsd);
 };
 
-export const getPairs = async (where?: Pair_Filter): Promise<Pair[]> => {
+export const getPairs = async (
+  url: string,
+  where?: Pair_Filter
+): Promise<Pair[]> => {
+  const sdk = exchangeSdk(url);
+
   const [ethUsd, { pairs }] = await Promise.all([
-    getEthUsd(),
-    exchangeSdk.getPairs({
+    getEthUsd(url),
+    sdk.getPairs({
       where: {
         ...where,
         reserveETH_gt: 0,

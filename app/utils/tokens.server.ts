@@ -82,8 +82,12 @@ const normalizeTokenList = (pairs: RawTokenList): Token[] => {
   return tokens;
 };
 
-export const getTokens = async (filter?: string): Promise<Token[]> => {
-  const { pairs } = await exchangeSdk.getSwapPairs({
+export const getTokens = async (
+  url: string,
+  filter?: string
+): Promise<Token[]> => {
+  const sdk = exchangeSdk(url);
+  const { pairs } = await sdk.getSwapPairs({
     where: {
       reserveETH_gt: 0,
     },
@@ -104,8 +108,9 @@ export const getTokenBySymbol = (
 ): Optional<Token> =>
   tokens.find((token) => token.symbol.toLowerCase() === symbol.toLowerCase());
 
-export const getEthUsd = async (): Promise<number> => {
-  const { bundle } = await exchangeSdk.getEthPrice();
+export const getEthUsd = async (url: string): Promise<number> => {
+  const sdk = exchangeSdk(url);
+  const { bundle } = await sdk.getEthPrice();
   return parseFloat(bundle?.ethPrice ?? 0);
 };
 

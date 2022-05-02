@@ -18,6 +18,7 @@ import { useAddLiquidity } from "~/hooks/useAddLiquidity";
 import TokenInput from "~/components/TokenInput";
 import { useRemoveLiquidity } from "~/hooks/useRemoveLiquidity";
 import { useApproval } from "~/hooks/useApproval";
+import { getEnvVariable } from "~/utils/env.server";
 
 type LoaderData = {
   pair: Pair;
@@ -33,10 +34,15 @@ export const meta: MetaFunction = ({ data }: { data: LoaderData }) => ({
   title: `${data.pair.name} - Manage | Magicswap`,
 });
 
-export const loader: LoaderFunction = async ({ params: { poolId } }) => {
+export const loader: LoaderFunction = async ({
+  params: { poolId },
+  context,
+}) => {
+  const exchangeUrl = getEnvVariable("EXCHANGE_ENDPOINT", context);
+
   invariant(poolId, `poolId is required`);
 
-  const pair = await getPairById(poolId);
+  const pair = await getPairById(poolId, exchangeUrl);
 
   if (!pair) {
     throw new Response("Pool not found", {
