@@ -36,29 +36,30 @@ export const useSwap = () => {
     slippage: number,
     deadline: number
   ) => {
-    const slippageMultiplier = (100 - slippage) / 100;
     const isOutputEth = outputToken.symbol === "WETH";
     const isEth = inputToken.symbol === "WETH" || isOutputEth;
 
-    const expectedAmountIn = rawAmountIn;
-    const expectedAmountOut =
-      rawAmountOut * (isExactOut ? 1 : slippageMultiplier);
+    const worstAmountIn =
+      rawAmountIn * (isExactOut ? (100 + slippage) / 100 : 1);
+    const worstAmountOut =
+      rawAmountOut * (isExactOut ? 1 : (100 - slippage) / 100);
 
     const amountIn = utils.parseUnits(
-      expectedAmountIn.toFixed(inputToken.decimals)
+      worstAmountIn.toFixed(inputToken.decimals)
     );
     const amountOut = utils.parseUnits(
-      expectedAmountOut.toFixed(outputToken.decimals)
+      worstAmountOut.toFixed(outputToken.decimals)
     );
     const path = [inputToken.id, outputToken.id];
+
     const transactionDeadline = (
       Math.ceil(Date.now() / 1000) +
       60 * deadline
     ).toString();
-    console.log(transactionDeadline);
-    const statusHeader = `Swap ${formatNumber(expectedAmountIn)} ${
+
+    const statusHeader = `Swap ${formatNumber(rawAmountIn)} ${
       inputToken.symbol
-    } to ${formatNumber(expectedAmountOut)} ${outputToken.symbol}`;
+    } to ${formatNumber(rawAmountOut)} ${outputToken.symbol}`;
 
     if (isExactOut) {
       if (isEth) {
