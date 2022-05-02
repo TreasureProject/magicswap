@@ -30,8 +30,12 @@ const normalizeSwap = ({
   };
 };
 
-export const getSwaps = async (pairId: string): Promise<Swap[]> => {
-  const { swaps } = await exchangeSdk.getSwaps({
+export const getSwaps = async (
+  pairId: string,
+  url: string
+): Promise<Swap[]> => {
+  const sdk = exchangeSdk(url);
+  const { swaps } = await sdk.getSwaps({
     where: {
       pair: pairId,
     },

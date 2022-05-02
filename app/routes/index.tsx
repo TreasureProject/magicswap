@@ -31,6 +31,7 @@ import { CogIcon, XIcon } from "@heroicons/react/outline";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
 import { useApproval } from "~/hooks/useApproval";
+import { getEnvVariable } from "~/utils/env.server";
 
 type LoaderData = {
   tokenList: Token[];
@@ -52,12 +53,14 @@ export const meta: MetaFunction = ({ data }) => {
   };
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request, context }) => {
+  const exchangeUrl = getEnvVariable("EXCHANGE_ENDPOINT", context);
   const url = new URL(request.url);
-  const inputCurrency = url.searchParams.get("inputCurrency") ?? "$MAGIC";
+
+  const inputCurrency = url.searchParams.get("inputCurrency") ?? "MAGIC";
   const outputCurrency = url.searchParams.get("outputCurrency") ?? "USDC";
 
-  const tokenList = await getTokens();
+  const tokenList = await getTokens(exchangeUrl);
 
   const inputToken = getTokenBySymbol(tokenList, inputCurrency);
   const outputToken = getTokenBySymbol(tokenList, outputCurrency);
@@ -74,7 +77,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     });
   }
 
-  const pair = await getPair(inputToken.id, outputToken.id);
+  const pair = await getPair(inputToken.id, outputToken.id, exchangeUrl);
 
   if (!pair) {
     throw new Response("Swap not allowed", {

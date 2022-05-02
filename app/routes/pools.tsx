@@ -16,6 +16,7 @@ import { formatPercent } from "~/utils/number";
 import type { Pair } from "~/types";
 import { getPairs } from "~/utils/pair.server";
 import { TokenLogo } from "~/components/TokenLogo";
+import { getEnvVariable } from "~/utils/env.server";
 
 type LoaderData = {
   pairs: Pair[];
@@ -30,11 +31,13 @@ const tabs = [
   { name: "Analytics", href: "analytics" },
 ];
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request, context }) => {
+  const exchangeUrl = getEnvVariable("EXCHANGE_ENDPOINT", context);
+
   const url = new URL(request.url);
   const name = url.searchParams.get("name")?.toUpperCase();
 
-  const pairs = await getPairs({
+  const pairs = await getPairs(exchangeUrl, {
     name_contains: name,
   });
 
