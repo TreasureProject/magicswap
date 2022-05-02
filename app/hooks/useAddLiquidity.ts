@@ -14,7 +14,8 @@ export const useAddLiquidity = () => {
     pair: Pair,
     rawToken0Amount: number,
     rawToken1Amount: number,
-    slippage = 0.5
+    slippage: number,
+    deadline: number
   ) => {
     const slippageMultiplier = (100 - slippage) / 100;
     const isToken1Eth = pair.token1.isEth;
@@ -31,7 +32,10 @@ export const useAddLiquidity = () => {
     const token1AmountMin = utils.parseUnits(
       (rawToken1Amount * slippageMultiplier).toFixed(pair.token1.decimals)
     );
-    const deadline = (Math.ceil(Date.now() / 1000) + 60 * 30).toString(); // 30 minutes from now;
+    const transactionDeadline = (
+      Math.ceil(Date.now() / 1000) +
+      60 * deadline
+    ).toString();
 
     const statusHeader = `Add ${pair.name} Liquidity`;
 
@@ -47,7 +51,7 @@ export const useAddLiquidity = () => {
             isToken1Eth ? token0AmountMin : token1AmountMin,
             isToken1Eth ? token1AmountMin : token0AmountMin,
             accountData?.address,
-            deadline,
+            transactionDeadline,
           ],
         },
         statusHeader
@@ -63,7 +67,7 @@ export const useAddLiquidity = () => {
             token0AmountMin,
             token1AmountMin,
             accountData?.address,
-            deadline,
+            transactionDeadline,
           ],
         },
         statusHeader
