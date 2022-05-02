@@ -22,6 +22,7 @@ import { getEnvVariable } from "~/utils/env";
 import { NumberField } from "~/components/NumberField";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
 import { CogIcon } from "@heroicons/react/outline";
+import { useUser } from "~/context/userContext";
 
 type LoaderData = {
   pair: Pair;
@@ -114,6 +115,7 @@ const Liquidity = () => {
     deadline: 20,
   });
   const { pair } = useLoaderData<LoaderData>();
+  const { openWalletModal, isConnected } = useUser();
 
   const token0Balance = useTokenBalance(pair.token0);
   const token1Balance = useTokenBalance(pair.token1);
@@ -423,16 +425,25 @@ const Liquidity = () => {
           )}
         <Button
           disabled={
-            isAddLiquidity
+            isConnected &&
+            (isAddLiquidity
               ? !addInputValues[0] ||
                 !addInputValues[1] ||
                 insufficientBalance ||
                 !isPairApproved
-              : !removeInputValue || lpBalanceInsufficient
+              : !removeInputValue || lpBalanceInsufficient)
           }
-          onClick={isAddLiquidity ? handleAddLiquidity : handleRemoveLiquidity}
+          onClick={
+            !isConnected
+              ? openWalletModal
+              : isAddLiquidity
+              ? handleAddLiquidity
+              : handleRemoveLiquidity
+          }
         >
-          {isAddLiquidity ? (
+          {!isConnected ? (
+            "Connect to a wallet"
+          ) : isAddLiquidity ? (
             <>
               {insufficientBalance ? (
                 <>
