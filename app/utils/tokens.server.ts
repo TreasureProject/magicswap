@@ -33,7 +33,9 @@ export const normalizeAdvancedToken = (
   let price24hChange = -1;
   if (dayData.length > 1) {
     const priceYesterdayUsd = parseFloat(dayData[1].priceUSD);
-    price24hChange = (priceUsd - priceYesterdayUsd) / priceYesterdayUsd;
+    price24hChange = parseFloat(
+      ((priceUsd - priceYesterdayUsd) / priceYesterdayUsd).toFixed(2)
+    );
   }
 
   return {
