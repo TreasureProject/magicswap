@@ -19,8 +19,7 @@ export const useRemoveLiquidity = () => {
     slippage = 0.5
   ) => {
     const slippageMultiplier = (100 - slippage) / 100;
-    const isToken1Eth = pair.token1.symbol === "WETH";
-    const isEth = pair.token0.symbol === "WETH" || isToken1Eth;
+    const isToken1Eth = pair.token1.isEth;
 
     const lpAmount = utils.parseUnits(rawLpAmount.toFixed(18));
     const token0AmountMin = utils.parseUnits(
@@ -33,7 +32,7 @@ export const useRemoveLiquidity = () => {
 
     const statusHeader = `Remove ${pair.name} Liquidity`;
 
-    if (isEth) {
+    if (pair.hasEth) {
       writeRemoveLiquidityEth(
         {
           args: [
