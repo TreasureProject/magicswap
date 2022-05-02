@@ -228,7 +228,7 @@ export default function App() {
         <Links />
       </head>
       <body className="bg-[#191A21] text-white antialiased">
-        <div className="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 transform flex-col items-center justify-center -space-x-8 sm:flex-row">
+        <div className="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 transform flex-col items-center justify-center -space-x-8 lg:flex-row">
           <div className="h-48 w-48 rounded-full bg-[#670F0F] blur-[146px] sm:h-[30rem] sm:w-[30rem]" />
           <div className="h-48 w-48 rounded-full bg-[#4B0F67] blur-[146px] sm:h-[30rem] sm:w-[30rem]" />
         </div>
