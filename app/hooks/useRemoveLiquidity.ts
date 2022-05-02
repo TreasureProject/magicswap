@@ -1,12 +1,12 @@
 import { utils } from "ethers";
-import { useAccount } from "wagmi";
+import { useUser } from "~/context/userContext";
 
 import type { Pair } from "~/types";
 
 import { useV2RouterWrite } from "./useV2RouterWrite";
 
 export const useRemoveLiquidity = () => {
-  const { data: accountData } = useAccount();
+  const { accountData } = useUser();
   const { write: writeRemoveLiquidity } = useV2RouterWrite("removeLiquidity");
   const { write: writeRemoveLiquidityEth } =
     useV2RouterWrite("removeLiquidityETH");
