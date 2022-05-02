@@ -171,7 +171,9 @@ export default function Index() {
         outputPairToken,
         inputValues[0],
         inputValues[1],
-        isExactOut
+        isExactOut,
+        advancedSettings.slippage,
+        advancedSettings.deadline
       );
     }
   };
@@ -570,6 +572,7 @@ const NumberField = ({
   const state = useNumberFieldState({ ...props, locale });
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const { labelProps, inputProps } = useNumberField(props, state, inputRef);
+
   return (
     <div className="flex-1">
       <label className="sr-only" {...labelProps}>
