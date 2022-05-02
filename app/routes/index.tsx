@@ -27,8 +27,9 @@ import PairTokenInput from "~/components/PairTokenInput";
 import { useState } from "react";
 import { useSwap } from "~/hooks/useSwap";
 import { TokenLogo } from "~/components/TokenLogo";
-import { AdjustmentsIcon, CogIcon, XIcon } from "@heroicons/react/outline";
+import { CogIcon, XIcon } from "@heroicons/react/outline";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
 
 type LoaderData = {
   tokenList: Token[];
@@ -166,7 +167,7 @@ export default function Index() {
     },
     {
       id: "max-width",
-      label: "Transaction Deadline",
+      label: "Deadline",
       defaultValue: "20 minutes",
     },
   ];
@@ -181,11 +182,11 @@ export default function Index() {
         <p className="text-sm text-gray-500 sm:text-base">
           The easiest way to swap your tokens
         </p>
-        <div className="mt-14 w-full rounded-xl bg-gray-700/25 p-6 shadow-glass backdrop-blur-md">
+        <div className="mt-14 w-full rounded-xl bg-gray-700/10 p-4 shadow-glass backdrop-blur-md sm:p-6">
           <div className="flex justify-end">
             <div className="relative inline-block text-left">
-              <PopoverPrimitive.Root>
-                <PopoverPrimitive.Trigger asChild>
+              <Popover>
+                <PopoverTrigger asChild>
                   <button className="group">
                     <CogIcon
                       className="h-6 w-6 text-gray-200/50 group-hover:text-white"
@@ -193,17 +194,8 @@ export default function Index() {
                     />
                     <span className="sr-only">Open adjustment settings</span>
                   </button>
-                </PopoverPrimitive.Trigger>
-                <PopoverPrimitive.Content
-                  align="center"
-                  sideOffset={4}
-                  className={cn(
-                    "radix-side-top:animate-slide-up radix-side-bottom:animate-slide-down",
-                    "w-48 rounded-lg p-4 shadow-md md:w-80",
-                    "bg-gray-900"
-                  )}
-                >
-                  <PopoverPrimitive.Arrow className="fill-current text-gray-900" />
+                </PopoverTrigger>
+                <PopoverContent className="w-80 rounded-lg p-4 shadow-md">
                   <h3 className="text-sm font-medium text-gray-100">
                     Advanced Settings
                   </h3>
@@ -237,17 +229,8 @@ export default function Index() {
                       );
                     })}
                   </form>
-
-                  <PopoverPrimitive.Close
-                    className={cn(
-                      "absolute top-3.5 right-3.5 inline-flex items-center justify-center rounded-full p-1",
-                      "focus:outline-none focus-visible:ring focus-visible:ring-red-500 focus-visible:ring-opacity-75"
-                    )}
-                  >
-                    <XIcon className="h-4 w-4 text-gray-500 hover:text-gray-400" />
-                  </PopoverPrimitive.Close>
-                </PopoverPrimitive.Content>
-              </PopoverPrimitive.Root>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
           <div className="mt-6 flex flex-col xl:flex-row">
