@@ -33,6 +33,7 @@ import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import { providers } from "ethers";
 import { getTokensImageAddress } from "./utils/tokens.server";
 import type { CloudFlareEnv } from "./types";
+import { UserProvider } from "./context/userContext";
 
 export type RootLoaderData = {
   tokenImageList: Awaited<ReturnType<typeof getTokensImageAddress>>;
@@ -230,39 +231,42 @@ export default function App() {
           <div className="h-48 w-48 rounded-full bg-[#4B0F67] blur-[146px] sm:h-[30rem] sm:w-[30rem]" />
         </div>
         <Provider client={client}>
-          <div className="z-10 flex h-16 items-center justify-center border-b border-gray-800 px-8">
-            <div className="relative m-auto flex max-w-7xl flex-1 items-center justify-between sm:justify-center">
-              <TreasureLogoIcon className="h-8 w-8" />
-              <div className="inset-y-0 right-5 flex items-center justify-center sm:absolute">
-                <Wallet />
-              </div>
-            </div>
-          </div>
-          <div className="relative overflow-hidden">
-            <DotPattern />
-            <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] max-w-7xl flex-col p-8">
-              <Outlet />
-            </div>
-            <header className="fixed left-0 right-0 bottom-[5.5rem] z-10 px-2 sm:bottom-28">
-              <div className="relative">
-                <div className="absolute left-1/2 z-10 w-full max-w-2xl -translate-x-1/2 transform rounded-xl bg-gray-900/40 p-2 shadow-2xl shadow-gray-800/30 backdrop-blur-md">
-                  <nav className="flex gap-1">
-                    <NavLink to="/">Swap</NavLink>
-                    <NavLink to="pools">Pool</NavLink>
-                  </nav>
+          <UserProvider>
+            <div className="z-10 flex h-16 items-center justify-center border-b border-gray-800 px-8">
+              <div className="relative m-auto flex max-w-7xl flex-1 items-center justify-between sm:justify-center">
+                <TreasureLogoIcon className="h-8 w-8" />
+                <div className="inset-y-0 right-5 flex items-center justify-center sm:absolute">
+                  <Wallet />
                 </div>
               </div>
-            </header>
-          </div>
+            </div>
+            <div className="relative overflow-hidden">
+              <DotPattern />
+              <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] max-w-7xl flex-col p-8">
+                <Outlet />
+              </div>
+              <header className="fixed left-0 right-0 bottom-[5.5rem] z-10 px-2 sm:bottom-28">
+                <div className="relative">
+                  <div className="absolute left-1/2 z-10 w-full max-w-2xl -translate-x-1/2 transform rounded-xl bg-gray-900/40 p-2 shadow-2xl shadow-gray-800/30 backdrop-blur-md">
+                    <nav className="flex gap-1">
+                      <NavLink to="/">Swap</NavLink>
+                      <NavLink to="pools">Pool</NavLink>
+                    </nav>
+                  </div>
+                </div>
+              </header>
+            </div>
+          </UserProvider>
         </Provider>
         <Toaster
           position="bottom-left"
           reverseOrder={false}
-          gutter={8}
+          gutter={36}
           toastOptions={{
             style: {
               backgroundColor: "#1F2937", // bg-gray-800
               color: "#fff", // text-white
+              padding: "1rem",
             },
           }}
         />

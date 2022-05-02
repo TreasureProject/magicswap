@@ -1,5 +1,5 @@
 import { utils } from "ethers";
-import { useAccount } from "wagmi";
+import { useUser } from "~/context/userContext";
 
 import type { Token } from "~/types";
 import { formatNumber } from "~/utils/number";
@@ -7,7 +7,7 @@ import { formatNumber } from "~/utils/number";
 import { useV2RouterWrite } from "./useV2RouterWrite";
 
 export const useSwap = () => {
-  const { data: accountData } = useAccount();
+  const { accountData } = useUser();
   const { write: writeSwapEthForExactTokens } = useV2RouterWrite(
     "swapETHForExactTokens"
   );
@@ -51,7 +51,7 @@ export const useSwap = () => {
     );
     const path = [inputToken.id, outputToken.id];
     const deadline = (Math.ceil(Date.now() / 1000) + 60 * 30).toString(); // 30 minutes from now
-
+    console.log(deadline);
     const statusHeader = `Swap ${formatNumber(expectedAmountIn)} ${
       inputToken.symbol
     } to ${formatNumber(expectedAmountOut)} ${outputToken.symbol}`;
