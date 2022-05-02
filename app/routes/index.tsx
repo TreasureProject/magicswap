@@ -171,7 +171,8 @@ export default function Index() {
         outputPairToken,
         inputValues[0],
         inputValues[1],
-        isExactOut
+        isExactOut,
+        advancedSettings.slippage
       );
     }
   };
