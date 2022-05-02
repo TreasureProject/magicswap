@@ -21,7 +21,7 @@ export const useApproval = (token: Token) => {
   const { write: writeApprove } = useContractWrite(contractConfig, "approve");
   return {
     isApproved: allowance
-      ? parseFloat(utils.formatEther(allowance)) >= 0
+      ? parseFloat(utils.formatEther(allowance)) > 0
       : false,
     approve: () =>
       writeApprove(
