@@ -1,4 +1,5 @@
 import { utils } from "ethers";
+import { useSettings } from "~/context/settingsContext";
 import { useUser } from "~/context/userContext";
 
 import type { Pair } from "~/types";
@@ -7,6 +8,7 @@ import { useV2RouterWrite } from "./useV2RouterWrite";
 
 export const useRemoveLiquidity = () => {
   const { accountData } = useUser();
+  const { slippage, deadline } = useSettings();
   const { write: writeRemoveLiquidity } = useV2RouterWrite("removeLiquidity");
   const { write: writeRemoveLiquidityEth } =
     useV2RouterWrite("removeLiquidityETH");
@@ -15,9 +17,7 @@ export const useRemoveLiquidity = () => {
     pair: Pair,
     rawLpAmount: number,
     rawToken0Amount: number,
-    rawToken1Amount: number,
-    slippage: number,
-    deadline: number
+    rawToken1Amount: number
   ) => {
     const slippageMultiplier = (100 - slippage) / 100;
     const isToken1Eth = pair.token1.isEth;

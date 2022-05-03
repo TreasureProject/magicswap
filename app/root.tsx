@@ -35,6 +35,7 @@ import { getTokensImageAddress } from "./utils/tokens.server";
 import type { CloudFlareEnv, CloudFlareEnvVar } from "./types";
 import { UserProvider } from "./context/userContext";
 import { PriceProvider } from "./context/priceContext";
+import { SettingsProvider } from "./context/settingsContext";
 
 export type RootLoaderData = {
   tokenImageList: Awaited<ReturnType<typeof getTokensImageAddress>>;
@@ -237,30 +238,32 @@ export default function App() {
         <Provider client={client}>
           <UserProvider>
             <PriceProvider>
-              <div className="z-10 flex h-16 items-center justify-center border-b border-gray-800 px-8">
-                <div className="relative m-auto flex max-w-7xl flex-1 items-center justify-between sm:justify-center">
-                  <TreasureLogoIcon className="h-8 w-8" />
-                  <div className="inset-y-0 right-5 flex items-center justify-center sm:absolute">
-                    <Wallet />
-                  </div>
-                </div>
-              </div>
-              <div className="relative overflow-hidden">
-                <DotPattern />
-                <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] max-w-6xl flex-col p-8 2xl:max-w-7xl">
-                  <Outlet />
-                </div>
-                <header className="fixed left-0 right-0 bottom-[4.5rem] z-10 px-2 sm:bottom-24">
-                  <div className="relative">
-                    <div className="absolute left-1/2 z-10 w-full max-w-lg -translate-x-1/2 transform rounded-xl bg-gray-900/40 p-2 shadow-2xl shadow-gray-800/30 backdrop-blur-md 2xl:max-w-2xl">
-                      <nav className="flex gap-1">
-                        <NavLink to="/">Swap</NavLink>
-                        <NavLink to="pools">Pool</NavLink>
-                      </nav>
+              <SettingsProvider>
+                <div className="z-10 flex h-16 items-center justify-center border-b border-gray-800 px-8">
+                  <div className="relative m-auto flex max-w-7xl flex-1 items-center justify-between sm:justify-center">
+                    <TreasureLogoIcon className="h-8 w-8" />
+                    <div className="inset-y-0 right-5 flex items-center justify-center sm:absolute">
+                      <Wallet />
                     </div>
                   </div>
-                </header>
-              </div>
+                </div>
+                <div className="relative overflow-hidden">
+                  <DotPattern />
+                  <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] max-w-6xl flex-col p-8 2xl:max-w-7xl">
+                    <Outlet />
+                  </div>
+                  <header className="fixed left-0 right-0 bottom-[4.5rem] z-10 px-2 sm:bottom-24">
+                    <div className="relative">
+                      <div className="absolute left-1/2 z-10 w-full max-w-lg -translate-x-1/2 transform rounded-xl bg-gray-900/40 p-2 shadow-2xl shadow-gray-800/30 backdrop-blur-md 2xl:max-w-2xl">
+                        <nav className="flex gap-1">
+                          <NavLink to="/">Swap</NavLink>
+                          <NavLink to="pools">Pool</NavLink>
+                        </nav>
+                      </div>
+                    </div>
+                  </header>
+                </div>
+              </SettingsProvider>
             </PriceProvider>
           </UserProvider>
         </Provider>
