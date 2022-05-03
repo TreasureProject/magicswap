@@ -164,11 +164,14 @@ export default function App() {
   const transition = useTransition();
   const { ENV } = useLoaderData<RootLoaderData>();
 
-  const chains = [
-    ENV.CHAIN_ID === chain.arbitrumRinkeby.id.toString()
-      ? chain.arbitrumRinkeby
-      : chain.arbitrum,
-  ];
+  const chains = React.useMemo(
+    () => [
+      ENV.CHAIN_ID === chain.arbitrumRinkeby.id.toString()
+        ? chain.arbitrumRinkeby
+        : chain.arbitrum,
+    ],
+    [ENV.CHAIN_ID]
+  );
   const client = React.useMemo(
     () =>
       createClient({
@@ -197,7 +200,7 @@ export default function App() {
           );
         },
       }),
-    [ENV.ALCHEMY_KEY, ENV.CHAIN_ID]
+    [ENV.ALCHEMY_KEY, ENV.CHAIN_ID, chains]
   );
 
   const fetchers = useFetchers();
