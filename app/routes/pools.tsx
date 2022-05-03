@@ -75,7 +75,7 @@ export default function Pools() {
 
   const [mobileFiltersOpen, setMobileFiltersOpen] = React.useState(false);
   return (
-    <div className="my-12 flex flex-1 flex-col">
+    <div className="mb-12 flex flex-1 flex-col">
       <Transition.Root show={mobileFiltersOpen} as={React.Fragment}>
         <Dialog
           as="div"
@@ -161,7 +161,7 @@ export default function Pools() {
         </Dialog>
       </Transition.Root>
 
-      <div className="mt-2 grid grid-cols-6 pb-2 pt-6 lg:mt-6 lg:gap-x-4 lg:py-6">
+      <div className="mt-2 grid grid-cols-6 pb-2 pt-6 lg:gap-x-4 lg:py-6">
         <div className="col-span-6 flex items-end lg:col-span-2">
           <h2 className="text-2xl font-medium">Pools</h2>
         </div>
