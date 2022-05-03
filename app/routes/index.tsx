@@ -178,7 +178,7 @@ export default function Index() {
     <>
       <div className="flex flex-col items-center">
         <StarIcon className="h-5 w-5" />
-        <h2 className="mt-8 text-sm font-bold sm:text-lg">
+        <h2 className="mt-4 text-sm font-bold sm:text-lg">
           Swap {inputPairToken.symbol} to {outputPairToken.symbol}
         </h2>
         <p className="text-xs text-gray-500 sm:text-base">
@@ -339,7 +339,7 @@ export default function Index() {
             />
           </div>
         </div>
-        <div className="mt-12 w-full space-y-4 px-0 lg:px-72">
+        <div className="mt-8 w-full space-y-4 px-0 lg:px-72 2xl:mt-12">
           {inputValues[0] > 0 && !isApproved && !insufficientBalance && (
             <Button onClick={approve}>Approve {inputPairToken.symbol}</Button>
           )}
