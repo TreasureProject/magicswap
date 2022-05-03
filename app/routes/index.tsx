@@ -177,14 +177,14 @@ export default function Index() {
   return (
     <>
       <div className="flex flex-col items-center">
-        <StarIcon className="h-8 w-8" />
-        <h2 className="mt-14 text-base font-bold sm:text-lg">
+        <StarIcon className="h-5 w-5" />
+        <h2 className="mt-8 text-sm font-bold sm:text-lg">
           Swap {inputPairToken.symbol} to {outputPairToken.symbol}
         </h2>
-        <p className="text-sm text-gray-500 sm:text-base">
+        <p className="text-xs text-gray-500 sm:text-base">
           The easiest way to swap your tokens
         </p>
-        <div className="mt-14 w-full rounded-xl bg-gray-700/10 p-4 shadow-glass backdrop-blur-md sm:p-6">
+        <div className="mt-8 w-full rounded-xl bg-gray-700/10 p-4 shadow-glass backdrop-blur-md">
           <div className="flex justify-end">
             <div className="relative inline-block text-left">
               <Popover>
@@ -299,7 +299,7 @@ export default function Index() {
               </Popover>
             </div>
           </div>
-          <div className="mt-6 flex flex-col xl:flex-row">
+          <div className="mt-2.5 flex flex-col xl:flex-row">
             <PairTokenInput
               id="inputToken"
               label={`${inputPairToken.symbol} Amount`}

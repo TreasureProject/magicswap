@@ -122,7 +122,7 @@ export default function PairTokenInput({
             </p>
           </div>
         </div>
-        <div className="h-36">
+        <div className="h-32 2xl:h-36">
           <TimeIntervalLineGraph
             gradient={{
               from: positive ? "#96e4df" : "#ee9617",
