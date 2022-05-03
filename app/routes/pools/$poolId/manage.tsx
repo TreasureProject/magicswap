@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useEffect, useState } from "react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import type { ShouldReloadFunction } from "@remix-run/react";
@@ -106,9 +106,9 @@ export default function Manage() {
 }
 
 const Liquidity = () => {
-  const [isAddLiquidity, setIsAddLiquidity] = React.useState(true);
-  const [removeInputValue, setRemoveInputValue] = React.useState(0);
-  const [addInputValues, setAddInputValues] = React.useState<[number, number]>([
+  const [isAddLiquidity, setIsAddLiquidity] = useState(true);
+  const [removeInputValue, setRemoveInputValue] = useState(0);
+  const [addInputValues, setAddInputValues] = useState<[number, number]>([
     0, 0,
   ]);
   const data = useLoaderData<LoaderData>();
@@ -162,6 +162,11 @@ const Liquidity = () => {
       removeLiquidityToken1Estimate
     );
   };
+
+  useEffect(() => {
+    setAddInputValues([0, 0]);
+    setRemoveInputValue(0);
+  }, [pair.id]);
 
   return (
     <div className="flex flex-1 items-center justify-center p-6 lg:p-8">
@@ -397,7 +402,7 @@ const Liquidity = () => {
 };
 
 const Stake = () => {
-  const [isStake, setIsStake] = React.useState(true);
+  const [isStake, setIsStake] = useState(true);
 
   return (
     <div className="flex flex-1 items-center justify-center p-6 lg:p-8">
