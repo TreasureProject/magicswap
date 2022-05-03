@@ -189,6 +189,23 @@ export const GnosisIcon = ({ className }: { className: string }) => (
   </svg>
 );
 
+export const WalletIcon = ({ className }: { className: string }) => (
+  <svg
+    width="20"
+    height="18"
+    viewBox="0 0 20 18"
+    fill="none"
+    className={className}
+  >
+    <path
+      fill-rule="evenodd"
+      clip-rule="evenodd"
+      d="M18.5 2V4.28C19.09 4.63 19.5 5.26 19.5 6V12C19.5 12.74 19.09 13.37 18.5 13.72V16C18.5 17.1 17.6 18 16.5 18H2.5C1.39 18 0.5 17.1 0.5 16V2C0.5 0.9 1.39 0 2.5 0H16.5C17.6 0 18.5 0.9 18.5 2ZM10.5 12H17.5V6H10.5V12ZM2.5 16V2H16.5V4H10.5C9.4 4 8.5 4.9 8.5 6V12C8.5 13.1 9.4 14 10.5 14H16.5V16H2.5ZM12 9C12 8.17157 12.6716 7.5 13.5 7.5C14.3284 7.5 15 8.17157 15 9C15 9.82843 14.3284 10.5 13.5 10.5C12.6716 10.5 12 9.82843 12 9Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
 export const WalletConnectIcon = ({ className }: { className: string }) => (
   <svg
     width="512px"

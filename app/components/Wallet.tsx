@@ -1,7 +1,6 @@
-import { GlobeAltIcon } from "@heroicons/react/outline";
-
 import { truncateEthAddress } from "~/utils/address";
 import { useUser } from "~/context/userContext";
+import { WalletIcon } from "./Icons";
 
 export function Wallet() {
   const {
@@ -24,7 +23,7 @@ export function Wallet() {
           truncateEthAddress(accountData.address ?? "")
         ) : (
           <>
-            <GlobeAltIcon className="h-5 w-5" />
+            <WalletIcon className="h-5 w-5" />
             {isConnecting ? "Connecting..." : "Connect Wallet"}
           </>
         )}
