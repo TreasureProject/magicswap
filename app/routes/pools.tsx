@@ -289,7 +289,7 @@ export default function Pools() {
             </div>
           </div>
         </div>
-        <div className="col-span-6 overflow-hidden rounded-md bg-[#20232d] lg:col-span-4 lg:min-h-[calc(100vh-256px)]">
+        <div className="col-span-6 overflow-hidden rounded-md bg-[#20232d] lg:col-span-4 lg:h-[calc(100vh-256px)]">
           <Outlet />
         </div>
       </div>

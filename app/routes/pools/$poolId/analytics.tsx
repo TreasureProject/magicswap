@@ -149,25 +149,25 @@ export default function Analytics() {
               </th>
               <th
                 scope="col"
-                className="table-cell px-3 py-3.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:text-xs"
+                className="table-cell px-2 py-2.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:text-xs md:px-3 md:py-3.5"
               >
                 Amount
               </th>
               <th
                 scope="col"
-                className="hidden px-3 py-3.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:table-cell sm:text-xs"
+                className="hidden px-2 py-2.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:table-cell sm:text-xs md:px-3 md:py-3.5"
               >
                 In
               </th>
               <th
                 scope="col"
-                className="hidden px-3 py-3.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:table-cell sm:text-xs"
+                className="hidden px-2 py-2.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:table-cell sm:text-xs md:px-3 md:py-3.5"
               >
                 Out
               </th>
               <th
                 scope="col"
-                className="px-3 py-3.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:text-xs"
+                className="px-2 py-2.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:text-xs md:px-3 md:py-3.5"
               >
                 Date
               </th>
@@ -197,17 +197,17 @@ export default function Analytics() {
                     />
                   </div>
                 </td>
-                <td className="table-cell whitespace-nowrap px-3 py-2.5 text-[0.6rem] font-semibold text-gray-200 sm:text-sm">
+                <td className="table-cell whitespace-nowrap px-2 py-2.5 text-[0.6rem] font-semibold text-gray-200 sm:text-sm md:px-3 md:py-2.5">
                   {formatUsd(swap.amountUsd)}
                 </td>
-                <td className="hidden whitespace-nowrap px-3 py-2.5 text-sm text-gray-400 sm:table-cell">
+                <td className="hidden whitespace-nowrap px-2 py-2.5 text-sm text-gray-400 sm:table-cell md:px-3 md:py-2.5">
                   {formatNumber(swap.inAmount)}
                 </td>
-                <td className="hidden whitespace-nowrap px-3 py-2.5 text-sm text-gray-400 sm:table-cell">
+                <td className="hidden whitespace-nowrap px-2 py-2.5 text-sm text-gray-400 sm:table-cell md:px-3 md:py-2.5">
                   {formatNumber(swap.outAmount)}
                 </td>
                 <td
-                  className="whitespace-nowrap px-3 py-2.5 text-[0.6rem] text-gray-500 sm:text-sm"
+                  className="whitespace-nowrap px-2 py-2.5 text-[0.6rem] text-gray-500 sm:text-sm md:px-3 md:py-2.5"
                   title={new Date(swap.date * 1000).toLocaleString()}
                 >
                   <a
@@ -222,7 +222,7 @@ export default function Analytics() {
                     <span className="group-hover:underline">
                       {swap.formattedDate}
                     </span>
-                    <ExternalLinkIcon className="h-4 w-4" />
+                    <ExternalLinkIcon className="h-3 w-3 md:h-4 md:w-4" />
                   </a>
                 </td>
               </tr>
