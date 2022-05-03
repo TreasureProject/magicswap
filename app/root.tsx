@@ -91,7 +91,7 @@ const NavLink = ({
       {({ isActive }) => (
         <div
           className={cn(
-            "flex flex-1 items-center justify-center space-x-6 rounded-lg px-8 py-4 text-xl font-medium tracking-wide",
+            "flex flex-1 items-center justify-center space-x-6 rounded-lg px-4 py-3 text-base font-medium tracking-wide 2xl:px-8 2xl:py-4 2xl:text-base",
             {
               "bg-gray-900 text-white": isActive,
               "text-gray-500 hover:bg-gray-700/10 hover:text-gray-500":
@@ -248,12 +248,12 @@ export default function App() {
               </div>
               <div className="relative overflow-hidden">
                 <DotPattern />
-                <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] max-w-7xl flex-col p-8">
+                <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] max-w-6xl flex-col p-8 2xl:max-w-7xl">
                   <Outlet />
                 </div>
-                <header className="fixed left-0 right-0 bottom-[5.5rem] z-10 px-2 sm:bottom-28">
+                <header className="fixed left-0 right-0 bottom-[5.5rem] z-10 px-2 sm:bottom-20">
                   <div className="relative">
-                    <div className="absolute left-1/2 z-10 w-full max-w-2xl -translate-x-1/2 transform rounded-xl bg-gray-900/40 p-2 shadow-2xl shadow-gray-800/30 backdrop-blur-md">
+                    <div className="absolute left-1/2 z-10 w-full max-w-lg -translate-x-1/2 transform rounded-xl bg-gray-900/40 p-2 shadow-2xl shadow-gray-800/30 backdrop-blur-md 2xl:max-w-2xl">
                       <nav className="flex gap-1">
                         <NavLink to="/">Swap</NavLink>
                         <NavLink to="pools">Pool</NavLink>

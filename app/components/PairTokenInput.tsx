@@ -36,7 +36,7 @@ export default function PairTokenInput({
   const positive = price24hChange >= 0;
 
   return (
-    <div className="flex-1 space-y-6 rounded-md border border-transparent bg-[#20232d] p-6 hover:border-gray-700">
+    <div className="flex-1 space-y-4 rounded-md border border-transparent bg-[#20232d] p-4 hover:border-gray-700 2xl:space-y-6 2xl:p-6">
       <div>
         <label htmlFor={id} className="sr-only">
           {label}
@@ -122,7 +122,7 @@ export default function PairTokenInput({
             </p>
           </div>
         </div>
-        <div className="h-32 2xl:h-36">
+        <div className="h-24 2xl:h-36">
           <TimeIntervalLineGraph
             gradient={{
               from: positive ? "#96e4df" : "#ee9617",
