@@ -1,14 +1,14 @@
 import { utils } from "ethers";
 import { MaxUint256 } from "@ethersproject/constants";
 import { erc20ABI, useContractRead } from "wagmi";
-import type { Token } from "~/types";
+import type { Pair, Token } from "~/types";
 import { useContractWrite } from "./useContractWrite";
 import { getEnvVariable } from "~/utils/env";
 import { useUser } from "~/context/userContext";
 
-export const useApproval = (token: Token) => {
+const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
   const contractConfig = {
-    addressOrName: token.id,
+    addressOrName: tokenId,
     contractInterface: erc20ABI,
   };
 
@@ -31,7 +31,13 @@ export const useApproval = (token: Token) => {
             MaxUint256.toString(),
           ],
         },
-        `Approve ${token.symbol}`
+        `Approve ${tokenSymbol}`
       ),
   };
 };
+
+export const usePairApproval = (pair: Pair) =>
+  useErc20Approval(pair.id, `${pair.name} LP Token`);
+
+export const useTokenApproval = (token: Token) =>
+  useErc20Approval(token.id, token.symbol);
