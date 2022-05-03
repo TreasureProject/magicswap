@@ -4,7 +4,7 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { MetamaskIcon, WalletConnectIcon } from "~/components/Icons";
 import { useIsMounted } from "~/hooks";
 
-const ModalStateContext = createContext<{
+const Context = createContext<{
   openWalletModal: () => void;
   isConnected: boolean;
   isConnecting: boolean;
@@ -13,10 +13,10 @@ const ModalStateContext = createContext<{
 } | null>(null);
 
 export const useUser = () => {
-  const context = useContext(ModalStateContext);
+  const context = useContext(Context);
 
   if (!context) {
-    throw new Error("Must call `useUser` within a `useUserContext` component.");
+    throw new Error("Must call `useUser` within a `UserProvider` component.");
   }
 
   return context;
@@ -46,7 +46,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }, [isConnected]);
 
   return (
-    <ModalStateContext.Provider
+    <Context.Provider
       value={{
         openWalletModal: openWalletModal,
         isConnected,
@@ -121,6 +121,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           </div>
         </Dialog>
       </Transition.Root>
-    </ModalStateContext.Provider>
+    </Context.Provider>
   );
 };

@@ -1,4 +1,5 @@
 import { utils } from "ethers";
+import { useSettings } from "~/context/settingsContext";
 import { useUser } from "~/context/userContext";
 
 import type { Token } from "~/types";
@@ -8,6 +9,7 @@ import { useV2RouterWrite } from "./useV2RouterWrite";
 
 export const useSwap = () => {
   const { accountData } = useUser();
+  const { slippage, deadline } = useSettings();
   const { write: writeSwapEthForExactTokens } = useV2RouterWrite(
     "swapETHForExactTokens"
   );
@@ -32,9 +34,7 @@ export const useSwap = () => {
     outputToken: Token,
     rawAmountIn: number,
     rawAmountOut: number,
-    isExactOut = false,
-    slippage: number,
-    deadline: number
+    isExactOut = false
   ) => {
     const isOutputEth = outputToken.isEth;
     const isEth = inputToken.isEth || isOutputEth;

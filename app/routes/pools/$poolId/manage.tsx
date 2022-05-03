@@ -19,10 +19,10 @@ import TokenInput from "~/components/TokenInput";
 import { useRemoveLiquidity } from "~/hooks/useRemoveLiquidity";
 import { usePairApproval, useTokenApproval } from "~/hooks/useApproval";
 import { getEnvVariable } from "~/utils/env";
-import { NumberField } from "~/components/NumberField";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
 import { CogIcon } from "@heroicons/react/outline";
 import { useUser } from "~/context/userContext";
+import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
 
 type LoaderData = {
   pair: Pair;
@@ -110,10 +110,6 @@ const Liquidity = () => {
   const [addInputValues, setAddInputValues] = React.useState<[number, number]>([
     0, 0,
   ]);
-  const [advancedSettings, setAdvancedSettings] = React.useState({
-    slippage: 0.005,
-    deadline: 20,
-  });
   const { pair } = useLoaderData<LoaderData>();
   const { openWalletModal, isConnected } = useUser();
 
@@ -153,13 +149,7 @@ const Liquidity = () => {
   };
 
   const handleAddLiquidity = () => {
-    addLiquidity(
-      pair,
-      addInputValues[0],
-      addInputValues[1],
-      advancedSettings.slippage,
-      advancedSettings.deadline
-    );
+    addLiquidity(pair, addInputValues[0], addInputValues[1]);
   };
 
   const handleRemoveLiquidity = () => {
@@ -167,9 +157,7 @@ const Liquidity = () => {
       pair,
       removeInputValue,
       removeLiquidityToken0Estimate,
-      removeLiquidityToken1Estimate,
-      advancedSettings.slippage,
-      advancedSettings.deadline
+      removeLiquidityToken1Estimate
     );
   };
 
@@ -233,99 +221,7 @@ const Liquidity = () => {
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-80 rounded-lg p-4 shadow-md">
-              <h3 className="font-medium text-white">Advanced Settings</h3>
-
-              <div className="mt-2 flex flex-col">
-                <div className="flex flex-col">
-                  <p className="text-sm text-gray-200">Slippage Tolerance</p>
-                  {advancedSettings.slippage >= 0.06 ? (
-                    <p className="text-[0.6rem] text-yellow-500">
-                      Your transaction may be frontrun
-                    </p>
-                  ) : null}
-                  <div className="mt-2 flex space-x-2">
-                    <button
-                      className="rounded-md bg-gray-800/50 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 hover:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-1 sm:text-xs"
-                      onClick={() =>
-                        setAdvancedSettings({
-                          ...advancedSettings,
-                          slippage: 0.001,
-                        })
-                      }
-                    >
-                      0.1%
-                    </button>
-                    <button
-                      className="rounded-md bg-gray-800/50 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 hover:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-1 sm:text-xs"
-                      onClick={() =>
-                        setAdvancedSettings({
-                          ...advancedSettings,
-                          slippage: 0.005,
-                        })
-                      }
-                    >
-                      0.5%
-                    </button>
-                    <button
-                      className="rounded-md bg-gray-800/50 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 hover:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-1 sm:text-xs"
-                      onClick={() =>
-                        setAdvancedSettings({
-                          ...advancedSettings,
-                          slippage: 0.01,
-                        })
-                      }
-                    >
-                      1.0%
-                    </button>
-                  </div>
-                  <div className="mt-2">
-                    <NumberField
-                      label="Slippage Tolerance"
-                      value={advancedSettings.slippage}
-                      onChange={(value) =>
-                        setAdvancedSettings({
-                          ...advancedSettings,
-                          slippage: value,
-                        })
-                      }
-                      minValue={0.001}
-                      maxValue={0.49}
-                      placeholder="0.5%"
-                      formatOptions={{
-                        style: "percent",
-                        minimumFractionDigits: 1,
-                        maximumFractionDigits: 2,
-                      }}
-                      errorMessage="Slippage must be between 0.1% and 49%"
-                      errorCondition={(value) => value > 49}
-                    />
-                  </div>
-                </div>
-                <div className="mt-4 flex flex-col">
-                  <p className="text-sm text-gray-200">Transaction Deadline</p>
-                  <div className="mt-2">
-                    <NumberField
-                      label="Transaction Deadline"
-                      value={advancedSettings.deadline}
-                      onChange={(value) =>
-                        setAdvancedSettings({
-                          ...advancedSettings,
-                          deadline: value,
-                        })
-                      }
-                      minValue={1}
-                      maxValue={60}
-                      placeholder="20"
-                      errorMessage="Deadline must be between 1 and 60"
-                      errorCondition={(value) => value > 60}
-                    >
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                        <span className="text-sm text-gray-400">Minutes</span>
-                      </div>
-                    </NumberField>
-                  </div>
-                </div>
-              </div>
+              <AdvancedSettingsPopoverContent />
             </PopoverContent>
           </Popover>
         </div>
