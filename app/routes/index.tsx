@@ -6,7 +6,8 @@ import {
 } from "@heroicons/react/solid";
 import cn from "clsx";
 import { Button } from "~/components/Button";
-import React from "react";
+import type { ChangeEvent} from "react";
+import { useCallback, useEffect } from "react";
 import {
   Link,
   useCatch,
@@ -103,7 +104,7 @@ export const loader: LoaderFunction = async ({ request, context }) => {
 
 export default function Index() {
   const data = useLoaderData<LoaderData>();
-  const [openTokenListModalProps, setOpenTokenListModalProps] = React.useState<{
+  const [openTokenListModalProps, setOpenTokenListModalProps] = useState<{
     open: boolean;
     type: "input" | "output";
   }>({
@@ -124,7 +125,7 @@ export default function Index() {
   const outputPairToken =
     pair.token0.id === data.outputToken.id ? pair.token0 : pair.token1;
 
-  const onClose = React.useCallback(
+  const onClose = useCallback(
     () =>
       setOpenTokenListModalProps((props) => ({
         ...props,
@@ -171,6 +172,11 @@ export default function Index() {
       );
     }
   };
+
+  // Reset inputs if swap changes
+  useEffect(() => {
+    setInputValues([0, 0]);
+  }, [inputPairToken.id, outputPairToken.id]);
 
   const insufficientBalance = inputTokenBalance < inputValues[0];
 
@@ -295,7 +301,7 @@ const Modal = ({
   const fetcher = useFetcher<ApiLoaderData>();
   const location = useLocation();
 
-  function handleSearchToken(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleSearchToken(event: ChangeEvent<HTMLInputElement>) {
     const searchToken = event.currentTarget.value;
     const searchParams = new URLSearchParams();
     searchParams.set("searchToken", searchToken);
@@ -313,7 +319,7 @@ const Modal = ({
   const otherToken =
     type === "input" ? loaderData.outputToken : loaderData.inputToken;
 
-  React.useEffect(() => {
+  useEffect(() => {
     onClose();
   }, [location.search, onClose]);
 
