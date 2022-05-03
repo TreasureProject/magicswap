@@ -62,6 +62,7 @@ export type CloudFlareEnvVar =
   | "ALCHEMY_KEY"
   | "NODE_ENV"
   | "EXCHANGE_ENDPOINT"
+  | "CHAIN_ID"
   | "UNISWAP_V2_ROUTER_ADDRESS"
   | "USDC_MAGIC_PAIR_ADDRESS";
 
