@@ -32,7 +32,7 @@ import { InjectedConnector } from "wagmi/connectors/injected";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import { providers } from "ethers";
 import { getTokensImageAddress } from "./utils/tokens.server";
-import type { CloudFlareEnv } from "./types";
+import type { CloudFlareEnv, CloudFlareEnvVar } from "./types";
 import { UserProvider } from "./context/userContext";
 import { PriceProvider } from "./context/priceContext";
 
@@ -53,29 +53,20 @@ export const meta: MetaFunction = () => ({
 });
 
 export const loader: LoaderFunction = async ({ context }) => {
+  const env = context as CloudFlareEnv;
   return json<RootLoaderData>({
     tokenImageList: await getTokensImageAddress(),
-    ENV: {
-      ALCHEMY_KEY: getEnvVariable("ALCHEMY_KEY", context),
-      NODE_ENV: getEnvVariable("NODE_ENV", context),
-      UNISWAP_V2_ROUTER_ADDRESS: getEnvVariable(
-        "UNISWAP_V2_ROUTER_ADDRESS",
-        context
-      ),
-      USDC_MAGIC_PAIR_ADDRESS: getEnvVariable(
-        "USDC_MAGIC_PAIR_ADDRESS",
-        context
-      ),
-    },
+    ENV: Object.keys(env).reduce(
+      (envVars, key) => ({
+        ...envVars,
+        [key]: getEnvVariable(key as CloudFlareEnvVar, context),
+      }),
+      {}
+    ),
   });
 };
 
 export const unstable_shouldReload: ShouldReloadFunction = () => false;
-
-const chains = [chain.arbitrum, chain.arbitrumRinkeby];
-
-const isChainSupported = (chainId?: number) =>
-  chains.some(({ id }) => id === chainId);
 
 const NavLink = ({
   to,
@@ -173,6 +164,11 @@ export default function App() {
   const transition = useTransition();
   const { ENV } = useLoaderData<RootLoaderData>();
 
+  const chains = [
+    ENV.CHAIN_ID === chain.arbitrumRinkeby.id.toString()
+      ? chain.arbitrumRinkeby
+      : chain.arbitrum,
+  ];
   const client = React.useMemo(
     () =>
       createClient({
@@ -194,14 +190,14 @@ export default function App() {
             }),
           ];
         },
-        provider({ chainId }) {
+        provider() {
           return new providers.AlchemyProvider(
-            isChainSupported(chainId) ? chainId : chain.arbitrum.id,
+            ENV.CHAIN_ID ? parseInt(ENV.CHAIN_ID) : chain.arbitrum.id,
             ENV.ALCHEMY_KEY
           );
         },
       }),
-    [ENV.ALCHEMY_KEY]
+    [ENV.ALCHEMY_KEY, ENV.CHAIN_ID]
   );
 
   const fetchers = useFetchers();
