@@ -2,11 +2,16 @@ import type {
   GetSwapPairQuery,
   GetSwapPairsQuery,
 } from "~/graphql/exchange.generated";
-import type { AdvancedToken, Optional, Token, TokenImageList } from "~/types";
+import type {
+  AdvancedToken,
+  Optional,
+  Pair,
+  Token,
+  TokenImageList,
+} from "~/types";
 import { exchangeSdk } from "./api.server";
 
-type RawTokenList = GetSwapPairsQuery["pairs"];
-type RawToken = RawTokenList[0]["token0"];
+type RawToken = GetSwapPairsQuery["pairs"][0]["token0"];
 type RawPairToken = GetSwapPairQuery["pairs"][0]["token0"];
 
 const normalizeSymbol = (symbol: string) => symbol.replace("$", "");
@@ -57,46 +62,23 @@ export const normalizeAdvancedToken = (
   };
 };
 
-const normalizeTokenList = (pairs: RawTokenList): Token[] => {
+export const getUniqueTokens = (pairs: Pair[]) => {
   const tokenSymbols: string[] = [];
   const tokens: Token[] = [];
 
   pairs.forEach(({ token0, token1 }) => {
-    const normalizedToken0 = normalizeToken(token0);
-    const normalizedToken1 = normalizeToken(token1);
-
-    if (normalizedToken0.isMagic || normalizedToken1.isMagic) {
-      if (!tokenSymbols.includes(normalizedToken0.symbol)) {
-        tokenSymbols.push(normalizedToken0.symbol);
-        tokens.push(normalizedToken0);
+    if (token0.isMagic || token1.isMagic) {
+      if (!tokenSymbols.includes(token0.symbol)) {
+        tokenSymbols.push(token0.symbol);
+        tokens.push(token0);
       }
 
-      if (!tokenSymbols.includes(normalizedToken1.symbol)) {
-        tokenSymbols.push(normalizedToken1.symbol);
-        tokens.push(normalizedToken1);
+      if (!tokenSymbols.includes(token1.symbol)) {
+        tokenSymbols.push(token1.symbol);
+        tokens.push(token1);
       }
     }
   });
-
-  return tokens;
-};
-
-export const getTokens = async (
-  url: string,
-  filter?: string
-): Promise<Token[]> => {
-  const sdk = exchangeSdk(url);
-  const { pairs } = await sdk.getSwapPairs({
-    where: {
-      reserveETH_gt: 0,
-    },
-  });
-
-  const tokens = normalizeTokenList(pairs);
-
-  if (filter) {
-    return tokens.filter((token) => token.symbol.includes(filter));
-  }
 
   return tokens;
 };
