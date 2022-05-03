@@ -23,6 +23,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
 import { CogIcon } from "@heroicons/react/outline";
 import { useUser } from "~/context/userContext";
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
+import { usePair } from "~/hooks/usePair";
 
 type LoaderData = {
   pair: Pair;
@@ -110,8 +111,9 @@ const Liquidity = () => {
   const [addInputValues, setAddInputValues] = React.useState<[number, number]>([
     0, 0,
   ]);
-  const { pair } = useLoaderData<LoaderData>();
+  const data = useLoaderData<LoaderData>();
   const { openWalletModal, isConnected } = useUser();
+  const pair = usePair(data.pair);
 
   const token0Balance = useTokenBalance(pair.token0);
   const token1Balance = useTokenBalance(pair.token1);
