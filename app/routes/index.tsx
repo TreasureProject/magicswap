@@ -29,7 +29,7 @@ import { useSwap } from "~/hooks/useSwap";
 import { TokenLogo } from "~/components/TokenLogo";
 import { CogIcon } from "@heroicons/react/outline";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
-import { useApproval } from "~/hooks/useApproval";
+import { useTokenApproval } from "~/hooks/useApproval";
 import { getEnvVariable } from "~/utils/env";
 
 import { useUser } from "~/context/userContext";
@@ -119,7 +119,7 @@ export default function Index() {
   const inputTokenBalance = useTokenBalance(data.inputToken);
   const outputTokenBalance = useTokenBalance(data.outputToken);
   const pair = usePair(data.pair);
-  const { isApproved, approve } = useApproval(data.inputToken);
+  const { isApproved, approve } = useTokenApproval(data.inputToken);
   const { openWalletModal, isConnected } = useUser();
 
   const swap = useSwap();
@@ -208,7 +208,9 @@ export default function Index() {
 
                   <div className="mt-2 flex flex-col">
                     <div className="flex flex-col">
-                      <p className="text-sm text-gray-200">Slippage</p>
+                      <p className="text-sm text-gray-200">
+                        Slippage Tolerance
+                      </p>
                       {advancedSettings.slippage >= 0.06 ? (
                         <p className="text-[0.6rem] text-yellow-500">
                           Your transaction may be frontrun
@@ -251,7 +253,7 @@ export default function Index() {
                       </div>
                       <div className="mt-2">
                         <NumberField
-                          label="Slippage"
+                          label="Slippage Tolerance"
                           value={advancedSettings.slippage}
                           onChange={(value) =>
                             setAdvancedSettings({
