@@ -17,6 +17,7 @@ export default function PairTokenInput({
   token,
   balance,
   value,
+  locked = false,
   onChange,
   onTokenClick,
 }: {
@@ -25,6 +26,7 @@ export default function PairTokenInput({
   token: PairToken;
   balance: number;
   value: number;
+  locked?: boolean;
   onChange: (value: number) => void;
   onTokenClick: () => void;
 }) {
@@ -61,11 +63,15 @@ export default function PairTokenInput({
               <p className="font-bold text-gray-300 sm:text-sm">
                 {token.symbol}
               </p>
-              <ChevronDownIcon className="h-4 w-4" />
-              <button
-                className="absolute inset-0 h-full w-full"
-                onClick={onTokenClick}
-              />
+              {!locked && (
+                <>
+                  <ChevronDownIcon className="h-4 w-4" />
+                  <button
+                    className="absolute inset-0 h-full w-full"
+                    onClick={onTokenClick}
+                  />
+                </>
+              )}
             </div>
             <span
               className="cursor-pointer text-xs text-gray-500"

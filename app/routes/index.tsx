@@ -18,11 +18,11 @@ import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
-import { getTokenBySymbol, getTokens } from "~/utils/tokens.server";
-import type { LoaderData as ApiLoaderData } from "./api/get-token-list";
+import { getTokenBySymbol, getUniqueTokens } from "~/utils/tokens.server";
+import type { LoaderData as ApiLoaderData } from "./api/get-pairs";
 import type { Pair, PairToken, Token } from "~/types";
 import { useTokenBalance } from "~/hooks/useTokenBalance";
-import { getPair } from "~/utils/pair.server";
+import { getPairs } from "~/utils/pair.server";
 import PairTokenInput from "~/components/PairTokenInput";
 import { useState } from "react";
 import { useSwap } from "~/hooks/useSwap";
@@ -37,10 +37,11 @@ import { NumberField } from "~/components/NumberField";
 import { usePair } from "~/hooks/usePair";
 
 type LoaderData = {
-  tokenList: Token[];
+  pairs: Pair[];
+  pair: Pair;
+  tokens: Token[];
   inputToken: PairToken;
   outputToken: PairToken;
-  pair: Pair;
 };
 
 export const meta: MetaFunction = ({ data }) => {
@@ -59,13 +60,13 @@ export const meta: MetaFunction = ({ data }) => {
 export const loader: LoaderFunction = async ({ request, context }) => {
   const exchangeUrl = getEnvVariable("EXCHANGE_ENDPOINT", context);
   const url = new URL(request.url);
-  const inputCurrency = url.searchParams.get("inputCurrency") ?? "USDC";
-  const outputCurrency = url.searchParams.get("outputCurrency") ?? "MAGIC";
+  const inputSymbol = url.searchParams.get("input") ?? "USDC";
+  const outputSymbol = url.searchParams.get("output") ?? "MAGIC";
 
-  const tokenList = await getTokens(exchangeUrl);
-
-  const inputToken = getTokenBySymbol(tokenList, inputCurrency);
-  const outputToken = getTokenBySymbol(tokenList, outputCurrency);
+  const pairs = await getPairs(exchangeUrl);
+  const tokens = getUniqueTokens(pairs);
+  const inputToken = getTokenBySymbol(tokens, inputSymbol);
+  const outputToken = getTokenBySymbol(tokens, outputSymbol);
 
   if (!inputToken || !outputToken) {
     throw new Response("Token not found", {
@@ -79,7 +80,11 @@ export const loader: LoaderFunction = async ({ request, context }) => {
     });
   }
 
-  const pair = await getPair(inputToken.id, outputToken.id, exchangeUrl);
+  const pair = pairs.find(
+    ({ token0, token1 }) =>
+      (token0.id === inputToken.id || token0.id === outputToken.id) &&
+      (token1.id === inputToken.id || token1.id === outputToken.id)
+  );
 
   if (!pair) {
     throw new Response("Swap not allowed", {
@@ -88,10 +93,11 @@ export const loader: LoaderFunction = async ({ request, context }) => {
   }
 
   return json<LoaderData>({
-    tokenList,
+    pairs,
+    pair,
+    tokens,
     inputToken: pair.token0.id === inputToken.id ? pair.token0 : pair.token1,
     outputToken: pair.token0.id === outputToken.id ? pair.token0 : pair.token1,
-    pair,
   });
 };
 
@@ -110,8 +116,8 @@ export default function Index() {
   });
   const [isExactOut, setIsExactOut] = useState(false);
   const [inputValues, setInputValues] = useState([0, 0]);
-  const inputCurrencyBalance = useTokenBalance(data.inputToken);
-  const outputCurrencyBalance = useTokenBalance(data.outputToken);
+  const inputTokenBalance = useTokenBalance(data.inputToken);
+  const outputTokenBalance = useTokenBalance(data.outputToken);
   const pair = usePair(data.pair);
   const { isApproved, approve } = useApproval(data.inputToken);
   const { openWalletModal, isConnected } = useUser();
@@ -172,7 +178,7 @@ export default function Index() {
     }
   };
 
-  const insufficientBalance = inputCurrencyBalance < inputValues[0];
+  const insufficientBalance = inputTokenBalance < inputValues[0];
 
   return (
     <>
@@ -304,8 +310,9 @@ export default function Index() {
               id="inputToken"
               label={`${inputPairToken.symbol} Amount`}
               token={inputPairToken}
-              balance={inputCurrencyBalance}
+              balance={inputTokenBalance}
               value={inputValues[0]}
+              locked={inputPairToken.isMagic}
               onChange={handleInputChange}
               onTokenClick={() =>
                 setOpenTokenListModalProps({
@@ -316,7 +323,7 @@ export default function Index() {
             />
             <div className="flex basis-24 items-center justify-center lg:basis-32">
               <Link
-                to={`/?inputCurrency=${outputPairToken.symbol}&outputCurrency=${inputPairToken.symbol}`}
+                to={`/?input=${outputPairToken.symbol}&output=${inputPairToken.symbol}`}
                 className="group rounded-full p-2 transition duration-300 ease-in-out hover:bg-gray-500/20"
               >
                 <ArrowRightIcon className="hidden h-6 w-6 animate-rotate-back text-gray-500 group-hover:animate-rotate-180 lg:block" />
@@ -327,8 +334,9 @@ export default function Index() {
               id="outputToken"
               label={`${outputPairToken.symbol} Amount`}
               token={outputPairToken}
-              balance={outputCurrencyBalance}
+              balance={outputTokenBalance}
               value={inputValues[1]}
+              locked={outputPairToken.isMagic}
               onChange={handleOutputChange}
               onTokenClick={() =>
                 setOpenTokenListModalProps({
@@ -398,10 +406,14 @@ const Modal = ({
 
   const isLoading = fetcher.state === "loading";
 
-  const listTokens = fetcher.data?.tokenList ?? loaderData.tokenList;
+  const tokens = (fetcher.data?.tokens ?? loaderData.tokens).sort((a, b) =>
+    a.symbol.localeCompare(b.symbol)
+  );
 
-  const currentCurrency =
+  const currentToken =
     type === "input" ? loaderData.inputToken : loaderData.outputToken;
+  const otherToken =
+    type === "input" ? loaderData.outputToken : loaderData.inputToken;
 
   React.useEffect(() => {
     onClose();
@@ -452,7 +464,7 @@ const Modal = ({
                 </Dialog.Title>
                 <div className="mt-2">
                   <p className="text-sm text-gray-500">
-                    Select a token to replace with {currentCurrency.symbol}.
+                    Select a token to replace with {currentToken.symbol}.
                   </p>
                 </div>
                 <div className="mt-3">
@@ -483,15 +495,17 @@ const Modal = ({
                   </fetcher.Form>
                 </div>
                 <ul className="mt-2 h-80 overflow-auto rounded-md border border-gray-700 bg-gray-900">
-                  {listTokens.map((token) => {
-                    const isSelected = token.id === currentCurrency.id;
+                  {tokens.map((token) => {
+                    const isDisabled =
+                      token.id === currentToken.id ||
+                      token.id === otherToken.id;
                     return (
                       <li key={token.id}>
                         <div
                           className={cn(
-                            !isSelected
-                              ? "hover:bg-gray-700/40"
-                              : "pointer-events-none opacity-20",
+                            isDisabled
+                              ? "pointer-events-none opacity-20"
+                              : "hover:bg-gray-700/40",
                             "relative flex items-center space-x-3 px-6 py-5 transition duration-150 ease-in-out focus-within:ring-2 focus-within:ring-inset focus-within:ring-red-500"
                           )}
                         >
@@ -503,7 +517,7 @@ const Modal = ({
                             />
                           </div>
                           <div className="min-w-0 flex-1">
-                            {isSelected ? (
+                            {isDisabled ? (
                               <div>
                                 <p className="text-xs font-medium text-gray-500">
                                   {token.name}
@@ -515,24 +529,14 @@ const Modal = ({
                             ) : (
                               <Link
                                 prefetch="intent"
-                                to={`/?inputCurrency=${
+                                to={`/?input=${
                                   type === "input"
                                     ? token.symbol
-                                    : // if selected output currency is the same as input currency,
-                                    // then we need to change the output currency to the selected input currency
-                                    type === "output" &&
-                                      token.symbol ===
-                                        loaderData.inputToken.symbol
-                                    ? loaderData.outputToken.symbol
-                                    : loaderData.inputToken.symbol
-                                }&outputCurrency=${
+                                    : otherToken.symbol
+                                }&output=${
                                   type === "output"
                                     ? token.symbol
-                                    : type === "input" &&
-                                      token.symbol ===
-                                        loaderData.outputToken.symbol
-                                    ? loaderData.inputToken.symbol
-                                    : loaderData.outputToken.symbol
+                                    : otherToken.symbol
                                 }`}
                               >
                                 <span
