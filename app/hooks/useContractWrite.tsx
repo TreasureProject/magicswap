@@ -1,8 +1,10 @@
-import type { WriteContractConfig } from "@wagmi/core";
-import { useContractWrite as useContractWriteWagmi } from "wagmi";
+import * as React from "react";
+import {
+  useContractWrite as useContractWriteWagmi,
+  useWaitForTransaction,
+} from "wagmi";
 import toast from "react-hot-toast";
 import type { Optional } from "~/types";
-import { useCallback } from "react";
 
 type UseContractWriteArgs = Parameters<typeof useContractWriteWagmi>;
 
@@ -19,42 +21,52 @@ const renderStatusWithHeader = (message: string, headerMessage?: string) => {
   );
 };
 
-export const useContractWrite = (...args: UseContractWriteArgs) => {
+export const useContractWrite = (
+  statusHeader: Optional<string>,
+  ...args: UseContractWriteArgs
+) => {
   const result = useContractWriteWagmi(...args);
-  const { writeAsync } = result;
 
-  const write = useCallback(
-    (
-      overrideConfig: Optional<WriteContractConfig> = undefined,
-      statusHeader: Optional<string> = undefined,
-      loadingMessage = "Transaction in progress...",
-      successMessage = "Transaction successful",
-      errorMessage = "Transaction failed"
-    ) => {
-      const promise = writeAsync(overrideConfig);
-      toast.promise(
-        promise,
+  const transaction = useWaitForTransaction({ hash: result.data?.hash });
+
+  const toastId = React.useRef<Optional<string>>(undefined);
+
+  const isLoading = transaction.status === "loading" || result.isLoading;
+
+  const isError = transaction.status === "error" || result.isError;
+
+  React.useEffect(() => {
+    if (isLoading) {
+      if (toastId.current) {
+        toast.loading(
+          renderStatusWithHeader("Transaction in progress...", statusHeader),
+          {
+            id: toastId.current,
+          }
+        );
+      } else {
+        toastId.current = toast.loading(
+          renderStatusWithHeader("Transaction in progress...", statusHeader)
+        );
+      }
+    } else if (transaction.status === "success") {
+      toast.success(
+        renderStatusWithHeader("Transaction successful", statusHeader),
         {
-          loading: renderStatusWithHeader(loadingMessage, statusHeader),
-          success: renderStatusWithHeader(successMessage, statusHeader),
-          error: (err: Error) =>
-            renderStatusWithHeader(
-              `${errorMessage}: ${err.message}`,
-              statusHeader
-            ),
-        },
-        {
-          style: {
-            minWidth: "250px",
-          },
+          id: toastId.current,
         }
       );
-    },
-    [writeAsync]
-  );
+    } else if (isError) {
+      toast.error(renderStatusWithHeader("Transaction failed", statusHeader), {
+        id: toastId.current,
+      });
+    }
+  }, [isError, isLoading, statusHeader, transaction.status]);
 
   return {
     ...result,
-    write,
+    isLoading,
+    isError,
+    write: result.write,
   };
 };

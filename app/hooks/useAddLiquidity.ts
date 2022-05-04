@@ -1,16 +1,25 @@
+import { useRef } from "react";
 import { utils } from "ethers";
 import { useSettings } from "~/context/settingsContext";
 import { useUser } from "~/context/userContext";
 
-import type { Pair } from "~/types";
+import type { Optional, Pair } from "~/types";
 
 import { useV2RouterWrite } from "./useV2RouterWrite";
 
 export const useAddLiquidity = () => {
   const { accountData } = useUser();
   const { slippage, deadline } = useSettings();
-  const { write: writeAddLiquidity } = useV2RouterWrite("addLiquidity");
-  const { write: writeAddLiquidityEth } = useV2RouterWrite("addLiquidityETH");
+  const statusRef = useRef<Optional<string>>(undefined);
+
+  const { write: writeAddLiquidity } = useV2RouterWrite(
+    "addLiquidity",
+    statusRef.current
+  );
+  const { write: writeAddLiquidityEth } = useV2RouterWrite(
+    "addLiquidityETH",
+    statusRef.current
+  );
 
   return (pair: Pair, rawToken0Amount: number, rawToken1Amount: number) => {
     const slippageMultiplier = (100 - slippage) / 100;
@@ -33,41 +42,35 @@ export const useAddLiquidity = () => {
       60 * deadline
     ).toString();
 
-    const statusHeader = `Add ${pair.name} Liquidity`;
+    statusRef.current = `Add ${pair.name} Liquidity`;
 
     if (pair.hasEth) {
-      writeAddLiquidityEth(
-        {
-          overrides: {
-            value: isToken1Eth ? token1Amount : token0Amount,
-          },
-          args: [
-            isToken1Eth ? pair.token0.id : pair.token1.id,
-            isToken1Eth ? token0Amount : token1Amount,
-            isToken1Eth ? token0AmountMin : token1AmountMin,
-            isToken1Eth ? token1AmountMin : token0AmountMin,
-            accountData?.address,
-            transactionDeadline,
-          ],
+      writeAddLiquidityEth({
+        overrides: {
+          value: isToken1Eth ? token1Amount : token0Amount,
         },
-        statusHeader
-      );
+        args: [
+          isToken1Eth ? pair.token0.id : pair.token1.id,
+          isToken1Eth ? token0Amount : token1Amount,
+          isToken1Eth ? token0AmountMin : token1AmountMin,
+          isToken1Eth ? token1AmountMin : token0AmountMin,
+          accountData?.address,
+          transactionDeadline,
+        ],
+      });
     } else {
-      writeAddLiquidity(
-        {
-          args: [
-            pair.token0.id,
-            pair.token1.id,
-            token0Amount,
-            token1Amount,
-            token0AmountMin,
-            token1AmountMin,
-            accountData?.address,
-            transactionDeadline,
-          ],
-        },
-        statusHeader
-      );
+      writeAddLiquidity({
+        args: [
+          pair.token0.id,
+          pair.token1.id,
+          token0Amount,
+          token1Amount,
+          token0AmountMin,
+          token1AmountMin,
+          accountData?.address,
+          transactionDeadline,
+        ],
+      });
     }
   };
 };
