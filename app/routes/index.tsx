@@ -24,6 +24,7 @@ import { CogIcon } from "@heroicons/react/outline";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
 import { useTokenApproval } from "~/hooks/useApproval";
 import { getEnvVariable } from "~/utils/env";
+import useLocalStorageState from "use-local-storage-state";
 
 import { useUser } from "~/context/userContext";
 import { usePair } from "~/hooks/usePair";
@@ -112,7 +113,10 @@ export default function Index() {
   const pair = usePair(data.pair);
   const { isApproved, approve } = useTokenApproval(data.inputToken);
   const { openWalletModal, isConnected } = useUser();
-  const [showGraph, setShowGraph] = useState(false);
+  const [showGraph, setShowGraph] = useLocalStorageState("ms:showGraph", {
+    ssr: true,
+    defaultValue: false,
+  });
 
   const swap = useSwap();
   const inputPairToken =
