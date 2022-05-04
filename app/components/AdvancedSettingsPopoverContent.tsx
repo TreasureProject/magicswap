@@ -1,8 +1,13 @@
+import React from "react";
 import { NumberField } from "~/components/NumberField";
 import { SLIPPAGE_OPTIONS, useSettings } from "~/context/settingsContext";
 import { formatPercent } from "~/utils/number";
 
-export const AdvancedSettingsPopoverContent = () => {
+export const AdvancedSettingsPopoverContent = ({
+  children,
+}: {
+  children?: React.ReactNode;
+}) => {
   const { slippage, deadline, updateSlippage, updateDeadline } = useSettings();
   return (
     <>
@@ -65,6 +70,7 @@ export const AdvancedSettingsPopoverContent = () => {
           </div>
         </div>
       </div>
+      {children}
     </>
   );
 };
