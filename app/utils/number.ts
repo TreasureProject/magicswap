@@ -2,16 +2,13 @@ export const getFormatOptions = (
   value: number,
   isUsd = false
 ): Intl.NumberFormatOptions => {
-  const formatOptions: Intl.NumberFormatOptions = {
-    minimumFractionDigits: isUsd ? 2 : 0,
-    maximumFractionDigits: isUsd ? 2 : 5,
-  };
+  const formatOptions: Intl.NumberFormatOptions = {};
 
-  if (value > 1e6) {
-    formatOptions.minimumFractionDigits = 0;
-    formatOptions.maximumFractionDigits = 0;
-  } else if (value > 1) {
+  if (isUsd) {
+    formatOptions.minimumFractionDigits = 2;
     formatOptions.maximumFractionDigits = 2;
+  } else {
+    formatOptions.maximumSignificantDigits = value < 1 ? 8 : 6;
   }
 
   return formatOptions;

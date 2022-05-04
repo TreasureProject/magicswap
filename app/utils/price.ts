@@ -1,6 +1,8 @@
 import type { AdvancedToken } from "~/types";
 import { getFormatOptions } from "./number";
 
+export const LIQUIDITY_PROVIDER_FEE = 0.003;
+
 export const getApr = (volume: number, liquidity: number) =>
   ((volume / 7) * 365 * 0.0025) / liquidity;
 
