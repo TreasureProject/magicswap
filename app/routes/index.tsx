@@ -10,7 +10,7 @@ import { useCallback, useEffect } from "react";
 import { Link, useCatch, useLoaderData, useLocation } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, Switch, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { getTokenBySymbol, getUniqueTokens } from "~/utils/tokens.server";
 import type { Pair, PairToken, Token } from "~/types";
@@ -112,6 +112,7 @@ export default function Index() {
   const pair = usePair(data.pair);
   const { isApproved, approve } = useTokenApproval(data.inputToken);
   const { openWalletModal, isConnected } = useUser();
+  const [showGraph, setShowGraph] = useState(false);
 
   const swap = useSwap();
   const inputPairToken =
@@ -199,7 +200,47 @@ export default function Index() {
                 </PopoverTrigger>
                 <PopoverContent className="w-80 rounded-lg p-4 shadow-md">
                   <AdvancedSettingsPopoverContent>
-                    Test123
+                    <div className="mt-4">
+                      <h3 className="font-medium text-white">
+                        Display Settings
+                      </h3>
+                      <Switch.Group
+                        as="div"
+                        className="mt-2 flex items-center justify-between"
+                      >
+                        <span className="flex flex-grow flex-col">
+                          <Switch.Label
+                            as="span"
+                            className="text-sm text-gray-200"
+                            passive
+                          >
+                            Show price graph
+                          </Switch.Label>
+                          <Switch.Description
+                            as="span"
+                            className="text-[0.6rem] text-gray-500"
+                          >
+                            Show a graph of the token price over time
+                          </Switch.Description>
+                        </span>
+                        <Switch
+                          checked={showGraph}
+                          onChange={setShowGraph}
+                          className={cn(
+                            showGraph ? "bg-[#E5003E]" : "bg-gray-400",
+                            "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                          )}
+                        >
+                          <span
+                            aria-hidden="true"
+                            className={cn(
+                              showGraph ? "translate-x-5" : "translate-x-0",
+                              "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                            )}
+                          />
+                        </Switch>
+                      </Switch.Group>
+                    </div>
                   </AdvancedSettingsPopoverContent>
                 </PopoverContent>
               </Popover>
@@ -214,6 +255,7 @@ export default function Index() {
               value={inputValues[0]}
               locked={inputPairToken.isMagic}
               onChange={handleInputChange}
+              showPriceGraph={showGraph}
               onTokenClick={() =>
                 setOpenTokenListModalProps({
                   open: true,
@@ -221,13 +263,13 @@ export default function Index() {
                 })
               }
             />
-            <div className="flex basis-24 items-center justify-center lg:basis-32">
+            <div className="flex basis-24 items-center justify-center xl:basis-32">
               <Link
                 to={`/?input=${outputPairToken.symbol}&output=${inputPairToken.symbol}`}
                 className="group rounded-full p-2 transition duration-300 ease-in-out hover:bg-gray-500/20"
               >
-                <ArrowRightIcon className="hidden h-6 w-6 animate-rotate-back text-gray-500 group-hover:animate-rotate-180 lg:block" />
-                <ArrowDownIcon className="block h-6 w-6 animate-rotate-back text-gray-500 group-hover:animate-rotate-180 lg:hidden" />
+                <ArrowRightIcon className="hidden h-6 w-6 animate-rotate-back text-gray-500 group-hover:animate-rotate-180 xl:block" />
+                <ArrowDownIcon className="block h-6 w-6 animate-rotate-back text-gray-500 group-hover:animate-rotate-180 xl:hidden" />
               </Link>
             </div>
             <PairTokenInput
@@ -238,6 +280,7 @@ export default function Index() {
               value={inputValues[1]}
               locked={outputPairToken.isMagic}
               onChange={handleOutputChange}
+              showPriceGraph={showGraph}
               onTokenClick={() =>
                 setOpenTokenListModalProps({
                   open: true,
@@ -247,7 +290,7 @@ export default function Index() {
             />
           </div>
         </div>
-        <div className="mt-8 w-full space-y-4 px-0 lg:px-72 2xl:mt-12">
+        <div className="mt-8 w-full space-y-4 px-0 xl:px-72 2xl:mt-12">
           {inputValues[0] > 0 && !isApproved && !insufficientBalance && (
             <Button onClick={approve}>Approve {inputPairToken.symbol}</Button>
           )}

@@ -79,7 +79,7 @@ export default function Pools() {
       <Transition.Root show={mobileFiltersOpen} as={React.Fragment}>
         <Dialog
           as="div"
-          className="fixed inset-0 z-40 flex lg:hidden"
+          className="fixed inset-0 z-40 flex xl:hidden"
           onClose={setMobileFiltersOpen}
         >
           <Transition.Child
@@ -161,12 +161,12 @@ export default function Pools() {
         </Dialog>
       </Transition.Root>
 
-      <div className="mt-2 grid grid-cols-6 pb-2 pt-6 lg:gap-x-4 lg:py-6">
-        <div className="col-span-6 flex items-end lg:col-span-2">
+      <div className="mt-2 grid grid-cols-6 pb-2 pt-6 xl:gap-x-4 xl:py-6">
+        <div className="col-span-6 flex items-end xl:col-span-2">
           <h2 className="text-2xl font-medium">Pools</h2>
         </div>
         {poolId ? (
-          <ol className="col-span-6 mt-8 flex items-center justify-center space-x-2 sm:space-x-4 lg:col-span-4 lg:mt-0">
+          <ol className="col-span-6 mt-8 flex items-center justify-center space-x-2 sm:space-x-4 xl:col-span-4 xl:mt-0">
             {tabs.map((tab, i) => {
               const isActive = tab.href === lastPath;
 
@@ -196,7 +196,7 @@ export default function Pools() {
             })}
           </ol>
         ) : null}
-        <div className="relative col-span-6 mt-4 block lg:hidden">
+        <div className="relative col-span-6 mt-4 block xl:hidden">
           <div className="group block rounded-md bg-[#20232d] p-4 focus-within:ring-2 focus-within:ring-red-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
             {selectedPool ? (
               <div className="flex items-center justify-between">
@@ -247,7 +247,7 @@ export default function Pools() {
         </div>
       </div>
       <div className="mt-2 grid flex-1 grid-cols-6 gap-x-4">
-        <div className="hidden h-[calc(100vh-256px)] flex-col overflow-hidden rounded-md bg-[#20232d] lg:col-span-2 lg:flex">
+        <div className="hidden h-[calc(100vh-256px)] flex-col overflow-hidden rounded-md bg-[#20232d] xl:col-span-2 xl:flex">
           <div className="p-6">
             <fetcher.Form>
               <label htmlFor="liquidity-pools" className="sr-only">
@@ -289,7 +289,7 @@ export default function Pools() {
             </div>
           </div>
         </div>
-        <div className="col-span-6 overflow-hidden rounded-md bg-[#20232d] lg:col-span-4 lg:h-[calc(100vh-256px)]">
+        <div className="col-span-6 overflow-hidden rounded-md bg-[#20232d] xl:col-span-4 xl:h-[calc(100vh-256px)]">
           <Outlet />
         </div>
       </div>
