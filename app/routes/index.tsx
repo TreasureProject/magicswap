@@ -1,4 +1,4 @@
-import { SpinnerIcon, StarIcon } from "~/components/Icons";
+import { StarIcon } from "~/components/Icons";
 import {
   ArrowRightIcon,
   ArrowDownIcon,
@@ -6,21 +6,13 @@ import {
 } from "@heroicons/react/solid";
 import cn from "clsx";
 import { Button } from "~/components/Button";
-import type { ChangeEvent} from "react";
 import { useCallback, useEffect } from "react";
-import {
-  Link,
-  useCatch,
-  useFetcher,
-  useLoaderData,
-  useLocation,
-} from "@remix-run/react";
+import { Link, useCatch, useLoaderData, useLocation } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { getTokenBySymbol, getUniqueTokens } from "~/utils/tokens.server";
-import type { LoaderData as ApiLoaderData } from "./api/get-pairs";
 import type { Pair, PairToken, Token } from "~/types";
 import { useTokenBalance } from "~/hooks/useTokenBalance";
 import { getPairs } from "~/utils/pair.server";
@@ -65,7 +57,9 @@ export const loader: LoaderFunction = async ({ request, context }) => {
   const outputSymbol = url.searchParams.get("output") ?? "MAGIC";
 
   const pairs = await getPairs(exchangeUrl);
-  const tokens = getUniqueTokens(pairs);
+  const tokens = getUniqueTokens(pairs).sort((a, b) =>
+    a.symbol.localeCompare(b.symbol)
+  );
   const inputToken = getTokenBySymbol(tokens, inputSymbol);
   const outputToken = getTokenBySymbol(tokens, outputSymbol);
 
@@ -204,7 +198,9 @@ export default function Index() {
                   </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-80 rounded-lg p-4 shadow-md">
-                  <AdvancedSettingsPopoverContent />
+                  <AdvancedSettingsPopoverContent>
+                    Test123
+                  </AdvancedSettingsPopoverContent>
                 </PopoverContent>
               </Popover>
             </div>
@@ -275,11 +271,7 @@ export default function Index() {
           </Button>
         </div>
       </div>
-      <Modal
-        modalProps={openTokenListModalProps}
-        loaderData={data}
-        onClose={onClose}
-      />
+      <Modal modalProps={openTokenListModalProps} onClose={onClose} />
     </>
   );
 }
@@ -287,31 +279,22 @@ export default function Index() {
 const Modal = ({
   modalProps,
   onClose,
-  loaderData,
 }: {
   modalProps: {
     open: boolean;
     type: "input" | "output";
   };
   onClose: () => void;
-  loaderData: LoaderData;
 }) => {
   const { type } = modalProps;
-
-  const fetcher = useFetcher<ApiLoaderData>();
+  const loaderData = useLoaderData<LoaderData>();
   const location = useLocation();
+  const [searchString, setSearchString] = useState("");
 
-  function handleSearchToken(event: ChangeEvent<HTMLInputElement>) {
-    const searchToken = event.currentTarget.value;
-    const searchParams = new URLSearchParams();
-    searchParams.set("searchToken", searchToken);
-    fetcher.load(`/api/get-token-list/?${searchParams.toString()}`);
-  }
-
-  const isLoading = fetcher.state === "loading";
-
-  const tokens = (fetcher.data?.tokens ?? loaderData.tokens).sort((a, b) =>
-    a.symbol.localeCompare(b.symbol)
+  const filteredTokens = loaderData.tokens.filter(
+    (token) =>
+      token.symbol.toLowerCase().includes(searchString.toLowerCase()) ||
+      token.name.toLowerCase().includes(searchString.toLowerCase())
   );
 
   const currentToken =
@@ -321,6 +304,7 @@ const Modal = ({
 
   useEffect(() => {
     onClose();
+    setSearchString("");
   }, [location.search, onClose]);
 
   return (
@@ -372,34 +356,29 @@ const Modal = ({
                   </p>
                 </div>
                 <div className="mt-3">
-                  <fetcher.Form>
-                    <label htmlFor="search-token" className="sr-only">
-                      Search Token
-                    </label>
-                    <div className="relative mt-1 rounded-md shadow-sm">
-                      <input
-                        type="text"
-                        name="search-token"
-                        id="search-token"
-                        onChange={handleSearchToken}
-                        className="block w-full rounded-md border-gray-700 bg-gray-900 pr-10 focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
-                        placeholder="Search token"
+                  <label htmlFor="search-token" className="sr-only">
+                    Search Token
+                  </label>
+                  <div className="relative mt-1 rounded-md shadow-sm">
+                    <input
+                      type="text"
+                      name="search-token"
+                      id="search-token"
+                      onChange={(e) => setSearchString(e.currentTarget.value)}
+                      value={searchString}
+                      className="block w-full rounded-md border-gray-700 bg-gray-900 pr-10 focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
+                      placeholder="Search token"
+                    />
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                      <SearchIcon
+                        className="h-5 w-5 text-gray-700"
+                        aria-hidden="true"
                       />
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                        {isLoading ? (
-                          <SpinnerIcon className="h-5 w-5 animate-spin fill-gray-900 text-gray-700" />
-                        ) : (
-                          <SearchIcon
-                            className="h-5 w-5 text-gray-700"
-                            aria-hidden="true"
-                          />
-                        )}
-                      </div>
                     </div>
-                  </fetcher.Form>
+                  </div>
                 </div>
                 <ul className="mt-2 h-80 overflow-auto rounded-md border border-gray-700 bg-gray-900">
-                  {tokens.map((token) => {
+                  {filteredTokens.map((token) => {
                     const isDisabled =
                       token.id === currentToken.id ||
                       token.id === otherToken.id;
