@@ -30,7 +30,8 @@ import { usePair } from "~/hooks/usePair";
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
 import { Modal } from "~/components/Modal";
 import { useSettings } from "~/context/settingsContext";
-import { formatPercent } from "~/utils/number";
+import { formatNumber, formatPercent } from "~/utils/number";
+import { LIQUIDITY_PROVIDER_FEE } from "~/utils/price";
 
 type LoaderData = {
   pairs: Pair[];
@@ -141,7 +142,7 @@ export default function Index() {
   const handleInputChange = (value: number) => {
     setIsExactOut(false);
     const rawAmountOut = value * outputPairToken.price;
-    const amountInWithFee = value * 0.997;
+    const amountInWithFee = value * (1 - LIQUIDITY_PROVIDER_FEE);
     const amountOut = Math.max(
       (amountInWithFee * outputPairToken.reserve) /
         (inputPairToken.reserve + amountInWithFee),
@@ -156,7 +157,7 @@ export default function Index() {
     const rawAmountIn = value * inputPairToken.price;
     const amountIn = Math.max(
       (inputPairToken.reserve * value) /
-        ((outputPairToken.reserve - value) * 0.997),
+        ((outputPairToken.reserve - value) * (1 - LIQUIDITY_PROVIDER_FEE)),
       0
     );
     setPriceImpact(1 - rawAmountIn / amountIn);
@@ -177,6 +178,12 @@ export default function Index() {
   }, [inputPairToken.id, outputPairToken.id]);
 
   const insufficientBalance = inputTokenBalance < inputValues[0];
+
+  const worstAmountIn =
+    inputValues[0] * (isExactOut ? (100 + slippage) / 100 : 1);
+
+  const worstAmountOut =
+    inputValues[1] * (isExactOut ? 1 : (100 - slippage) / 100);
 
   return (
     <>
@@ -336,7 +343,7 @@ export default function Index() {
           <div className="mt-4 mb-4 flex flex-col items-center">
             <div className="flex w-full justify-between rounded-md bg-gray-900 p-4">
               <span className="truncate text-lg font-medium tracking-wide">
-                {inputValues[0]}
+                {formatNumber(inputValues[0])}
               </span>
               <div className="flex flex-shrink-0 items-center space-x-2 pl-2">
                 <TokenLogo
@@ -354,7 +361,7 @@ export default function Index() {
             </div>
             <div className="flex w-full justify-between rounded-md bg-gray-900 p-4">
               <span className="text-lg font-medium tracking-wide">
-                {inputValues[1]}
+                {formatNumber(inputValues[1])}
               </span>
               <div className="flex items-center space-x-2 pl-2">
                 <TokenLogo
@@ -371,39 +378,57 @@ export default function Index() {
           </div>
           <dl className="space-y-1.5 border-t border-gray-700">
             <div className="mt-4 flex justify-between">
-              <dt className="text-sm text-gray-400">Expected Output</dt>
-              <dt className="text-sm font-bold text-gray-200">
-                12312322 {outputPairToken.symbol}
-              </dt>
-            </div>
-            <div className="flex justify-between">
               <dt className="text-sm text-gray-400">Price Impact</dt>
               <dt className="text-sm text-gray-200">
                 {formatPercent(priceImpact)}
               </dt>
             </div>
             <div className="flex justify-between">
-              <dt className="text-sm text-gray-500">Slippage</dt>
-              <dt className="text-sm text-gray-300">
+              <dt className="text-sm text-gray-500">Slippage Tolerance</dt>
+              <dt className="text-sm text-gray-500">
                 {formatPercent(slippage)}
               </dt>
             </div>
             <div className="flex justify-between">
-              <dt className="text-sm text-gray-500">Liquidity Provider fee</dt>
-              <dt className="text-sm text-gray-300">0.30%</dt>
+              <dt className="text-sm text-gray-500">Liquidity Provider Fee</dt>
+              <dt className="text-sm text-gray-500">
+                {formatPercent(LIQUIDITY_PROVIDER_FEE)}
+              </dt>
             </div>
           </dl>
           <div className="mt-4 border-t border-gray-700">
             <div className="my-4 space-y-1">
-              <p className="text-xs text-gray-400">
-                Output is estimated. You will receieve at least:
-              </p>
-              <p className="text-sm">
-                1111111 <span className="text-gray-300">MAGIC</span>
-              </p>
-              <p className="text-xs text-gray-400">
-                or the transaction will revert.
-              </p>
+              {isExactOut ? (
+                <>
+                  <p className="text-xs text-gray-400">
+                    Input is estimated. You will sell at most:
+                  </p>
+                  <p className="text-sm">
+                    {formatNumber(worstAmountIn)}{" "}
+                    <span className="text-gray-300">
+                      {inputPairToken.symbol}
+                    </span>
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    or the transaction will revert.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-gray-400">
+                    Output is estimated. You will receieve at least:
+                  </p>
+                  <p className="text-sm">
+                    {formatNumber(worstAmountOut)}{" "}
+                    <span className="text-gray-300">
+                      {outputPairToken.symbol}
+                    </span>
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    or the transaction will revert.
+                  </p>
+                </>
+              )}
             </div>
             <Button
               onClick={() => {
