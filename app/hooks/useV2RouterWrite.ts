@@ -19,5 +19,7 @@ type FunctionName =
   | "swapExactTokensForTokens"
   | "swapTokensForExactTokens";
 
-export const useV2RouterWrite = (functionName: FunctionName) =>
-  useContractWrite(contractConfig, functionName);
+export const useV2RouterWrite = (
+  functionName: FunctionName,
+  statusHeader?: string
+) => useContractWrite(statusHeader, contractConfig, functionName);

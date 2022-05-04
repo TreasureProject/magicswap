@@ -17,12 +17,17 @@ import {
   useLoaderData,
 } from "@remix-run/react";
 import cn from "clsx";
-import { Toaster } from "react-hot-toast";
+import { resolveValue, Toaster } from "react-hot-toast";
 import { chain, createClient, Provider } from "wagmi";
 
 import styles from "./styles/tailwind.css";
 import React from "react";
-import { PieIcon, SplitIcon, TreasureLogoIcon } from "./components/Icons";
+import {
+  PieIcon,
+  SpinnerIcon,
+  SplitIcon,
+  TreasureLogoIcon,
+} from "./components/Icons";
 
 import NProgress from "nprogress";
 import nProgressStyles from "./styles/nprogress.css";
@@ -36,6 +41,11 @@ import type { CloudFlareEnv, CloudFlareEnvVar } from "./types";
 import { UserProvider } from "./context/userContext";
 import { PriceProvider } from "./context/priceContext";
 import { SettingsProvider } from "./context/settingsContext";
+import { Transition } from "@headlessui/react";
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+} from "@heroicons/react/outline";
 
 export type RootLoaderData = {
   tokenImageList: Awaited<ReturnType<typeof getTokensImageAddress>>;
@@ -267,18 +277,54 @@ export default function App() {
             </PriceProvider>
           </UserProvider>
         </Provider>
-        <Toaster
-          position="bottom-left"
-          reverseOrder={false}
-          gutter={36}
-          toastOptions={{
-            style: {
-              backgroundColor: "#1F2937", // bg-gray-800
-              color: "#fff", // text-white
-              padding: "1rem",
-            },
-          }}
-        />
+        <Toaster position="bottom-left" reverseOrder={false} gutter={18}>
+          {(t) => (
+            <Transition
+              show={t.visible}
+              as={React.Fragment}
+              enter="transform ease-out duration-300 transition"
+              enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+              enterTo="translate-y-0 opacity-100 sm:translate-x-0"
+              leave="transition ease-in duration-100"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5">
+                <div className="p-4">
+                  <div className="flex items-center justify-center">
+                    <div className="flex-shrink-0">
+                      {(() => {
+                        switch (t.type) {
+                          case "success":
+                            return (
+                              <CheckCircleIcon className="h-6 w-6 text-green-500" />
+                            );
+                          case "error":
+                            return (
+                              <ExclamationCircleIcon className="h-6 w-6 text-red-500" />
+                            );
+                          case "loading":
+                            return (
+                              <SpinnerIcon className="h-6 w-6 animate-spin fill-gray-800 text-yellow-500" />
+                            );
+                          default:
+                            return (
+                              <CheckCircleIcon className="h-6 w-6 text-yellow-500" />
+                            );
+                        }
+                      })()}
+                    </div>
+                    <div className="ml-3 w-0 flex-1">
+                      <p className="text-sm text-white">
+                        {resolveValue(t.message, t)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Transition>
+          )}
+        </Toaster>
         <Scripts />
         {ENV.NODE_ENV === "development" ? <LiveReload /> : null}
         <script

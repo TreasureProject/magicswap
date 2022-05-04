@@ -1,17 +1,25 @@
+import { useRef } from "react";
 import { utils } from "ethers";
 import { useSettings } from "~/context/settingsContext";
 import { useUser } from "~/context/userContext";
 
-import type { Pair } from "~/types";
+import type { Optional, Pair } from "~/types";
 
 import { useV2RouterWrite } from "./useV2RouterWrite";
 
 export const useRemoveLiquidity = () => {
   const { accountData } = useUser();
   const { slippage, deadline } = useSettings();
-  const { write: writeRemoveLiquidity } = useV2RouterWrite("removeLiquidity");
-  const { write: writeRemoveLiquidityEth } =
-    useV2RouterWrite("removeLiquidityETH");
+  const statusRef = useRef<Optional<string>>(undefined);
+
+  const { write: writeRemoveLiquidity } = useV2RouterWrite(
+    "removeLiquidity",
+    statusRef.current
+  );
+  const { write: writeRemoveLiquidityEth } = useV2RouterWrite(
+    "removeLiquidityETH",
+    statusRef.current
+  );
 
   return (
     pair: Pair,
@@ -34,37 +42,31 @@ export const useRemoveLiquidity = () => {
       60 * deadline
     ).toString();
 
-    const statusHeader = `Remove ${pair.name} Liquidity`;
+    statusRef.current = `Remove ${pair.name} Liquidity`;
 
     if (pair.hasEth) {
-      writeRemoveLiquidityEth(
-        {
-          args: [
-            isToken1Eth ? pair.token0.id : pair.token1.id,
-            lpAmount,
-            isToken1Eth ? token0AmountMin : token1AmountMin,
-            isToken1Eth ? token1AmountMin : token0AmountMin,
-            accountData?.address,
-            transactionDeadline,
-          ],
-        },
-        statusHeader
-      );
+      writeRemoveLiquidityEth({
+        args: [
+          isToken1Eth ? pair.token0.id : pair.token1.id,
+          lpAmount,
+          isToken1Eth ? token0AmountMin : token1AmountMin,
+          isToken1Eth ? token1AmountMin : token0AmountMin,
+          accountData?.address,
+          transactionDeadline,
+        ],
+      });
     } else {
-      writeRemoveLiquidity(
-        {
-          args: [
-            pair.token0.id,
-            pair.token1.id,
-            lpAmount,
-            token0AmountMin,
-            token1AmountMin,
-            accountData?.address,
-            transactionDeadline,
-          ],
-        },
-        statusHeader
-      );
+      writeRemoveLiquidity({
+        args: [
+          pair.token0.id,
+          pair.token1.id,
+          lpAmount,
+          token0AmountMin,
+          token1AmountMin,
+          accountData?.address,
+          transactionDeadline,
+        ],
+      });
     }
   };
 };

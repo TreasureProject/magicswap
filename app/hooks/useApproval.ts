@@ -18,21 +18,22 @@ const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
     enabled: !!accountData?.address,
   });
 
-  const { write: writeApprove } = useContractWrite(contractConfig, "approve");
+  const { write: writeApprove } = useContractWrite(
+    `Approve ${tokenSymbol}`,
+    contractConfig,
+    "approve"
+  );
   return {
     isApproved: allowance
       ? parseFloat(utils.formatEther(allowance)) > 0
       : false,
     approve: () =>
-      writeApprove(
-        {
-          args: [
-            getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS"),
-            MaxUint256.toString(),
-          ],
-        },
-        `Approve ${tokenSymbol}`
-      ),
+      writeApprove({
+        args: [
+          getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS"),
+          MaxUint256.toString(),
+        ],
+      }),
   };
 };
 

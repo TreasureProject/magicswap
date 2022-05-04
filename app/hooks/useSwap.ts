@@ -1,8 +1,9 @@
+import { useRef } from "react";
 import { utils } from "ethers";
 import { useSettings } from "~/context/settingsContext";
 import { useUser } from "~/context/userContext";
 
-import type { Token } from "~/types";
+import type { Optional, Token } from "~/types";
 import { formatNumber } from "~/utils/number";
 
 import { useV2RouterWrite } from "./useV2RouterWrite";
@@ -10,23 +11,31 @@ import { useV2RouterWrite } from "./useV2RouterWrite";
 export const useSwap = () => {
   const { accountData } = useUser();
   const { slippage, deadline } = useSettings();
+  const statusRef = useRef<Optional<string>>(undefined);
+
   const { write: writeSwapEthForExactTokens } = useV2RouterWrite(
-    "swapETHForExactTokens"
+    "swapETHForExactTokens",
+    statusRef.current
   );
   const { write: writeSwapExactEthForTokens } = useV2RouterWrite(
-    "swapExactETHForTokens"
+    "swapExactETHForTokens",
+    statusRef.current
   );
   const { write: writeSwapExactTokensForEth } = useV2RouterWrite(
-    "swapExactTokensForETH"
+    "swapExactTokensForETH",
+    statusRef.current
   );
   const { write: writeSwapTokensForExactEth } = useV2RouterWrite(
-    "swapTokensForExactETH"
+    "swapTokensForExactETH",
+    statusRef.current
   );
   const { write: writeSwapExactTokensForTokens } = useV2RouterWrite(
-    "swapExactTokensForTokens"
+    "swapExactTokensForTokens",
+    statusRef.current
   );
   const { write: writeSwapTokensForExactTokens } = useV2RouterWrite(
-    "swapTokensForExactTokens"
+    "swapTokensForExactTokens",
+    statusRef.current
   );
 
   return (
@@ -57,7 +66,7 @@ export const useSwap = () => {
       60 * deadline
     ).toString();
 
-    const statusHeader = `Swap ${formatNumber(rawAmountIn)} ${
+    statusRef.current = `Swap ${formatNumber(rawAmountIn)} ${
       inputToken.symbol
     } to ${formatNumber(rawAmountOut)} ${outputToken.symbol}`;
 
@@ -73,8 +82,8 @@ export const useSwap = () => {
                 accountData?.address,
                 transactionDeadline,
               ],
-            },
-            statusHeader
+            }
+            // statusHeader
           );
         } else {
           writeSwapEthForExactTokens(
@@ -88,8 +97,8 @@ export const useSwap = () => {
                 accountData?.address,
                 transactionDeadline,
               ],
-            },
-            statusHeader
+            }
+            // statusHeader
           );
         }
       } else {
@@ -102,8 +111,8 @@ export const useSwap = () => {
               accountData?.address,
               transactionDeadline,
             ],
-          },
-          statusHeader
+          }
+          // statusHeader
         );
       }
     } else {
@@ -118,8 +127,8 @@ export const useSwap = () => {
                 accountData?.address,
                 transactionDeadline,
               ],
-            },
-            statusHeader
+            }
+            // statusHeader
           );
         } else {
           writeSwapExactEthForTokens(
@@ -133,8 +142,8 @@ export const useSwap = () => {
                 accountData?.address,
                 transactionDeadline,
               ],
-            },
-            statusHeader
+            }
+            // statusHeader
           );
         }
       } else {
@@ -147,8 +156,8 @@ export const useSwap = () => {
               accountData?.address,
               transactionDeadline,
             ],
-          },
-          statusHeader
+          }
+          // statusHeader
         );
       }
     }
