@@ -80,7 +80,7 @@ export default function Analytics() {
   const swaps = fetchedData?.swaps ?? data.swaps;
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex flex-col">
       <div className="flex flex-col divide-y divide-gray-700 sm:flex-row sm:divide-y-0 sm:divide-x">
         <div className="flex-1 p-4">
           <div className="flex justify-between">
@@ -137,7 +137,7 @@ export default function Analytics() {
           </div>
         </div>
       </div>
-      <div className="max-h-96 flex-1 overflow-auto border-t border-gray-700 sm:-mx-6 md:mx-0 lg:max-h-full">
+      <div className="max-h-96 flex-1 overflow-auto border-t border-gray-700 sm:-mx-6 md:mx-0 xl:max-h-full">
         <table className="min-w-full divide-y divide-gray-700">
           <thead className="sticky top-0 z-10 bg-[#1C1C24]">
             <tr>

@@ -20,6 +20,7 @@ export default function PairTokenInput({
   locked = false,
   onChange,
   onTokenClick,
+  showPriceGraph,
 }: {
   id: string;
   label: string;
@@ -29,6 +30,7 @@ export default function PairTokenInput({
   locked?: boolean;
   onChange: (value: number) => void;
   onTokenClick: () => void;
+  showPriceGraph: boolean;
 }) {
   const { inputValue, parsedValue, handleChange } = useNumberInput({
     value,
@@ -128,18 +130,22 @@ export default function PairTokenInput({
             </p>
           </div>
         </div>
-        <div className="h-24 2xl:h-36">
-          <TimeIntervalLineGraph
-            gradient={{
-              from: positive ? "#96e4df" : "#ee9617",
-              to: positive ? "#21d190" : "#fe5858",
-            }}
-            data={token.price1wUsdIntervals}
-          />
-        </div>
-        <p className="text-xs font-light text-gray-500">
-          VOL {formatUsd(token.volume1wUsd)}
-        </p>
+        {showPriceGraph ? (
+          <>
+            <div className="h-24 2xl:h-36">
+              <TimeIntervalLineGraph
+                gradient={{
+                  from: positive ? "#96e4df" : "#ee9617",
+                  to: positive ? "#21d190" : "#fe5858",
+                }}
+                data={token.price1wUsdIntervals}
+              />
+            </div>
+            <p className="text-xs font-light text-gray-500">
+              VOL {formatUsd(token.volume1wUsd)}
+            </p>
+          </>
+        ) : null}
       </div>
     </div>
   );
