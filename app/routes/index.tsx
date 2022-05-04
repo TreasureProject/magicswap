@@ -10,8 +10,7 @@ import { useCallback, useEffect } from "react";
 import { Link, useCatch, useLoaderData, useLocation } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
-import { Dialog, Switch, Transition } from "@headlessui/react";
-import { Fragment } from "react";
+import { Dialog, Switch } from "@headlessui/react";
 import { getTokenBySymbol, getUniqueTokens } from "~/utils/tokens.server";
 import type { Pair, PairToken, Token } from "~/types";
 import { useTokenBalance } from "~/hooks/useTokenBalance";
@@ -29,6 +28,9 @@ import useLocalStorageState from "use-local-storage-state";
 import { useUser } from "~/context/userContext";
 import { usePair } from "~/hooks/usePair";
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
+import { Modal } from "~/components/Modal";
+import { useSettings } from "~/context/settingsContext";
+import { formatPercent } from "~/utils/number";
 
 type LoaderData = {
   pairs: Pair[];
@@ -117,6 +119,9 @@ export default function Index() {
     ssr: true,
     defaultValue: false,
   });
+  const [isOpenConfirmSwapModal, setIsOpenConfirmSwapModal] = useState(false);
+  const { slippage } = useSettings();
+  const [priceImpact, setPriceImpact] = useState(0);
 
   const swap = useSwap();
   const inputPairToken =
@@ -142,7 +147,7 @@ export default function Index() {
         (inputPairToken.reserve + amountInWithFee),
       0
     );
-    console.log("Price Impact:", (1 - amountOut / rawAmountOut) * 100);
+    setPriceImpact(1 - amountOut / rawAmountOut);
     setInputValues([value, amountOut]);
   };
 
@@ -154,7 +159,7 @@ export default function Index() {
         ((outputPairToken.reserve - value) * 0.997),
       0
     );
-    console.log("Price Impact:", (1 - rawAmountIn / amountIn) * 100);
+    setPriceImpact(1 - rawAmountIn / amountIn);
     setInputValues([amountIn, value]);
   };
 
@@ -162,13 +167,7 @@ export default function Index() {
     if (!isConnected) {
       openWalletModal();
     } else {
-      swap(
-        inputPairToken,
-        outputPairToken,
-        inputValues[0],
-        inputValues[1],
-        isExactOut
-      );
+      setIsOpenConfirmSwapModal(true);
     }
   };
 
@@ -318,12 +317,119 @@ export default function Index() {
           </Button>
         </div>
       </div>
-      <Modal modalProps={openTokenListModalProps} onClose={onClose} />
+      <TokenSelectionModal
+        modalProps={openTokenListModalProps}
+        onClose={onClose}
+      />
+
+      <Modal
+        isOpen={isOpenConfirmSwapModal}
+        onClose={() => setIsOpenConfirmSwapModal(false)}
+      >
+        <div>
+          <Dialog.Title
+            as="h3"
+            className="text-lg font-medium leading-6 text-gray-200"
+          >
+            Confirm Swap
+          </Dialog.Title>
+          <div className="mt-4 mb-4 flex flex-col items-center">
+            <div className="flex w-full justify-between rounded-md bg-gray-900 p-4">
+              <span className="truncate text-lg font-medium tracking-wide">
+                {inputValues[0]}
+              </span>
+              <div className="flex flex-shrink-0 items-center space-x-2 pl-2">
+                <TokenLogo
+                  tokenAddress={inputPairToken.id}
+                  symbol={inputPairToken.symbol}
+                  className="h-5 w-5 rounded-full"
+                />
+                <span className="text-sm font-medium">
+                  {inputPairToken.symbol}
+                </span>
+              </div>
+            </div>
+            <div className="z-10 -my-3 rounded-full border border-gray-900 bg-gray-800 p-1">
+              <ArrowDownIcon className="h-6 w-6 text-gray-500" />
+            </div>
+            <div className="flex w-full justify-between rounded-md bg-gray-900 p-4">
+              <span className="text-lg font-medium tracking-wide">
+                {inputValues[1]}
+              </span>
+              <div className="flex items-center space-x-2 pl-2">
+                <TokenLogo
+                  tokenAddress={outputPairToken.id}
+                  symbol={outputPairToken.symbol}
+                  className="h-5 w-5 rounded-full"
+                />
+
+                <span className="text-sm font-medium">
+                  {outputPairToken.symbol}
+                </span>
+              </div>
+            </div>
+          </div>
+          <dl className="space-y-1.5 border-t border-gray-700">
+            <div className="mt-4 flex justify-between">
+              <dt className="text-sm text-gray-400">Expected Output</dt>
+              <dt className="text-sm font-bold text-gray-200">
+                12312322 {outputPairToken.symbol}
+              </dt>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-sm text-gray-400">Price Impact</dt>
+              <dt className="text-sm text-gray-200">
+                {formatPercent(priceImpact)}
+              </dt>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-sm text-gray-500">Slippage</dt>
+              <dt className="text-sm text-gray-300">
+                {formatPercent(slippage)}
+              </dt>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-sm text-gray-500">Liquidity Provider fee</dt>
+              <dt className="text-sm text-gray-300">0.30%</dt>
+            </div>
+          </dl>
+          <div className="mt-4 border-t border-gray-700">
+            <div className="my-4 space-y-1">
+              <p className="text-xs text-gray-400">
+                Output is estimated. You will receieve at least:
+              </p>
+              <p className="text-sm">
+                1111111 <span className="text-gray-300">MAGIC</span>
+              </p>
+              <p className="text-xs text-gray-400">
+                or the transaction will revert.
+              </p>
+            </div>
+            <Button
+              onClick={() => {
+                if (!isApproved) {
+                  approve();
+                } else {
+                  swap(
+                    inputPairToken,
+                    outputPairToken,
+                    inputValues[0],
+                    inputValues[1],
+                    isExactOut
+                  );
+                }
+              }}
+            >
+              {isApproved ? "Confirm Swap" : `Approve ${inputPairToken.symbol}`}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 }
 
-const Modal = ({
+const TokenSelectionModal = ({
   modalProps,
   onClose,
 }: {
@@ -355,144 +461,101 @@ const Modal = ({
   }, [location.search, onClose]);
 
   return (
-    <Transition.Root show={modalProps.open} as={Fragment}>
-      <Dialog
-        as="div"
-        className="fixed inset-0 z-10 overflow-y-auto"
-        onClose={onClose}
-      >
-        <div className="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" />
-          </Transition.Child>
-
-          <span
-            className="hidden sm:inline-block sm:h-screen sm:align-middle"
-            aria-hidden="true"
-          >
-            &#8203;
-          </span>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            enterTo="opacity-100 translate-y-0 sm:scale-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-            leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-          >
-            <div className="relative inline-block w-full transform overflow-hidden rounded-lg bg-gray-800 px-4 pt-5 pb-4 text-left align-bottom shadow-xl transition-all sm:my-8 sm:max-w-sm sm:p-6 sm:align-middle">
-              <div>
-                <Dialog.Title
-                  as="h3"
-                  className="text-lg font-medium leading-6 text-gray-200"
+    <Modal isOpen={modalProps.open} onClose={onClose}>
+      <div>
+        <Dialog.Title
+          as="h3"
+          className="text-lg font-medium leading-6 text-gray-200"
+        >
+          Select a Token
+        </Dialog.Title>
+        <div className="mt-2">
+          <p className="text-sm text-gray-500">
+            Select a token to replace with {currentToken.symbol}.
+          </p>
+        </div>
+        <div className="mt-3">
+          <label htmlFor="search-token" className="sr-only">
+            Search Token
+          </label>
+          <div className="relative mt-1 rounded-md shadow-sm">
+            <input
+              type="text"
+              name="search-token"
+              id="search-token"
+              onChange={(e) => setSearchString(e.currentTarget.value)}
+              value={searchString}
+              className="block w-full rounded-md border-gray-700 bg-gray-900 pr-10 focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
+              placeholder="Search token"
+            />
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+              <SearchIcon
+                className="h-5 w-5 text-gray-700"
+                aria-hidden="true"
+              />
+            </div>
+          </div>
+        </div>
+        <ul className="mt-2 h-80 overflow-auto rounded-md border border-gray-700 bg-gray-900">
+          {filteredTokens.map((token) => {
+            const isDisabled =
+              token.id === currentToken.id || token.id === otherToken.id;
+            return (
+              <li key={token.id}>
+                <div
+                  className={cn(
+                    isDisabled
+                      ? "pointer-events-none opacity-20"
+                      : "hover:bg-gray-700/40",
+                    "relative flex items-center space-x-3 px-6 py-5 transition duration-150 ease-in-out focus-within:ring-2 focus-within:ring-inset focus-within:ring-red-500"
+                  )}
                 >
-                  Select a Token
-                </Dialog.Title>
-                <div className="mt-2">
-                  <p className="text-sm text-gray-500">
-                    Select a token to replace with {currentToken.symbol}.
-                  </p>
-                </div>
-                <div className="mt-3">
-                  <label htmlFor="search-token" className="sr-only">
-                    Search Token
-                  </label>
-                  <div className="relative mt-1 rounded-md shadow-sm">
-                    <input
-                      type="text"
-                      name="search-token"
-                      id="search-token"
-                      onChange={(e) => setSearchString(e.currentTarget.value)}
-                      value={searchString}
-                      className="block w-full rounded-md border-gray-700 bg-gray-900 pr-10 focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
-                      placeholder="Search token"
+                  <div className="flex-shrink-0">
+                    <TokenLogo
+                      tokenAddress={token.id}
+                      symbol={token.symbol}
+                      className="h-10 w-10 rounded-full"
                     />
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                      <SearchIcon
-                        className="h-5 w-5 text-gray-700"
-                        aria-hidden="true"
-                      />
-                    </div>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    {isDisabled ? (
+                      <div>
+                        <p className="text-xs font-medium text-gray-500">
+                          {token.name}
+                        </p>
+                        <p className="truncate text-sm text-gray-200">
+                          {token.symbol}
+                        </p>
+                      </div>
+                    ) : (
+                      <Link
+                        prefetch="intent"
+                        to={`/?input=${
+                          type === "input" ? token.symbol : otherToken.symbol
+                        }&output=${
+                          type === "output" ? token.symbol : otherToken.symbol
+                        }`}
+                      >
+                        <span
+                          className="absolute inset-0"
+                          aria-hidden="true"
+                        ></span>
+                        <p className="text-xs font-medium text-gray-500">
+                          {token.name}
+                        </p>
+                        <p className="truncate text-sm text-gray-200">
+                          {token.symbol}
+                        </p>
+                      </Link>
+                    )}
                   </div>
                 </div>
-                <ul className="mt-2 h-80 overflow-auto rounded-md border border-gray-700 bg-gray-900">
-                  {filteredTokens.map((token) => {
-                    const isDisabled =
-                      token.id === currentToken.id ||
-                      token.id === otherToken.id;
-                    return (
-                      <li key={token.id}>
-                        <div
-                          className={cn(
-                            isDisabled
-                              ? "pointer-events-none opacity-20"
-                              : "hover:bg-gray-700/40",
-                            "relative flex items-center space-x-3 px-6 py-5 transition duration-150 ease-in-out focus-within:ring-2 focus-within:ring-inset focus-within:ring-red-500"
-                          )}
-                        >
-                          <div className="flex-shrink-0">
-                            <TokenLogo
-                              tokenAddress={token.id}
-                              symbol={token.symbol}
-                              className="h-10 w-10 rounded-full"
-                            />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            {isDisabled ? (
-                              <div>
-                                <p className="text-xs font-medium text-gray-500">
-                                  {token.name}
-                                </p>
-                                <p className="truncate text-sm text-gray-200">
-                                  {token.symbol}
-                                </p>
-                              </div>
-                            ) : (
-                              <Link
-                                prefetch="intent"
-                                to={`/?input=${
-                                  type === "input"
-                                    ? token.symbol
-                                    : otherToken.symbol
-                                }&output=${
-                                  type === "output"
-                                    ? token.symbol
-                                    : otherToken.symbol
-                                }`}
-                              >
-                                <span
-                                  className="absolute inset-0"
-                                  aria-hidden="true"
-                                ></span>
-                                <p className="text-xs font-medium text-gray-500">
-                                  {token.name}
-                                </p>
-                                <p className="truncate text-sm text-gray-200">
-                                  {token.symbol}
-                                </p>
-                              </Link>
-                            )}
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            </div>
-          </Transition.Child>
-        </div>
-      </Dialog>
-    </Transition.Root>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </Modal>
   );
 };
 
