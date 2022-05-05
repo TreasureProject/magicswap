@@ -301,9 +301,6 @@ export default function Index() {
           </div>
         </div>
         <div className="mt-8 w-full space-y-4 px-0 xl:px-72 2xl:mt-12">
-          {inputValues[0] > 0 && !isApproved && !insufficientBalance && (
-            <Button onClick={approve}>Approve {inputPairToken.symbol}</Button>
-          )}
           <Button
             disabled={
               isConnected &&
