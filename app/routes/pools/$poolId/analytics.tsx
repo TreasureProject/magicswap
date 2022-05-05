@@ -80,7 +80,7 @@ export default function Analytics() {
   const swaps = fetchedData?.swaps ?? data.swaps;
 
   return (
-    <div className="flex flex-col">
+    <div className="flex h-full flex-col">
       <div className="flex flex-col divide-y divide-gray-700 sm:flex-row sm:divide-y-0 sm:divide-x">
         <div className="flex-1 p-4">
           <div className="flex justify-between">
