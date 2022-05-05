@@ -185,6 +185,9 @@ export default function Index() {
   const worstAmountOut =
     inputValues[1] * (isExactOut ? 1 : (100 - slippage) / 100);
 
+  console.log(inputPairToken);
+  console.log(outputPairToken);
+
   return (
     <>
       <div className="flex flex-col items-center">
@@ -375,20 +378,20 @@ export default function Index() {
           </div>
           <dl className="space-y-1.5 border-t border-gray-700">
             <div className="mt-4 flex justify-between">
-              <dt className="text-sm text-gray-400">Price Impact</dt>
-              <dt className="text-sm text-gray-200">
+              <dt className="text-xs text-gray-400">Price Impact</dt>
+              <dt className="text-xs text-gray-200">
                 {formatPercent(priceImpact)}
               </dt>
             </div>
             <div className="flex justify-between">
-              <dt className="text-sm text-gray-500">Slippage Tolerance</dt>
-              <dt className="text-sm text-gray-500">
+              <dt className="text-xs text-gray-500">Slippage Tolerance</dt>
+              <dt className="text-xs text-gray-500">
                 {formatPercent(slippage)}
               </dt>
             </div>
             <div className="flex justify-between">
-              <dt className="text-sm text-gray-500">Liquidity Provider Fee</dt>
-              <dt className="text-sm text-gray-500">
+              <dt className="text-xs text-gray-500">Liquidity Provider Fee</dt>
+              <dt className="text-xs text-gray-500">
                 {formatPercent(LIQUIDITY_PROVIDER_FEE)}
               </dt>
             </div>
