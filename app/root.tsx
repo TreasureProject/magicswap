@@ -186,8 +186,8 @@ export default function App() {
     () =>
       configureChains(
         [
-          chain.arbitrum,
           ...(ENV.ENABLE_TESTNETS === "true" ? [chain.arbitrumRinkeby] : []),
+          chain.arbitrum,
         ],
         [apiProvider.alchemy(ENV.ALCHEMY_KEY), apiProvider.fallback()]
       ),
