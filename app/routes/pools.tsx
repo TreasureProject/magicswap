@@ -8,7 +8,6 @@ import { Link } from "@remix-run/react";
 import { useLocation } from "@remix-run/react";
 import { useParams } from "@remix-run/react";
 import { Outlet, useLoaderData } from "@remix-run/react";
-import { getApr } from "~/utils/price";
 import cn from "clsx";
 import { Dialog, Transition } from "@headlessui/react";
 import { SlashIcon, SpinnerIcon } from "~/components/Icons";
@@ -146,7 +145,7 @@ export default function Pools() {
               <div className="mt-4 flex min-h-0 flex-1 flex-col">
                 <div className="sticky top-0 z-10 flex justify-between border-b-[0.5px] border-gray-600 px-6 py-2 text-sm font-medium text-gray-500">
                   <h3>Pools</h3>
-                  <h3>APR</h3>
+                  <h3>APY</h3>
                 </div>
                 <div className="flex-1 overflow-auto">
                   <ul>
@@ -219,12 +218,7 @@ export default function Pools() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <p className="text-sm font-bold sm:text-base">
-                    {formatPercent(
-                      getApr(
-                        selectedPool.volume1wUsd,
-                        selectedPool.liquidityUsd
-                      )
-                    )}
+                    {formatPercent(selectedPool.apy)}
                   </p>
                   <ChevronDownIcon className="h-4 w-4 flex-shrink-0" />
                 </div>
@@ -278,7 +272,7 @@ export default function Pools() {
           <div className="flex min-h-0 flex-1 flex-col">
             <div className="sticky top-0 z-10 flex justify-between border-b-[0.5px] border-gray-600 px-6 pb-2 text-sm font-medium text-gray-500">
               <h3>Pools</h3>
-              <h3>APR</h3>
+              <h3>APY</h3>
             </div>
             <div className="flex-1 overflow-auto">
               <ul>
@@ -343,7 +337,7 @@ const PoolLink = ({ pair, lastPath }: { pair: Pair; lastPath: string }) => {
                 "text-red-500": isActive,
               })}
             >
-              {formatPercent(getApr(pair.volume1wUsd, pair.liquidityUsd))}
+              {formatPercent(pair.apy)}
             </p>
           </div>
         </div>

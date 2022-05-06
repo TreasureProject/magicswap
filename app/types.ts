@@ -44,6 +44,7 @@ export type Pair = {
   volume1wUsdIntervals: TimeInterval[];
   volume1dUsd: number;
   volume1wUsd: number;
+  apy: number;
 };
 
 export type Swap = {
