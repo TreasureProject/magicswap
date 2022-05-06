@@ -114,17 +114,14 @@ export default function Index() {
   const inputTokenBalance = useTokenBalance(data.inputToken);
   const outputTokenBalance = useTokenBalance(data.outputToken);
   const pair = usePair(data.pair);
-  const { isApproved, approve } = useTokenApproval(data.inputToken);
   const { openWalletModal, isConnected } = useUser();
   const [showGraph, setShowGraph] = useLocalStorageState("ms:showGraph", {
     ssr: true,
     defaultValue: false,
   });
   const [isOpenConfirmSwapModal, setIsOpenConfirmSwapModal] = useState(false);
-  const { slippage } = useSettings();
   const [priceImpact, setPriceImpact] = useState(0);
 
-  const swap = useSwap();
   const inputPairToken =
     pair.token0.id === data.inputToken.id ? pair.token0 : pair.token1;
   const outputPairToken =
@@ -179,14 +176,10 @@ export default function Index() {
 
   const insufficientBalance = inputTokenBalance < inputValues[0];
 
-  const worstAmountIn =
-    inputValues[0] * (isExactOut ? (100 + slippage) / 100 : 1);
-
-  const worstAmountOut =
-    inputValues[1] * (isExactOut ? 1 : (100 - slippage) / 100);
-
-  console.log(inputPairToken);
-  console.log(outputPairToken);
+  const onCloseConfirmModal = useCallback(
+    () => setIsOpenConfirmSwapModal(false),
+    []
+  );
 
   return (
     <>
@@ -307,10 +300,7 @@ export default function Index() {
           <Button
             disabled={
               isConnected &&
-              (!inputValues[0] ||
-                !inputValues[1] ||
-                insufficientBalance ||
-                !isApproved)
+              (!inputValues[0] || !inputValues[1] || insufficientBalance)
             }
             onClick={handleSwap}
           >
@@ -328,8 +318,17 @@ export default function Index() {
         modalProps={openTokenListModalProps}
         onClose={onClose}
       />
+      <ConfirmSwapModal
+        isOpen={isOpenConfirmSwapModal}
+        onClose={onCloseConfirmModal}
+        inputPairToken={inputPairToken}
+        outputPairToken={outputPairToken}
+        inputValues={inputValues}
+        isExactOut={isExactOut}
+        priceImpact={priceImpact}
+      />
 
-      <Modal
+      {/* <Modal
         isOpen={isOpenConfirmSwapModal}
         onClose={() => setIsOpenConfirmSwapModal(false)}
       >
@@ -431,6 +430,7 @@ export default function Index() {
               )}
             </div>
             <Button
+              disabled={isLoading}
               onClick={() => {
                 if (!isApproved) {
                   approve();
@@ -445,14 +445,174 @@ export default function Index() {
                 }
               }}
             >
-              {isApproved ? "Confirm Swap" : `Approve ${inputPairToken.symbol}`}
+              {isApproved
+                ? isLoading
+                  ? "Swapping..."
+                  : "Confirm Swap"
+                : `Approve ${inputPairToken.symbol}`}
             </Button>
           </div>
         </div>
-      </Modal>
+      </Modal> */}
     </>
   );
 }
+
+const ConfirmSwapModal = ({
+  isOpen,
+  onClose,
+  inputPairToken,
+  outputPairToken,
+  inputValues,
+  isExactOut,
+  priceImpact,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  inputPairToken: Token;
+  outputPairToken: Token;
+  inputValues: number[];
+  isExactOut: boolean;
+  priceImpact: number;
+}) => {
+  const { swap, isLoading, isError, isSuccess } = useSwap();
+  const { slippage } = useSettings();
+  const { isApproved, approve } = useTokenApproval(inputPairToken);
+
+  const worstAmountIn =
+    inputValues[0] * (isExactOut ? (100 + slippage) / 100 : 1);
+
+  const worstAmountOut =
+    inputValues[1] * (isExactOut ? 1 : (100 - slippage) / 100);
+
+  useEffect(() => {
+    if (isError) {
+      onClose();
+    }
+  }, [isError, onClose]);
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <div>
+        <Dialog.Title
+          as="h3"
+          className="text-lg font-medium leading-6 text-gray-200"
+        >
+          Confirm Swap
+        </Dialog.Title>
+        <div className="mt-4 mb-4 flex flex-col items-center">
+          <div className="flex w-full justify-between rounded-md bg-gray-900 p-4">
+            <span className="truncate text-lg font-medium tracking-wide">
+              {formatNumber(inputValues[0])}
+            </span>
+            <div className="flex flex-shrink-0 items-center space-x-2 pl-2">
+              <TokenLogo
+                tokenAddress={inputPairToken.id}
+                symbol={inputPairToken.symbol}
+                className="h-5 w-5 rounded-full"
+              />
+              <span className="text-sm font-medium">
+                {inputPairToken.symbol}
+              </span>
+            </div>
+          </div>
+          <div className="z-10 -my-3 rounded-full border border-gray-900 bg-gray-800 p-1">
+            <ArrowDownIcon className="h-6 w-6 text-gray-500" />
+          </div>
+          <div className="flex w-full justify-between rounded-md bg-gray-900 p-4">
+            <span className="text-lg font-medium tracking-wide">
+              {formatNumber(inputValues[1])}
+            </span>
+            <div className="flex items-center space-x-2 pl-2">
+              <TokenLogo
+                tokenAddress={outputPairToken.id}
+                symbol={outputPairToken.symbol}
+                className="h-5 w-5 rounded-full"
+              />
+
+              <span className="text-sm font-medium">
+                {outputPairToken.symbol}
+              </span>
+            </div>
+          </div>
+        </div>
+        <dl className="space-y-1.5 border-t border-gray-700">
+          <div className="mt-4 flex justify-between">
+            <dt className="text-xs text-gray-400">Price Impact</dt>
+            <dt className="text-xs text-gray-200">
+              {formatPercent(priceImpact)}
+            </dt>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-xs text-gray-500">Slippage Tolerance</dt>
+            <dt className="text-xs text-gray-500">{formatPercent(slippage)}</dt>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-xs text-gray-500">Liquidity Provider Fee</dt>
+            <dt className="text-xs text-gray-500">
+              {formatPercent(LIQUIDITY_PROVIDER_FEE)}
+            </dt>
+          </div>
+        </dl>
+        <div className="mt-4 border-t border-gray-700">
+          <div className="my-4 space-y-1">
+            {isExactOut ? (
+              <>
+                <p className="text-xs text-gray-400">
+                  Input is estimated. You will sell at most:
+                </p>
+                <p className="text-sm">
+                  {formatNumber(worstAmountIn)}{" "}
+                  <span className="text-gray-300">{inputPairToken.symbol}</span>
+                </p>
+                <p className="text-xs text-gray-400">
+                  or the transaction will revert.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-xs text-gray-400">
+                  Output is estimated. You will receieve at least:
+                </p>
+                <p className="text-sm">
+                  {formatNumber(worstAmountOut)}{" "}
+                  <span className="text-gray-300">
+                    {outputPairToken.symbol}
+                  </span>
+                </p>
+                <p className="text-xs text-gray-400">
+                  or the transaction will revert.
+                </p>
+              </>
+            )}
+          </div>
+          <Button
+            disabled={isLoading}
+            onClick={() => {
+              if (!isApproved) {
+                approve();
+              } else {
+                swap(
+                  inputPairToken,
+                  outputPairToken,
+                  inputValues[0],
+                  inputValues[1],
+                  isExactOut
+                );
+              }
+            }}
+          >
+            {isApproved
+              ? isLoading
+                ? "Swapping..."
+                : "Confirm Swap"
+              : `Approve ${inputPairToken.symbol}`}
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  );
+};
 
 const TokenSelectionModal = ({
   modalProps,

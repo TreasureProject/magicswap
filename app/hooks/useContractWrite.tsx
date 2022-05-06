@@ -35,6 +35,8 @@ export const useContractWrite = (
 
   const isError = transaction.status === "error" || result.isError;
 
+  const isSuccess = transaction.status === "success";
+
   React.useEffect(() => {
     if (isLoading) {
       if (toastId.current) {
@@ -67,6 +69,7 @@ export const useContractWrite = (
     ...result,
     isLoading,
     isError,
+    isSuccess,
     write: result.write,
   };
 };
