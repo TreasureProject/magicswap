@@ -1,33 +1,46 @@
-import { forwardRef } from "react";
-import type { ElementRef, ComponentProps } from "react";
+import type { ReactNode } from "react";
+import { Fragment } from "react";
 import { XIcon } from "@heroicons/react/outline";
-import * as PopoverPrimitive from "@radix-ui/react-popover";
+import { Popover as ReactPopover, Transition } from "@headlessui/react";
 import cn from "clsx";
 
-export const PopoverTrigger = PopoverPrimitive.Trigger;
+export const Popover = ReactPopover;
 
-export const Popover = PopoverPrimitive.Popover;
+export const PopoverTrigger = Popover.Button;
 
-export const PopoverContent = forwardRef<
-  ElementRef<typeof PopoverPrimitive.Content>,
-  ComponentProps<typeof PopoverPrimitive.Content>
->(({ children, className, ...props }, forwardRef) => (
-  <PopoverPrimitive.Content
-    align="center"
-    sideOffset={5}
-    className={cn(
-      "bg-gray-900 radix-side-top:animate-slide-up radix-side-bottom:animate-slide-down",
-      className
-    )}
-    {...props}
-    ref={forwardRef}
+type Props = {
+  className?: string;
+  children: ReactNode;
+};
+
+export const PopoverContent = ({ children, className }: Props) => (
+  <Transition
+    as={Fragment}
+    enter="transition ease-out duration-200"
+    enterFrom="opacity-0 translate-y-1"
+    enterTo="opacity-100 translate-y-0"
+    leave="transition ease-in duration-150"
+    leaveFrom="opacity-100 translate-y-0"
+    leaveTo="opacity-0 translate-y-1"
   >
-    <PopoverPrimitive.Arrow offset={7} className="fill-current text-gray-900" />
-    {children}
-    <PopoverPrimitive.Close className="absolute top-3.5 right-3.5 inline-flex items-center justify-center rounded-full p-1 focus:outline-none focus-visible:ring focus-visible:ring-red-500 focus-visible:ring-opacity-75">
-      <XIcon className="h-4 w-4 text-gray-500 hover:text-gray-400" />
-    </PopoverPrimitive.Close>
-  </PopoverPrimitive.Content>
-));
+    <Popover.Panel
+      // align="center"
+      // sideOffset={5}
+      className={cn("bg-gray-900", className)}
+    >
+      {({ close }) => (
+        <>
+          {children}
+          <button
+            className="absolute top-3.5 right-3.5 inline-flex items-center justify-center rounded-full p-1 focus:outline-none focus-visible:ring focus-visible:ring-red-500 focus-visible:ring-opacity-75"
+            onClick={() => close()}
+          >
+            <XIcon className="h-4 w-4 text-gray-500 hover:text-gray-400" />
+          </button>
+        </>
+      )}
+    </Popover.Panel>
+  </Transition>
+);
 
 PopoverContent.displayName = "PopoverContent";
