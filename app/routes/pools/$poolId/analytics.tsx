@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useEffect } from "react";
 import { ArrowRightIcon } from "@heroicons/react/solid";
 import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
@@ -66,7 +66,7 @@ export default function Analytics() {
   const { load, data: fetchedData } = useFetcher<LoaderData>();
   const { activeChain } = useNetwork();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       if (document.visibilityState === "visible") {
         load(`/pools/${poolId}/analytics`);

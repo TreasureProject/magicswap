@@ -268,7 +268,7 @@ export default function App() {
           <div className="h-48 w-48 rounded-full bg-[#4B0F67] blur-[146px] sm:h-[30rem] sm:w-[30rem]" />
         </div>
         <WagmiProvider client={client}>
-          <RainbowKitProvider chains={chains}>
+          <RainbowKitProvider chains={chains} theme={darkTheme()}>
             <UserProvider>
               <PriceProvider>
                 <SettingsProvider>

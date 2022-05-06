@@ -1,4 +1,5 @@
-import * as React from "react";
+import { forwardRef } from "react";
+import type { ElementRef, ComponentProps } from "react";
 import { XIcon } from "@heroicons/react/outline";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import cn from "clsx";
@@ -7,9 +8,9 @@ export const PopoverTrigger = PopoverPrimitive.Trigger;
 
 export const Popover = PopoverPrimitive.Popover;
 
-export const PopoverContent = React.forwardRef<
-  React.ElementRef<typeof PopoverPrimitive.Content>,
-  React.ComponentProps<typeof PopoverPrimitive.Content>
+export const PopoverContent = forwardRef<
+  ElementRef<typeof PopoverPrimitive.Content>,
+  ComponentProps<typeof PopoverPrimitive.Content>
 >(({ children, className, ...props }, forwardRef) => (
   <PopoverPrimitive.Content
     align="center"
