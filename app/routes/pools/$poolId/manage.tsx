@@ -217,17 +217,15 @@ const Liquidity = () => {
               Add Liquidity
             </span>
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="group">
-                <CogIcon
-                  className="h-6 w-6 text-gray-200/50 group-hover:text-white"
-                  aria-hidden="true"
-                />
-                <span className="sr-only">Open adjustment settings</span>
-              </button>
+          <Popover className="relative">
+            <PopoverTrigger className="group">
+              <CogIcon
+                className="h-6 w-6 text-gray-200/50 group-hover:text-white"
+                aria-hidden="true"
+              />
+              <span className="sr-only">Open adjustment settings</span>
             </PopoverTrigger>
-            <PopoverContent className="w-80 rounded-lg p-4 shadow-md">
+            <PopoverContent className="absolute right-0 z-10 w-80 rounded-lg p-4 shadow-md">
               <AdvancedSettingsPopoverContent />
             </PopoverContent>
           </Popover>

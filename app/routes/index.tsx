@@ -194,17 +194,15 @@ export default function Index() {
         <div className="mt-8 w-full rounded-xl bg-gray-700/10 p-4 shadow-glass backdrop-blur-md">
           <div className="flex justify-end">
             <div className="relative inline-block text-left">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="group">
-                    <CogIcon
-                      className="h-6 w-6 text-gray-200/50 group-hover:text-white"
-                      aria-hidden="true"
-                    />
-                    <span className="sr-only">Open adjustment settings</span>
-                  </button>
+              <Popover className="relative">
+                <PopoverTrigger className="group">
+                  <CogIcon
+                    className="h-6 w-6 text-gray-200/50 group-hover:text-white"
+                    aria-hidden="true"
+                  />
+                  <span className="sr-only">Open adjustment settings</span>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 rounded-lg p-4 shadow-md">
+                <PopoverContent className="absolute right-0 z-10 w-80 rounded-lg p-4 shadow-md">
                   <AdvancedSettingsPopoverContent>
                     <div className="mt-4">
                       <h3 className="font-medium text-white">
