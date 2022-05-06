@@ -18,7 +18,15 @@ import {
 } from "@remix-run/react";
 import cn from "clsx";
 import { resolveValue, Toaster } from "react-hot-toast";
-import { chain, createClient, Provider } from "wagmi";
+import { chain, createClient, WagmiProvider } from "wagmi";
+import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
+import {
+  apiProvider,
+  configureChains,
+  darkTheme,
+  getDefaultWallets,
+  RainbowKitProvider,
+} from "@rainbow-me/rainbowkit";
 
 import styles from "./styles/tailwind.css";
 import React from "react";
@@ -33,9 +41,7 @@ import NProgress from "nprogress";
 import nProgressStyles from "./styles/nprogress.css";
 import { Wallet } from "./components/Wallet";
 import { getEnvVariable } from "./utils/env";
-import { InjectedConnector } from "wagmi/connectors/injected";
-import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
-import { providers } from "ethers";
+
 import { getTokensImageAddress } from "./utils/tokens.server";
 import type { CloudFlareEnv, CloudFlareEnvVar } from "./types";
 import { UserProvider } from "./context/userContext";
@@ -55,6 +61,7 @@ export type RootLoaderData = {
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
   { rel: "stylesheet", href: nProgressStyles },
+  { rel: "stylesheet", href: rainbowStyles },
 ];
 
 export const meta: MetaFunction = () => ({
@@ -175,44 +182,59 @@ export default function App() {
   const transition = useTransition();
   const { ENV } = useLoaderData<RootLoaderData>();
 
-  const chains = React.useMemo(
-    () => [
-      ENV.CHAIN_ID === chain.arbitrumRinkeby.id.toString()
-        ? chain.arbitrumRinkeby
-        : chain.arbitrum,
-    ],
-    [ENV.CHAIN_ID]
+  const { chains, provider } = configureChains(
+    [chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum],
+    [
+      apiProvider.alchemy("2qXFonWVa0XGpI3bRyKywxC6KtcGTpU-"),
+      apiProvider.fallback(),
+    ]
   );
+
+  const { connectors } = getDefaultWallets({
+    appName: "My RainbowKit App",
+    chains,
+  });
+
   const client = React.useMemo(
     () =>
       createClient({
         autoConnect: true,
-        connectors() {
-          return [
-            new InjectedConnector({ chains }),
-            new WalletConnectConnector({
-              chains,
-              options: {
-                rpc: {
-                  [chain.arbitrum
-                    .id]: `https://arb-mainnet.g.alchemy.com/v2/${ENV.ALCHEMY_KEY}`,
-                  [chain.arbitrumRinkeby.id]:
-                    "https://arb-rinkeby.g.alchemy.com/v2/ktPJku9xHYB37bA3I2jk79FwRLWGBrj2",
-                },
-                qrcode: true,
-              },
-            }),
-          ];
-        },
-        provider() {
-          return new providers.AlchemyProvider(
-            ENV.CHAIN_ID ? parseInt(ENV.CHAIN_ID) : chain.arbitrum.id,
-            ENV.ALCHEMY_KEY
-          );
-        },
+        connectors,
+        provider,
       }),
-    [ENV.ALCHEMY_KEY, ENV.CHAIN_ID, chains]
+    [connectors, provider]
   );
+
+  // const { chains, provider } = React.useMemo(
+  //   () =>
+  //     configureChains(
+  //       [
+  //         chain.arbitrum,
+  //         ...(ENV.ENABLE_TESTNETS === "true" ? [chain.arbitrumRinkeby] : []),
+  //       ],
+  //       [apiProvider.alchemy(ENV.ALCHEMY_KEY), apiProvider.fallback()]
+  //     ),
+  //   [ENV.ENABLE_TESTNETS, ENV.ALCHEMY_KEY]
+  // );
+
+  // const { connectors } = React.useMemo(
+  //   () =>
+  //     getDefaultWallets({
+  //       appName: "Magicswap",
+  //       chains,
+  //     }),
+  //   [chains]
+  // );
+
+  // const client = React.useMemo(
+  //   () =>
+  //     createClient({
+  //       autoConnect: true,
+  //       connectors,
+  //       provider,
+  //     }),
+  //   [connectors, provider]
+  // );
 
   const fetchers = useFetchers();
 
@@ -245,38 +267,40 @@ export default function App() {
           <div className="h-48 w-48 rounded-full bg-[#670F0F] blur-[146px] sm:h-[30rem] sm:w-[30rem]" />
           <div className="h-48 w-48 rounded-full bg-[#4B0F67] blur-[146px] sm:h-[30rem] sm:w-[30rem]" />
         </div>
-        <Provider client={client}>
-          <UserProvider>
-            <PriceProvider>
-              <SettingsProvider>
-                <div className="z-10 flex h-16 items-center justify-center border-b border-gray-800 px-8">
-                  <div className="relative m-auto flex max-w-7xl flex-1 items-center justify-between sm:justify-center">
-                    <TreasureLogoIcon className="h-8 w-8" />
-                    <div className="inset-y-0 right-5 flex items-center justify-center sm:absolute">
-                      <Wallet />
-                    </div>
-                  </div>
-                </div>
-                <div className="relative overflow-hidden">
-                  <DotPattern />
-                  <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] max-w-3xl flex-col p-8 xl:max-w-6xl 2xl:max-w-7xl">
-                    <Outlet />
-                  </div>
-                  <header className="fixed left-0 right-0 bottom-[4.5rem] z-10 px-2 sm:bottom-24">
-                    <div className="relative">
-                      <div className="absolute left-1/2 z-10 w-full max-w-lg -translate-x-1/2 transform rounded-xl bg-gray-900/40 p-2 shadow-2xl shadow-gray-800/30 backdrop-blur-md 2xl:max-w-2xl">
-                        <nav className="flex gap-1">
-                          <NavLink to="/">Swap</NavLink>
-                          <NavLink to="pools">Pool</NavLink>
-                        </nav>
+        <WagmiProvider client={client}>
+          <RainbowKitProvider chains={chains}>
+            <UserProvider>
+              <PriceProvider>
+                <SettingsProvider>
+                  <div className="z-10 flex h-16 items-center justify-center border-b border-gray-800 px-8">
+                    <div className="relative m-auto flex max-w-7xl flex-1 items-center justify-between sm:justify-center">
+                      <TreasureLogoIcon className="h-8 w-8" />
+                      <div className="inset-y-0 right-5 flex items-center justify-center sm:absolute">
+                        <Wallet />
                       </div>
                     </div>
-                  </header>
-                </div>
-              </SettingsProvider>
-            </PriceProvider>
-          </UserProvider>
-        </Provider>
+                  </div>
+                  <div className="relative overflow-hidden">
+                    <DotPattern />
+                    <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] max-w-3xl flex-col p-8 xl:max-w-6xl 2xl:max-w-7xl">
+                      <Outlet />
+                    </div>
+                    <header className="fixed left-0 right-0 bottom-[4.5rem] z-10 px-2 sm:bottom-24">
+                      <div className="relative">
+                        <div className="absolute left-1/2 z-10 w-full max-w-lg -translate-x-1/2 transform rounded-xl bg-gray-900/40 p-2 shadow-2xl shadow-gray-800/30 backdrop-blur-md 2xl:max-w-2xl">
+                          <nav className="flex gap-1">
+                            <NavLink to="/">Swap</NavLink>
+                            <NavLink to="pools">Pool</NavLink>
+                          </nav>
+                        </div>
+                      </div>
+                    </header>
+                  </div>
+                </SettingsProvider>
+              </PriceProvider>
+            </UserProvider>
+          </RainbowKitProvider>
+        </WagmiProvider>
         <Toaster position="bottom-left" reverseOrder={false} gutter={18}>
           {(t) => (
             <Transition
@@ -315,9 +339,9 @@ export default function App() {
                       })()}
                     </div>
                     <div className="ml-3 w-0 flex-1">
-                      <p className="text-sm text-white">
+                      <div className="text-sm text-white">
                         {resolveValue(t.message, t)}
-                      </p>
+                      </div>
                     </div>
                   </div>
                 </div>
