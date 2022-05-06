@@ -182,18 +182,26 @@ export default function App() {
   const transition = useTransition();
   const { ENV } = useLoaderData<RootLoaderData>();
 
-  const { chains, provider } = configureChains(
-    [chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum],
-    [
-      apiProvider.alchemy("2qXFonWVa0XGpI3bRyKywxC6KtcGTpU-"),
-      apiProvider.fallback(),
-    ]
+  const { chains, provider } = React.useMemo(
+    () =>
+      configureChains(
+        [
+          chain.arbitrum,
+          ...(ENV.ENABLE_TESTNETS === "true" ? [chain.arbitrumRinkeby] : []),
+        ],
+        [apiProvider.alchemy(ENV.ALCHEMY_KEY), apiProvider.fallback()]
+      ),
+    [ENV.ENABLE_TESTNETS, ENV.ALCHEMY_KEY]
   );
 
-  const { connectors } = getDefaultWallets({
-    appName: "My RainbowKit App",
-    chains,
-  });
+  const { connectors } = React.useMemo(
+    () =>
+      getDefaultWallets({
+        appName: "Magicswap",
+        chains,
+      }),
+    [chains]
+  );
 
   const client = React.useMemo(
     () =>
@@ -204,37 +212,6 @@ export default function App() {
       }),
     [connectors, provider]
   );
-
-  // const { chains, provider } = React.useMemo(
-  //   () =>
-  //     configureChains(
-  //       [
-  //         chain.arbitrum,
-  //         ...(ENV.ENABLE_TESTNETS === "true" ? [chain.arbitrumRinkeby] : []),
-  //       ],
-  //       [apiProvider.alchemy(ENV.ALCHEMY_KEY), apiProvider.fallback()]
-  //     ),
-  //   [ENV.ENABLE_TESTNETS, ENV.ALCHEMY_KEY]
-  // );
-
-  // const { connectors } = React.useMemo(
-  //   () =>
-  //     getDefaultWallets({
-  //       appName: "Magicswap",
-  //       chains,
-  //     }),
-  //   [chains]
-  // );
-
-  // const client = React.useMemo(
-  //   () =>
-  //     createClient({
-  //       autoConnect: true,
-  //       connectors,
-  //       provider,
-  //     }),
-  //   [connectors, provider]
-  // );
 
   const fetchers = useFetchers();
 
