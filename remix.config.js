@@ -6,6 +6,7 @@ module.exports = {
   server: "./server.js",
   devServerBroadcastDelay: 1000,
   ignoredRouteFiles: [".*"],
+  serverDependenciesToBundle: ["@rainbow-me"],
   // appDirectory: "app",
   // assetsBuildDirectory: "public/build",
   // serverBuildPath: "functions/[[path]].js",

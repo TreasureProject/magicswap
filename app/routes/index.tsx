@@ -32,6 +32,7 @@ import { Modal } from "~/components/Modal";
 import { useSettings } from "~/context/settingsContext";
 import { formatNumber, formatPercent } from "~/utils/number";
 import { LIQUIDITY_PROVIDER_FEE } from "~/utils/price";
+import { WalletButton } from "~/components/Wallet";
 
 type LoaderData = {
   pairs: Pair[];
@@ -114,7 +115,7 @@ export default function Index() {
   const inputTokenBalance = useTokenBalance(data.inputToken);
   const outputTokenBalance = useTokenBalance(data.outputToken);
   const pair = usePair(data.pair);
-  const { openWalletModal, isConnected } = useUser();
+  const { isConnected } = useUser();
   const [showGraph, setShowGraph] = useLocalStorageState("ms:showGraph", {
     ssr: true,
     defaultValue: false,
@@ -161,14 +162,6 @@ export default function Index() {
     setInputValues([amountIn, value]);
   };
 
-  const handleSwap = () => {
-    if (!isConnected) {
-      openWalletModal();
-    } else {
-      setIsOpenConfirmSwapModal(true);
-    }
-  };
-
   // Reset inputs if swap changes
   useEffect(() => {
     setInputValues([0, 0]);
@@ -194,17 +187,15 @@ export default function Index() {
         <div className="mt-8 w-full rounded-xl bg-gray-700/10 p-4 shadow-glass backdrop-blur-md">
           <div className="flex justify-end">
             <div className="relative inline-block text-left">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="group">
-                    <CogIcon
-                      className="h-6 w-6 text-gray-200/50 group-hover:text-white"
-                      aria-hidden="true"
-                    />
-                    <span className="sr-only">Open adjustment settings</span>
-                  </button>
+              <Popover className="relative">
+                <PopoverTrigger className="group">
+                  <CogIcon
+                    className="h-6 w-6 text-gray-200/50 group-hover:text-white"
+                    aria-hidden="true"
+                  />
+                  <span className="sr-only">Open adjustment settings</span>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 rounded-lg p-4 shadow-md">
+                <PopoverContent className="absolute right-0 z-10 w-80 rounded-lg p-4 shadow-md">
                   <AdvancedSettingsPopoverContent>
                     <div className="mt-4">
                       <h3 className="font-medium text-white">
@@ -297,21 +288,22 @@ export default function Index() {
           </div>
         </div>
         <div className="mt-8 w-full space-y-4 px-0 xl:px-72 2xl:mt-12">
-          <Button
-            disabled={
-              isConnected &&
-              (!inputValues[0] || !inputValues[1] || insufficientBalance)
-            }
-            onClick={handleSwap}
-          >
-            {!isConnected
-              ? "Connect to a wallet"
-              : insufficientBalance
-              ? "Insufficient Balance"
-              : inputValues[0] && inputValues[1]
-              ? "Swap"
-              : "Enter an Amount"}
-          </Button>
+          {!isConnected ? (
+            <WalletButton />
+          ) : (
+            <Button
+              disabled={
+                !inputValues[0] || !inputValues[1] || insufficientBalance
+              }
+              onClick={() => setIsOpenConfirmSwapModal(true)}
+            >
+              {insufficientBalance
+                ? "Insufficient Balance"
+                : inputValues[0] && inputValues[1]
+                ? "Swap"
+                : "Enter an Amount"}
+            </Button>
+          )}
         </div>
       </div>
       <TokenSelectionModal
@@ -327,133 +319,6 @@ export default function Index() {
         isExactOut={isExactOut}
         priceImpact={priceImpact}
       />
-
-      {/* <Modal
-        isOpen={isOpenConfirmSwapModal}
-        onClose={() => setIsOpenConfirmSwapModal(false)}
-      >
-        <div>
-          <Dialog.Title
-            as="h3"
-            className="text-lg font-medium leading-6 text-gray-200"
-          >
-            Confirm Swap
-          </Dialog.Title>
-          <div className="mt-4 mb-4 flex flex-col items-center">
-            <div className="flex w-full justify-between rounded-md bg-gray-900 p-4">
-              <span className="truncate text-lg font-medium tracking-wide">
-                {formatNumber(inputValues[0])}
-              </span>
-              <div className="flex flex-shrink-0 items-center space-x-2 pl-2">
-                <TokenLogo
-                  tokenAddress={inputPairToken.id}
-                  symbol={inputPairToken.symbol}
-                  className="h-5 w-5 rounded-full"
-                />
-                <span className="text-sm font-medium">
-                  {inputPairToken.symbol}
-                </span>
-              </div>
-            </div>
-            <div className="z-10 -my-3 rounded-full border border-gray-900 bg-gray-800 p-1">
-              <ArrowDownIcon className="h-6 w-6 text-gray-500" />
-            </div>
-            <div className="flex w-full justify-between rounded-md bg-gray-900 p-4">
-              <span className="text-lg font-medium tracking-wide">
-                {formatNumber(inputValues[1])}
-              </span>
-              <div className="flex items-center space-x-2 pl-2">
-                <TokenLogo
-                  tokenAddress={outputPairToken.id}
-                  symbol={outputPairToken.symbol}
-                  className="h-5 w-5 rounded-full"
-                />
-
-                <span className="text-sm font-medium">
-                  {outputPairToken.symbol}
-                </span>
-              </div>
-            </div>
-          </div>
-          <dl className="space-y-1.5 border-t border-gray-700">
-            <div className="mt-4 flex justify-between">
-              <dt className="text-xs text-gray-400">Price Impact</dt>
-              <dt className="text-xs text-gray-200">
-                {formatPercent(priceImpact)}
-              </dt>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-xs text-gray-500">Slippage Tolerance</dt>
-              <dt className="text-xs text-gray-500">
-                {formatPercent(slippage)}
-              </dt>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-xs text-gray-500">Liquidity Provider Fee</dt>
-              <dt className="text-xs text-gray-500">
-                {formatPercent(LIQUIDITY_PROVIDER_FEE)}
-              </dt>
-            </div>
-          </dl>
-          <div className="mt-4 border-t border-gray-700">
-            <div className="my-4 space-y-1">
-              {isExactOut ? (
-                <>
-                  <p className="text-xs text-gray-400">
-                    Input is estimated. You will sell at most:
-                  </p>
-                  <p className="text-sm">
-                    {formatNumber(worstAmountIn)}{" "}
-                    <span className="text-gray-300">
-                      {inputPairToken.symbol}
-                    </span>
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    or the transaction will revert.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="text-xs text-gray-400">
-                    Output is estimated. You will receieve at least:
-                  </p>
-                  <p className="text-sm">
-                    {formatNumber(worstAmountOut)}{" "}
-                    <span className="text-gray-300">
-                      {outputPairToken.symbol}
-                    </span>
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    or the transaction will revert.
-                  </p>
-                </>
-              )}
-            </div>
-            <Button
-              disabled={isLoading}
-              onClick={() => {
-                if (!isApproved) {
-                  approve();
-                } else {
-                  swap(
-                    inputPairToken,
-                    outputPairToken,
-                    inputValues[0],
-                    inputValues[1],
-                    isExactOut
-                  );
-                }
-              }}
-            >
-              {isApproved
-                ? isLoading
-                  ? "Swapping..."
-                  : "Confirm Swap"
-                : `Approve ${inputPairToken.symbol}`}
-            </Button>
-          </div>
-        </div>
-      </Modal> */}
     </>
   );
 }
