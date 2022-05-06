@@ -245,12 +245,19 @@ export default function App() {
           <div className="h-48 w-48 rounded-full bg-[#4B0F67] blur-[146px] sm:h-[30rem] sm:w-[30rem]" />
         </div>
         <WagmiProvider client={client}>
-          <RainbowKitProvider chains={chains} theme={darkTheme()}>
+          <RainbowKitProvider
+            chains={chains}
+            theme={darkTheme({
+              fontStack: "system",
+              accentColor: "#ef4444",
+              borderRadius: "medium",
+            })}
+          >
             <UserProvider>
               <PriceProvider>
                 <SettingsProvider>
                   <div className="z-10 flex h-16 items-center justify-center border-b border-gray-800 px-8">
-                    <div className="relative m-auto flex max-w-7xl flex-1 items-center justify-between sm:justify-center">
+                    <div className="relative m-auto flex max-w-3xl flex-1 items-center justify-between xl:max-w-6xl xl:justify-center 2xl:max-w-7xl">
                       <TreasureLogoIcon className="h-8 w-8" />
                       <div className="inset-y-0 right-5 flex items-center justify-center sm:absolute">
                         <Wallet />
