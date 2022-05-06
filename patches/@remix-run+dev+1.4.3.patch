@@ -1,0 +1,17 @@
+diff --git a/node_modules/@remix-run/dev/compiler.js b/node_modules/@remix-run/dev/compiler.js
+index 902b251..f5a431c 100644
+--- a/node_modules/@remix-run/dev/compiler.js
++++ b/node_modules/@remix-run/dev/compiler.js
+@@ -292,9 +292,9 @@ async function createBrowserBuild(config, options) {
+   let externals = module$1.builtinModules.filter(mod => !dependencies$1.includes(mod));
+   let fakeBuiltins = module$1.builtinModules.filter(mod => dependencies$1.includes(mod));
+ 
+-  if (fakeBuiltins.length > 0) {
+-    throw new Error(`It appears you're using a module that is built in to node, but you installed it as a dependency which could cause problems. Please remove ${fakeBuiltins.join(", ")} before continuing.`);
+-  }
++  // if (fakeBuiltins.length > 0) {
++  //   throw new Error(`It appears you're using a module that is built in to node, but you installed it as a dependency which could cause problems. Please remove ${fakeBuiltins.join(", ")} before continuing.`);
++  // }
+ 
+   let entryPoints = {
+     "entry.client": path__namespace.resolve(config.appDirectory, config.entryClientFile)

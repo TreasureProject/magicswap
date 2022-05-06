@@ -1,4 +1,5 @@
-import * as React from "react";
+import { useState, useEffect, Fragment } from "react";
+import type { ChangeEvent } from "react";
 import { ChevronDownIcon, SearchIcon, XIcon } from "@heroicons/react/solid";
 import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
@@ -60,7 +61,7 @@ export default function Pools() {
 
   const selectedPool = pairs.find((p) => p.id === poolId);
 
-  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
     const name = event.currentTarget.value;
     const searchParams = new URLSearchParams();
     searchParams.set("name", name);
@@ -69,21 +70,21 @@ export default function Pools() {
 
   const isLoading = fetcher.state === "loading";
 
-  React.useEffect(() => {
+  useEffect(() => {
     setMobileFiltersOpen(false);
   }, [location.pathname]);
 
-  const [mobileFiltersOpen, setMobileFiltersOpen] = React.useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   return (
     <div className="mb-12 flex flex-1 flex-col">
-      <Transition.Root show={mobileFiltersOpen} as={React.Fragment}>
+      <Transition.Root show={mobileFiltersOpen} as={Fragment}>
         <Dialog
           as="div"
           className="fixed inset-0 z-40 flex xl:hidden"
           onClose={setMobileFiltersOpen}
         >
           <Transition.Child
-            as={React.Fragment}
+            as={Fragment}
             enter="transition-opacity ease-linear duration-300"
             enterFrom="opacity-0"
             enterTo="opacity-100"
@@ -95,7 +96,7 @@ export default function Pools() {
           </Transition.Child>
 
           <Transition.Child
-            as={React.Fragment}
+            as={Fragment}
             enter="transition ease-in-out duration-300 transform"
             enterFrom="translate-x-full"
             enterTo="translate-x-0"

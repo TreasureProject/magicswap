@@ -16,6 +16,7 @@
     "codegen": "node -r dotenv/config node_modules/.bin/gql-gen",
     "start": "cross-env NODE_ENV=production npm run dev:wrangler",
     "lint": "prettier --write 'app/**/{*.ts,*.tsx}' && eslint --fix --no-error-on-unmatched-pattern 'app/**/{*.ts,*.tsx}'",
+    "postinstall": "patch-package",
     "prepare": "husky install"
   },
   "dependencies": {
@@ -35,6 +36,7 @@
     "@visx/gradient": "^2.1.0",
     "@visx/scale": "^2.2.2",
     "@visx/shape": "^2.4.0",
+    "buffer": "^6.0.3",
     "clsx": "^1.1.1",
     "cross-env": "^7.0.3",
     "date-fns": "^2.28.0",
@@ -73,6 +75,7 @@
     "husky": "^7.0.4",
     "lint-staged": "^12.4.1",
     "npm-run-all": "^4.1.5",
+    "patch-package": "^6.4.7",
     "prettier": "^2.6.2",
     "prettier-plugin-tailwindcss": "^0.1.8",
     "tailwindcss": "^3.0.23",

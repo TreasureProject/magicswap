@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useRef, useEffect } from "react";
 import {
   useContractWrite as useContractWriteWagmi,
   useWaitForTransaction,
@@ -29,7 +29,7 @@ export const useContractWrite = (
 
   const transaction = useWaitForTransaction({ hash: result.data?.hash });
 
-  const toastId = React.useRef<Optional<string>>(undefined);
+  const toastId = useRef<Optional<string>>(undefined);
 
   const isLoading = transaction.status === "loading" || result.isLoading;
 
@@ -37,7 +37,7 @@ export const useContractWrite = (
 
   const isSuccess = transaction.status === "success";
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isLoading) {
       if (toastId.current) {
         toast.loading(
