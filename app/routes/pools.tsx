@@ -290,7 +290,14 @@ export default function Pools() {
             </div>
           </div>
         </div>
-        <div className="col-span-6 overflow-hidden rounded-md bg-[#20232d] xl:col-span-4 xl:h-[calc(100vh-256px)]">
+        <div
+          className={cn(
+            lastPath === "analytics"
+              ? "xl:h-[calc(100vh-256px)]"
+              : "xl:min-h-[calc(100vh-256px)]",
+            "col-span-6 overflow-hidden rounded-md bg-[#20232d] xl:col-span-4"
+          )}
+        >
           <Outlet />
         </div>
       </div>

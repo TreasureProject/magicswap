@@ -32,6 +32,7 @@ import { Modal } from "~/components/Modal";
 import { useSettings } from "~/context/settingsContext";
 import { formatNumber, formatPercent } from "~/utils/number";
 import { LIQUIDITY_PROVIDER_FEE } from "~/utils/price";
+import { WalletButton } from "~/components/Wallet";
 
 type LoaderData = {
   pairs: Pair[];
@@ -114,7 +115,7 @@ export default function Index() {
   const inputTokenBalance = useTokenBalance(data.inputToken);
   const outputTokenBalance = useTokenBalance(data.outputToken);
   const pair = usePair(data.pair);
-  const { openWalletModal, isConnected } = useUser();
+  const { isConnected } = useUser();
   const [showGraph, setShowGraph] = useLocalStorageState("ms:showGraph", {
     ssr: true,
     defaultValue: false,
@@ -159,14 +160,6 @@ export default function Index() {
     );
     setPriceImpact(1 - rawAmountIn / amountIn);
     setInputValues([amountIn, value]);
-  };
-
-  const handleSwap = () => {
-    if (!isConnected) {
-      openWalletModal();
-    } else {
-      setIsOpenConfirmSwapModal(true);
-    }
   };
 
   // Reset inputs if swap changes
@@ -295,21 +288,22 @@ export default function Index() {
           </div>
         </div>
         <div className="mt-8 w-full space-y-4 px-0 xl:px-72 2xl:mt-12">
-          <Button
-            disabled={
-              isConnected &&
-              (!inputValues[0] || !inputValues[1] || insufficientBalance)
-            }
-            onClick={handleSwap}
-          >
-            {!isConnected
-              ? "Connect to a wallet"
-              : insufficientBalance
-              ? "Insufficient Balance"
-              : inputValues[0] && inputValues[1]
-              ? "Swap"
-              : "Enter an Amount"}
-          </Button>
+          {!isConnected ? (
+            <WalletButton />
+          ) : (
+            <Button
+              disabled={
+                !inputValues[0] || !inputValues[1] || insufficientBalance
+              }
+              onClick={() => setIsOpenConfirmSwapModal(true)}
+            >
+              {insufficientBalance
+                ? "Insufficient Balance"
+                : inputValues[0] && inputValues[1]
+                ? "Swap"
+                : "Enter an Amount"}
+            </Button>
+          )}
         </div>
       </div>
       <TokenSelectionModal
