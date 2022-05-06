@@ -4,6 +4,7 @@ import type {
 } from "~/graphql/exchange.generated";
 import type { Optional, Pair } from "~/types";
 import { exchangeSdk } from "./api.server";
+import { getApy } from "./price";
 import { getEthUsd, normalizeAdvancedToken } from "./tokens.server";
 
 type RawPair = GetSwapPairQuery["pairs"][0];
@@ -36,6 +37,10 @@ const normalizePair = (
   };
   const liquidityUsd = parseFloat(reserveUSD);
   const totalSupply = parseFloat(rawTotalSupply);
+  const volume1wUsd = dayData.reduce(
+    (total, { volumeUSD }) => total + parseFloat(volumeUSD),
+    0
+  );
   return {
     id,
     name: `${token0.symbol}-${token1.symbol}`,
@@ -66,10 +71,8 @@ const normalizePair = (
       (total, { volumeUSD }) => total + parseFloat(volumeUSD),
       0
     ),
-    volume1wUsd: dayData.reduce(
-      (total, { volumeUSD }) => total + parseFloat(volumeUSD),
-      0
-    ),
+    volume1wUsd,
+    apy: getApy(volume1wUsd, liquidityUsd),
   };
 };
 
