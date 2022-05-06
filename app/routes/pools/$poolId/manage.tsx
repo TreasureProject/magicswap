@@ -24,6 +24,7 @@ import { CogIcon } from "@heroicons/react/outline";
 import { useUser } from "~/context/userContext";
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
 import { usePair } from "~/hooks/usePair";
+import { WalletButton } from "~/components/Wallet";
 
 type LoaderData = {
   pair: Pair;
@@ -112,7 +113,7 @@ const Liquidity = () => {
     0, 0,
   ]);
   const data = useLoaderData<LoaderData>();
-  const { openWalletModal, isConnected } = useUser();
+  const { isConnected } = useUser();
   const pair = usePair(data.pair);
 
   const token0Balance = useTokenBalance(pair.token0);
@@ -217,17 +218,15 @@ const Liquidity = () => {
               Add Liquidity
             </span>
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="group">
-                <CogIcon
-                  className="h-6 w-6 text-gray-200/50 group-hover:text-white"
-                  aria-hidden="true"
-                />
-                <span className="sr-only">Open adjustment settings</span>
-              </button>
+          <Popover className="relative">
+            <PopoverTrigger className="group">
+              <CogIcon
+                className="h-6 w-6 text-gray-200/50 group-hover:text-white"
+                aria-hidden="true"
+              />
+              <span className="sr-only">Open adjustment settings</span>
             </PopoverTrigger>
-            <PopoverContent className="w-80 rounded-lg p-4 shadow-md">
+            <PopoverContent className="absolute right-0 z-10 w-80 rounded-lg p-4 shadow-md">
               <AdvancedSettingsPopoverContent />
             </PopoverContent>
           </Popover>
@@ -322,7 +321,8 @@ const Liquidity = () => {
             {addInputValues[0] > 0 &&
               addInputValues[1] > 0 &&
               (!isToken0Approved || !isToken1Approved) &&
-              !insufficientBalance && (
+              !insufficientBalance &&
+              isConnected && (
                 <Button
                   onClick={() =>
                     isToken0Approved ? approveToken1() : approveToken0()
@@ -332,68 +332,64 @@ const Liquidity = () => {
                   {isToken0Approved ? pair.token1.symbol : pair.token0.symbol}
                 </Button>
               )}
-            <Button
-              disabled={
-                isConnected &&
-                (!addInputValues[0] ||
+            {!isConnected ? (
+              <WalletButton />
+            ) : (
+              <Button
+                disabled={
+                  !addInputValues[0] ||
                   !addInputValues[1] ||
                   insufficientBalance ||
                   !isToken0Approved ||
-                  !isToken1Approved)
-              }
-              onClick={!isConnected ? openWalletModal : handleAddLiquidity}
-            >
-              {!isConnected ? (
-                "Connect to a wallet"
-              ) : (
-                <>
-                  {insufficientBalance ? (
-                    <>
-                      Insufficient{" "}
-                      {token0BalanceInsufficient
-                        ? pair.token0.symbol
-                        : pair.token1.symbol}{" "}
-                      Balance
-                    </>
-                  ) : (
-                    <>
-                      {addInputValues[0] && addInputValues[1]
-                        ? "Add Liquidity"
-                        : "Enter an Amount"}
-                    </>
-                  )}
-                </>
-              )}
-            </Button>
+                  !isToken1Approved
+                }
+                onClick={handleAddLiquidity}
+              >
+                {insufficientBalance ? (
+                  <>
+                    Insufficient{" "}
+                    {token0BalanceInsufficient
+                      ? pair.token0.symbol
+                      : pair.token1.symbol}{" "}
+                    Balance
+                  </>
+                ) : (
+                  <>
+                    {addInputValues[0] && addInputValues[1]
+                      ? "Add Liquidity"
+                      : "Enter an Amount"}
+                  </>
+                )}
+              </Button>
+            )}
           </>
         ) : (
           <>
             {removeInputValue > 0 &&
               !isLpApproved &&
-              !lpBalanceInsufficient && (
+              !lpBalanceInsufficient &&
+              isConnected && (
                 <Button onClick={() => approveLp()}>
                   Approve {pair.name} LP Token
                 </Button>
               )}
-            <Button
-              disabled={
-                isConnected &&
-                (!removeInputValue || lpBalanceInsufficient || !isLpApproved)
-              }
-              onClick={!isConnected ? openWalletModal : handleRemoveLiquidity}
-            >
-              {!isConnected ? (
-                "Connect to a wallet"
-              ) : (
-                <>
-                  {lpBalanceInsufficient
-                    ? "Insufficient LP Token Balance"
-                    : removeInputValue > 0
-                    ? "Remove Liquidity"
-                    : "Enter an Amount"}
-                </>
-              )}
-            </Button>
+            {!isConnected ? (
+              <WalletButton />
+            ) : (
+              <Button
+                disabled={
+                  isConnected &&
+                  (!removeInputValue || lpBalanceInsufficient || !isLpApproved)
+                }
+                onClick={handleRemoveLiquidity}
+              >
+                {lpBalanceInsufficient
+                  ? "Insufficient LP Token Balance"
+                  : removeInputValue > 0
+                  ? "Remove Liquidity"
+                  : "Enter an Amount"}
+              </Button>
+            )}
           </>
         )}
       </div>
