@@ -113,7 +113,7 @@ const Liquidity = () => {
     0, 0,
   ]);
   const data = useLoaderData<LoaderData>();
-  const { isConnected } = useUser();
+  const { isConnected, unsupported } = useUser();
   const pair = usePair(data.pair);
 
   const token0Balance = useTokenBalance(pair.token0);
@@ -332,7 +332,7 @@ const Liquidity = () => {
                   {isToken0Approved ? pair.token1.symbol : pair.token0.symbol}
                 </Button>
               )}
-            {!isConnected ? (
+            {!isConnected || unsupported ? (
               <WalletButton />
             ) : (
               <Button
@@ -373,7 +373,7 @@ const Liquidity = () => {
                   Approve {pair.name} LP Token
                 </Button>
               )}
-            {!isConnected ? (
+            {!isConnected || unsupported ? (
               <WalletButton />
             ) : (
               <Button
