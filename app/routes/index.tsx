@@ -115,7 +115,7 @@ export default function Index() {
   const inputTokenBalance = useTokenBalance(data.inputToken);
   const outputTokenBalance = useTokenBalance(data.outputToken);
   const pair = usePair(data.pair);
-  const { isConnected } = useUser();
+  const { isConnected, unsupported } = useUser();
   const [showGraph, setShowGraph] = useLocalStorageState("ms:showGraph", {
     ssr: true,
     defaultValue: false,
@@ -288,7 +288,7 @@ export default function Index() {
           </div>
         </div>
         <div className="mt-8 w-full space-y-4 px-0 xl:px-72 2xl:mt-12">
-          {!isConnected ? (
+          {!isConnected || unsupported ? (
             <WalletButton />
           ) : (
             <Button
@@ -340,7 +340,7 @@ const ConfirmSwapModal = ({
   isExactOut: boolean;
   priceImpact: number;
 }) => {
-  const { swap, isLoading, isError, isSuccess } = useSwap();
+  const { swap, isLoading, isSuccess } = useSwap();
   const { slippage } = useSettings();
   const { isApproved, approve } = useTokenApproval(inputPairToken);
 
@@ -351,10 +351,10 @@ const ConfirmSwapModal = ({
     inputValues[1] * (isExactOut ? 1 : (100 - slippage) / 100);
 
   useEffect(() => {
-    if (isError) {
+    if (isSuccess) {
       onClose();
     }
-  }, [isError, onClose]);
+  }, [isSuccess, onClose]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
