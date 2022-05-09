@@ -23,9 +23,11 @@ import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
 import {
   apiProvider,
   configureChains,
+  connectorsForWallets,
   darkTheme,
   getDefaultWallets,
   RainbowKitProvider,
+  wallet,
 } from "@rainbow-me/rainbowkit";
 
 import styles from "./styles/tailwind.css";
@@ -194,12 +196,22 @@ export default function App() {
     [ENV.ENABLE_TESTNETS, ENV.ALCHEMY_KEY]
   );
 
-  const { connectors } = React.useMemo(
+  const connectors = React.useMemo(
     () =>
-      getDefaultWallets({
-        appName: "Magicswap",
-        chains,
-      }),
+      connectorsForWallets([
+        {
+          groupName: "Recommended",
+          wallets: [wallet.rainbow({ chains }), wallet.metaMask({ chains })],
+        },
+        {
+          groupName: "Others",
+          wallets: [
+            wallet.walletConnect({ chains }),
+            wallet.trust({ chains }),
+            wallet.ledger({ chains }),
+          ],
+        },
+      ]),
     [chains]
   );
 
@@ -246,6 +258,9 @@ export default function App() {
         </div>
         <WagmiProvider client={client}>
           <RainbowKitProvider
+            appInfo={{
+              appName: "Magicswap",
+            }}
             chains={chains}
             theme={darkTheme({
               fontStack: "system",
