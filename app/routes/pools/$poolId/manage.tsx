@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import type { ShouldReloadFunction } from "@remix-run/react";
@@ -14,9 +14,8 @@ import { formatNumber } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
 import type { Pair } from "~/types";
 import { useAddressBalance, useTokenBalance } from "~/hooks/useTokenBalance";
-import { useAddLiquidity } from "~/hooks/useAddLiquidity";
+import { useAddLiquidity, useRemoveLiquidity } from "~/hooks/useLiquidity";
 import TokenInput from "~/components/TokenInput";
-import { useRemoveLiquidity } from "~/hooks/useRemoveLiquidity";
 import { usePairApproval, useTokenApproval } from "~/hooks/useApproval";
 import { getEnvVariable } from "~/utils/env";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
@@ -116,23 +115,54 @@ const Liquidity = () => {
   const { isConnected, unsupported } = useUser();
   const pair = usePair(data.pair);
 
-  const token0Balance = useTokenBalance(pair.token0);
-  const token1Balance = useTokenBalance(pair.token1);
-  const lpBalance = useAddressBalance(pair.id);
-  const { isApproved: isToken0Approved, approve: approveToken0 } =
-    useTokenApproval(pair.token0);
-  const { isApproved: isToken1Approved, approve: approveToken1 } =
-    useTokenApproval(pair.token1);
-  const { isApproved: isLpApproved, approve: approveLp } =
-    usePairApproval(pair);
-  const addLiquidity = useAddLiquidity();
-  const removeLiquidity = useRemoveLiquidity();
+  const { value: token0Balance, refetch: refetchPair0 } = useTokenBalance(
+    pair.token0
+  );
+  const { value: token1Balance, refetch: refetchPair1 } = useTokenBalance(
+    pair.token1
+  );
+  const { value: lpBalance, refetch: refetchLp } = useAddressBalance(pair.id);
+  const {
+    isApproved: isToken0Approved,
+    approve: approveToken0,
+    isLoading: isLoadingToken0,
+  } = useTokenApproval(pair.token0);
+  const {
+    isApproved: isToken1Approved,
+    approve: approveToken1,
+    isLoading: isLoadingToken1,
+  } = useTokenApproval(pair.token1);
+  const {
+    isApproved: isLpApproved,
+    approve: approveLp,
+    isLoading: isLoadingLp,
+  } = usePairApproval(pair);
+  const {
+    addLiquidity,
+    isSuccess: isAddSuccess,
+    isLoading: isAddLoading,
+  } = useAddLiquidity();
+  const {
+    removeLiquidity,
+    isSuccess: isRemoveSuccess,
+    isLoading: isRemoveLoading,
+  } = useRemoveLiquidity();
 
   const token0BalanceInsufficient = addInputValues[0] > token0Balance;
   const token1BalanceInsufficient = addInputValues[1] > token1Balance;
   const insufficientBalance =
     token0BalanceInsufficient || token1BalanceInsufficient;
   const lpBalanceInsufficient = removeInputValue > lpBalance;
+
+  const refetchAll = useCallback(async () => {
+    Promise.all([refetchPair0(), refetchPair1(), refetchLp()]);
+  }, [refetchLp, refetchPair0, refetchPair1]);
+
+  useEffect(() => {
+    if (isAddSuccess || isRemoveSuccess) {
+      refetchAll();
+    }
+  }, [isAddSuccess, isRemoveSuccess, refetchAll]);
 
   const removeLiquidityToken0Estimate =
     removeInputValue > 0
@@ -324,12 +354,18 @@ const Liquidity = () => {
               !insufficientBalance &&
               isConnected && (
                 <Button
+                  disabled={isLoadingToken0 || isLoadingToken1}
                   onClick={() =>
                     isToken0Approved ? approveToken1() : approveToken0()
                   }
                 >
-                  Approve{" "}
-                  {isToken0Approved ? pair.token1.symbol : pair.token0.symbol}
+                  {isLoadingToken0 || isLoadingToken1
+                    ? "Approving Token..."
+                    : `Approve ${
+                        isToken0Approved
+                          ? pair.token1.symbol
+                          : pair.token0.symbol
+                      }`}
                 </Button>
               )}
             {!isConnected || unsupported ? (
@@ -341,11 +377,14 @@ const Liquidity = () => {
                   !addInputValues[1] ||
                   insufficientBalance ||
                   !isToken0Approved ||
-                  !isToken1Approved
+                  !isToken1Approved ||
+                  isAddLoading
                 }
                 onClick={handleAddLiquidity}
               >
-                {insufficientBalance ? (
+                {isAddLoading ? (
+                  "Adding Liquidity..."
+                ) : insufficientBalance ? (
                   <>
                     Insufficient{" "}
                     {token0BalanceInsufficient
@@ -369,8 +408,10 @@ const Liquidity = () => {
               !isLpApproved &&
               !lpBalanceInsufficient &&
               isConnected && (
-                <Button onClick={() => approveLp()}>
-                  Approve {pair.name} LP Token
+                <Button disabled={isLoadingLp} onClick={() => approveLp()}>
+                  {isLoadingLp
+                    ? "Approving LP..."
+                    : `Approve ${pair.name} LP Token`}
                 </Button>
               )}
             {!isConnected || unsupported ? (
@@ -378,12 +419,17 @@ const Liquidity = () => {
             ) : (
               <Button
                 disabled={
-                  isConnected &&
-                  (!removeInputValue || lpBalanceInsufficient || !isLpApproved)
+                  (isConnected &&
+                    (!removeInputValue ||
+                      lpBalanceInsufficient ||
+                      !isLpApproved)) ||
+                  isRemoveLoading
                 }
                 onClick={handleRemoveLiquidity}
               >
-                {lpBalanceInsufficient
+                {isRemoveLoading
+                  ? "Removing Liquidity..."
+                  : lpBalanceInsufficient
                   ? "Insufficient LP Token Balance"
                   : removeInputValue > 0
                   ? "Remove Liquidity"

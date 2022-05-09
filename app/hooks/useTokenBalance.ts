@@ -7,14 +7,17 @@ import { useUser } from "~/context/userContext";
 export const useAddressBalance = (address?: string) => {
   const isMounted = useIsMounted();
   const { accountData } = useUser();
-  const { data: balanceData } = useBalance({
+  const { data: balanceData, refetch } = useBalance({
     addressOrName: accountData?.address,
     token: address,
     enabled: isMounted && !!accountData?.address,
     staleTime: 2_000,
   });
 
-  return parseFloat(utils.formatEther(balanceData?.value ?? 0));
+  return {
+    value: parseFloat(utils.formatEther(balanceData?.value ?? 0)),
+    refetch,
+  };
 };
 
 export const useTokenBalance = (token: Token) =>
