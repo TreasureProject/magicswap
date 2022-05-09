@@ -112,8 +112,10 @@ export default function Index() {
   });
   const [isExactOut, setIsExactOut] = useState(false);
   const [inputValues, setInputValues] = useState([0, 0]);
-  const inputTokenBalance = useTokenBalance(data.inputToken);
-  const outputTokenBalance = useTokenBalance(data.outputToken);
+  const { value: inputTokenBalance, refetch: refetchInputToken } =
+    useTokenBalance(data.inputToken);
+  const { value: outputTokenBalance, refetch: refetchOutputToken } =
+    useTokenBalance(data.outputToken);
   const pair = usePair(data.pair);
   const { isConnected, unsupported } = useUser();
   const [showGraph, setShowGraph] = useLocalStorageState("ms:showGraph", {
@@ -122,6 +124,10 @@ export default function Index() {
   });
   const [isOpenConfirmSwapModal, setIsOpenConfirmSwapModal] = useState(false);
   const [priceImpact, setPriceImpact] = useState(0);
+
+  const refetchAll = useCallback(async () => {
+    Promise.all([refetchInputToken(), refetchOutputToken()]);
+  }, [refetchInputToken, refetchOutputToken]);
 
   const inputPairToken =
     pair.token0.id === data.inputToken.id ? pair.token0 : pair.token1;
@@ -318,6 +324,7 @@ export default function Index() {
         inputValues={inputValues}
         isExactOut={isExactOut}
         priceImpact={priceImpact}
+        refetch={refetchAll}
       />
     </>
   );
@@ -331,6 +338,7 @@ const ConfirmSwapModal = ({
   inputValues,
   isExactOut,
   priceImpact,
+  refetch,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -339,6 +347,7 @@ const ConfirmSwapModal = ({
   inputValues: number[];
   isExactOut: boolean;
   priceImpact: number;
+  refetch: () => Promise<void>;
 }) => {
   const { swap, isLoading, isSuccess } = useSwap();
   const { slippage } = useSettings();
@@ -352,9 +361,10 @@ const ConfirmSwapModal = ({
 
   useEffect(() => {
     if (isSuccess) {
+      refetch();
       onClose();
     }
-  }, [isSuccess, onClose]);
+  }, [isSuccess, onClose, refetch]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>

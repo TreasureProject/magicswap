@@ -18,12 +18,13 @@ const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
     enabled: !!accountData?.address,
   });
 
-  const { write: writeApprove } = useContractWrite(
+  const { write: writeApprove, isLoading } = useContractWrite(
     `Approve ${tokenSymbol}`,
     contractConfig,
     "approve"
   );
   return {
+    isLoading,
     isApproved: allowance
       ? parseFloat(utils.formatEther(allowance)) > 0
       : false,
