@@ -25,6 +25,7 @@ import {
   configureChains,
   connectorsForWallets,
   darkTheme,
+  getDefaultWallets,
   RainbowKitProvider,
   wallet,
 } from "@rainbow-me/rainbowkit";
@@ -195,23 +196,25 @@ export default function App() {
     [ENV.ENABLE_TESTNETS, ENV.ALCHEMY_KEY]
   );
 
+  const { wallets } = React.useMemo(
+    () =>
+      getDefaultWallets({
+        appName: "Magicswap",
+        chains,
+      }),
+    [chains]
+  );
+
   const connectors = React.useMemo(
     () =>
       connectorsForWallets([
-        {
-          groupName: "Recommended",
-          wallets: [wallet.rainbow({ chains }), wallet.metaMask({ chains })],
-        },
+        ...wallets,
         {
           groupName: "Others",
-          wallets: [
-            wallet.walletConnect({ chains }),
-            wallet.trust({ chains }),
-            wallet.ledger({ chains }),
-          ],
+          wallets: [wallet.trust({ chains }), wallet.ledger({ chains })],
         },
       ]),
-    [chains]
+    [chains, wallets]
   );
 
   const client = React.useMemo(

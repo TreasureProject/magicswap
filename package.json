@@ -20,6 +20,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@ethersproject/constants": "^5.6.0",
     "@headlessui/react": "^1.6.1",
     "@heroicons/react": "^1.0.6",
@@ -51,7 +52,7 @@
     "remix-utils": "^3.0.0",
     "tiny-invariant": "^1.2.0",
     "use-local-storage-state": "^17.0.1",
-    "wagmi": "^0.3.3"
+    "wagmi": "^0.3.5"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^3.4.0",
