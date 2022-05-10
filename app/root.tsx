@@ -25,7 +25,6 @@ import {
   configureChains,
   connectorsForWallets,
   darkTheme,
-  getDefaultWallets,
   RainbowKitProvider,
   wallet,
 } from "@rainbow-me/rainbowkit";
