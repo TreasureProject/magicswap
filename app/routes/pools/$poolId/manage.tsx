@@ -126,16 +126,22 @@ const Liquidity = () => {
     isApproved: isToken0Approved,
     approve: approveToken0,
     isLoading: isLoadingToken0,
+    isSuccess: isSuccessToken0,
+    refetch: refetchToken0ApprovalStatus,
   } = useTokenApproval(pair.token0);
   const {
     isApproved: isToken1Approved,
     approve: approveToken1,
     isLoading: isLoadingToken1,
+    isSuccess: isSuccessToken1,
+    refetch: refetchToken1ApprovalStatus,
   } = useTokenApproval(pair.token1);
   const {
     isApproved: isLpApproved,
     approve: approveLp,
     isLoading: isLoadingLp,
+    isSuccess: isSuccessLp,
+    refetch: refetchLpApprovalStatus,
   } = usePairApproval(pair);
   const {
     addLiquidity,
@@ -157,6 +163,29 @@ const Liquidity = () => {
   const refetchAll = useCallback(async () => {
     Promise.all([refetchPair0(), refetchPair1(), refetchLp()]);
   }, [refetchLp, refetchPair0, refetchPair1]);
+
+  const refetchTokensApprovalStatus = useCallback(async () => {
+    Promise.all([
+      refetchToken0ApprovalStatus(),
+      refetchToken1ApprovalStatus(),
+      refetchLpApprovalStatus(),
+    ]);
+  }, [
+    refetchLpApprovalStatus,
+    refetchToken0ApprovalStatus,
+    refetchToken1ApprovalStatus,
+  ]);
+
+  useEffect(() => {
+    if (isSuccessToken0 || isSuccessToken1 || isSuccessLp) {
+      refetchTokensApprovalStatus();
+    }
+  }, [
+    isSuccessLp,
+    isSuccessToken0,
+    isSuccessToken1,
+    refetchTokensApprovalStatus,
+  ]);
 
   useEffect(() => {
     if (isAddSuccess || isRemoveSuccess) {

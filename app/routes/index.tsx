@@ -351,13 +351,25 @@ const ConfirmSwapModal = ({
 }) => {
   const { swap, isLoading, isSuccess } = useSwap();
   const { slippage } = useSettings();
-  const { isApproved, approve } = useTokenApproval(inputPairToken);
+  const {
+    isApproved,
+    approve,
+    isLoading: isApproveLoading,
+    isSuccess: isApproveSuccess,
+    refetch: refetchTokenApprovalStatus,
+  } = useTokenApproval(inputPairToken);
 
   const worstAmountIn =
     inputValues[0] * (isExactOut ? (100 + slippage) / 100 : 1);
 
   const worstAmountOut =
     inputValues[1] * (isExactOut ? 1 : (100 - slippage) / 100);
+
+  useEffect(() => {
+    if (isApproveSuccess) {
+      refetchTokenApprovalStatus();
+    }
+  }, [isApproveSuccess, refetchTokenApprovalStatus]);
 
   useEffect(() => {
     if (isSuccess) {
@@ -462,7 +474,7 @@ const ConfirmSwapModal = ({
             )}
           </div>
           <Button
-            disabled={isLoading}
+            disabled={isLoading || isApproveLoading}
             onClick={() => {
               if (!isApproved) {
                 approve();
@@ -481,6 +493,8 @@ const ConfirmSwapModal = ({
               ? isLoading
                 ? "Swapping..."
                 : "Confirm Swap"
+              : isApproveLoading
+              ? `Approving ${inputPairToken.symbol}...`
               : `Approve ${inputPairToken.symbol}`}
           </Button>
         </div>
