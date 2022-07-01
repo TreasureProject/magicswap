@@ -16,7 +16,7 @@ const renderStatusWithHeader = (message: string, headerMessage?: string) => {
   return (
     <>
       <p className="truncate text-sm font-medium text-white">{headerMessage}</p>
-      <p className="mt-1 text-sm text-gray-500">{message}</p>
+      <p className="mt-1 text-sm text-night-500">{message}</p>
     </>
   );
 };

@@ -26,16 +26,16 @@ export const PopoverContent = ({ children, className }: Props) => (
     <Popover.Panel
       // align="center"
       // sideOffset={5}
-      className={cn("bg-gray-900", className)}
+      className={cn("bg-night-900", className)}
     >
       {({ close }) => (
         <>
           {children}
           <button
-            className="absolute top-3.5 right-3.5 inline-flex items-center justify-center rounded-full p-1 focus:outline-none focus-visible:ring focus-visible:ring-red-500 focus-visible:ring-opacity-75"
+            className="absolute top-3.5 right-3.5 inline-flex items-center justify-center rounded-full p-1 focus:outline-none focus-visible:ring focus-visible:ring-ruby-500 focus-visible:ring-opacity-75"
             onClick={() => close()}
           >
-            <XIcon className="h-4 w-4 text-gray-500 hover:text-gray-400" />
+            <XIcon className="h-4 w-4 text-night-500 hover:text-night-400" />
           </button>
         </>
       )}

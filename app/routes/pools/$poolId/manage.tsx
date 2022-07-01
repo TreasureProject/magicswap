@@ -69,7 +69,7 @@ export default function Manage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-gray-700">
+      <div className="border-b border-night-700">
         <nav className="-mb-px flex" aria-label="Tabs">
           {tabs.map((tab) => {
             const isActive = tab.name === selectedTab.name;
@@ -79,8 +79,8 @@ export default function Manage() {
                 to={`/pools/${params.poolId}/manage?tab=${tab.query}`}
                 className={cn(
                   isActive
-                    ? "border-red-500 bg-gray-500/20 text-white"
-                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
+                    ? "border-ruby-500 bg-night-500/20 text-white"
+                    : "border-transparent text-night-500 hover:border-night-300 hover:text-night-700",
                   "flex-1 whitespace-nowrap border-t-2 py-3 px-4 text-center text-xs font-medium sm:flex-none sm:py-4 sm:px-8 sm:text-left sm:text-sm"
                 )}
                 aria-current={isActive ? "page" : undefined}
@@ -235,7 +235,7 @@ const Liquidity = () => {
           <div className="flex items-center space-x-2">
             <span
               className={cn(
-                isAddLiquidity && "text-gray-500",
+                isAddLiquidity && "text-night-500",
                 "text-[0.6rem] font-bold uppercase sm:text-base"
               )}
             >
@@ -244,19 +244,19 @@ const Liquidity = () => {
             <Switch
               checked={isAddLiquidity}
               onChange={setIsAddLiquidity}
-              className="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              className="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full ring-offset-night-800 focus:outline-none focus:ring-2 focus:ring-ruby-500 focus:ring-offset-2"
             >
               <span className="sr-only">
                 {isAddLiquidity ? "Remove Liquidity" : "Add Liquidity"}
               </span>
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute h-full w-full rounded-md bg-gray-800"
+                className="pointer-events-none absolute h-full w-full rounded-md bg-night-900"
               />
               <span
                 aria-hidden="true"
                 className={cn(
-                  isAddLiquidity ? "bg-[#E5003E]" : "bg-gray-200",
+                  isAddLiquidity ? "bg-ruby-900" : "bg-night-200",
                   "pointer-events-none absolute mx-auto h-2.5 w-8 rounded-full transition-colors duration-200 ease-in-out"
                 )}
               />
@@ -264,13 +264,13 @@ const Liquidity = () => {
                 aria-hidden="true"
                 className={cn(
                   isAddLiquidity ? "translate-x-5" : "translate-x-0",
-                  "pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full border border-[#FF4E7E] bg-[#FF4E7E] shadow ring-0 transition-transform duration-200 ease-in-out"
+                  "pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full border border-ruby-700 bg-ruby-700 shadow ring-0 transition-transform duration-200 ease-in-out"
                 )}
               />
             </Switch>
             <span
               className={cn(
-                !isAddLiquidity && "text-gray-500",
+                !isAddLiquidity && "text-night-500",
                 "text-[0.6rem] font-bold uppercase sm:text-base"
               )}
             >
@@ -280,7 +280,7 @@ const Liquidity = () => {
           <Popover className="relative">
             <PopoverTrigger className="group">
               <CogIcon
-                className="h-6 w-6 text-gray-200/50 group-hover:text-white"
+                className="h-6 w-6 text-night-200/50 group-hover:text-white"
                 aria-hidden="true"
               />
               <span className="sr-only">Open adjustment settings</span>
@@ -301,7 +301,7 @@ const Liquidity = () => {
               onChange={handleAdd0InputChanged}
             />
             <div className="flex justify-center">
-              <PlusIcon className="h-4 w-4 text-gray-400" />
+              <PlusIcon className="h-4 w-4 text-night-400" />
             </div>
             <TokenInput
               id="addLiquidityToken1"
@@ -312,8 +312,8 @@ const Liquidity = () => {
               onChange={handleAdd1InputChanged}
             />
             {addInputValues.some((value) => value > 0) && (
-              <div className="space-y-2 rounded-md bg-gray-900 p-4">
-                <p className="text-xs text-gray-600 sm:text-base">
+              <div className="space-y-2 rounded-md bg-night-900 p-4">
+                <p className="text-xs text-night-600 sm:text-base">
                   You'll receive (at least):
                 </p>
                 <p className="text-sm font-medium sm:text-lg">
@@ -342,8 +342,8 @@ const Liquidity = () => {
               onChange={(value) => setRemoveInputValue(value)}
             />
             {removeInputValue > 0 && (
-              <div className="space-y-2 rounded-md bg-gray-900 p-4">
-                <p className="text-xs text-gray-600 sm:text-base">
+              <div className="space-y-2 rounded-md bg-night-900 p-4">
+                <p className="text-xs text-night-600 sm:text-base">
                   You'll receive (at least):
                 </p>
                 <div className="flex items-center justify-between">
@@ -351,7 +351,7 @@ const Liquidity = () => {
                     {formatNumber(removeLiquidityToken0Estimate)}{" "}
                     {pair.token0.symbol}
                   </span>
-                  <span className="text-gray-200">
+                  <span className="text-night-200">
                     ≈{" "}
                     {formatUsd(
                       removeLiquidityToken0Estimate * pair.token0.priceUsd
@@ -363,7 +363,7 @@ const Liquidity = () => {
                     {formatNumber(removeLiquidityToken1Estimate)}{" "}
                     {pair.token1.symbol}
                   </span>
-                  <span className="text-gray-200">
+                  <span className="text-night-200">
                     ={" "}
                     {formatUsd(
                       removeLiquidityToken1Estimate * pair.token1.priceUsd
@@ -481,7 +481,7 @@ const Stake = () => {
         <div className="flex items-center space-x-2">
           <span
             className={cn(
-              isStake && "text-gray-500",
+              isStake && "text-night-500",
               "text-[0.6rem] font-bold uppercase sm:text-base"
             )}
           >
@@ -490,19 +490,19 @@ const Stake = () => {
           <Switch
             checked={isStake}
             onChange={setIsStake}
-            className="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            className="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full ring-offset-night-800 focus:outline-none focus:ring-2 focus:ring-ruby-500 focus:ring-offset-2"
           >
             <span className="sr-only">
               {isStake ? "Remove Liquidity" : "Add Liquidity"}
             </span>
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute h-full w-full rounded-md bg-gray-800"
+              className="pointer-events-none absolute h-full w-full rounded-md bg-night-800"
             />
             <span
               aria-hidden="true"
               className={cn(
-                isStake ? "bg-[#E5003E]" : "bg-gray-200",
+                isStake ? "bg-ruby-900" : "bg-night-200",
                 "pointer-events-none absolute mx-auto h-2.5 w-8 rounded-full transition-colors duration-200 ease-in-out"
               )}
             />
@@ -516,7 +516,7 @@ const Stake = () => {
           </Switch>
           <span
             className={cn(
-              !isStake && "text-gray-500",
+              !isStake && "text-night-500",
               "text-[0.6rem] font-bold uppercase sm:text-base"
             )}
           >
@@ -524,16 +524,16 @@ const Stake = () => {
           </span>
         </div>
         <div className="flex justify-around space-x-3 sm:block">
-          <button className="rounded-md bg-gray-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-xs">
+          <button className="rounded-md bg-night-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-night-800 focus:outline-none focus:ring-2 focus:ring-night-500 focus:ring-offset-2 sm:text-xs">
             25%
           </button>
-          <button className="rounded-md bg-gray-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-xs">
+          <button className="rounded-md bg-night-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-night-800 focus:outline-none focus:ring-2 focus:ring-night-500 focus:ring-offset-2 sm:text-xs">
             50%
           </button>
-          <button className="rounded-md bg-gray-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-xs">
+          <button className="rounded-md bg-night-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-night-800 focus:outline-none focus:ring-2 focus:ring-night-500 focus:ring-offset-2 sm:text-xs">
             75%
           </button>
-          <button className="rounded-md bg-gray-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-xs">
+          <button className="rounded-md bg-night-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-night-800 focus:outline-none focus:ring-2 focus:ring-night-500 focus:ring-offset-2 sm:text-xs">
             100%
           </button>
         </div>
@@ -560,7 +560,7 @@ export function CatchBoundary() {
   if (caught.status === 404) {
     return (
       <div className="flex h-full flex-col items-center justify-center">
-        <p className="text-[0.6rem] text-gray-500 sm:text-base">
+        <p className="text-[0.6rem] text-night-500 sm:text-base">
           {params.poolId} not found.
         </p>
       </div>

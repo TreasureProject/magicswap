@@ -64,7 +64,7 @@ export default function Analytics() {
   const { poolId } = useParams();
 
   const { load, data: fetchedData } = useFetcher<LoaderData>();
-  const { activeChain } = useNetwork();
+  const { chain: activeChain } = useNetwork();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -81,13 +81,13 @@ export default function Analytics() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex flex-col divide-y divide-gray-700 sm:flex-row sm:divide-y-0 sm:divide-x">
+      <div className="flex flex-col divide-y divide-night-700 sm:flex-row sm:divide-y-0 sm:divide-x">
         <div className="flex-1 p-4">
           <div className="flex justify-between">
-            <p className="col-span-4 text-[0.6rem] text-gray-500 sm:text-xs">
+            <p className="col-span-4 text-[0.6rem] text-night-500 sm:text-xs">
               {pair.name}
             </p>
-            <p className="col-span-2 text-[0.6rem] text-gray-500 sm:text-xs">
+            <p className="col-span-2 text-[0.6rem] text-night-500 sm:text-xs">
               {new Date().toLocaleDateString(undefined, {
                 month: "short",
                 day: "numeric",
@@ -113,10 +113,10 @@ export default function Analytics() {
         </div>
         <div className="flex-1 p-4">
           <div className="flex justify-between">
-            <p className="col-span-4 text-[0.6rem] text-gray-500 sm:text-xs">
+            <p className="col-span-4 text-[0.6rem] text-night-500 sm:text-xs">
               {pair.name}
             </p>
-            <p className="col-span-2 text-[0.6rem] text-gray-500 sm:text-xs">
+            <p className="col-span-2 text-[0.6rem] text-night-500 sm:text-xs">
               Past 24h
             </p>
           </div>
@@ -137,37 +137,37 @@ export default function Analytics() {
           </div>
         </div>
       </div>
-      <div className="max-h-96 flex-1 overflow-auto border-t border-gray-700 sm:-mx-6 md:mx-0 xl:max-h-full">
-        <table className="min-w-full divide-y divide-gray-700">
-          <thead className="sticky top-0 z-10 bg-[#1C1C24]">
+      <div className="max-h-96 flex-1 overflow-auto border-t border-night-700 sm:-mx-6 md:mx-0 xl:max-h-full">
+        <table className="min-w-full divide-y divide-night-700">
+          <thead className="sticky top-0 z-10 bg-[#131D2E]">
             <tr>
               <th
                 scope="col"
-                className="py-3.5 pl-4 pr-3 text-left text-[0.6rem] font-semibold text-gray-400 sm:pl-6 sm:text-xs"
+                className="py-3.5 pl-4 pr-3 text-left text-[0.6rem] font-semibold text-night-400 sm:pl-6 sm:text-xs"
               >
                 Swap
               </th>
               <th
                 scope="col"
-                className="table-cell px-2 py-2.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:text-xs md:px-3 md:py-3.5"
+                className="table-cell px-2 py-2.5 text-left text-[0.6rem] font-semibold text-night-400 sm:text-xs md:px-3 md:py-3.5"
               >
                 Amount
               </th>
               <th
                 scope="col"
-                className="hidden px-2 py-2.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:table-cell sm:text-xs md:px-3 md:py-3.5"
+                className="hidden px-2 py-2.5 text-left text-[0.6rem] font-semibold text-night-400 sm:table-cell sm:text-xs md:px-3 md:py-3.5"
               >
                 In
               </th>
               <th
                 scope="col"
-                className="hidden px-2 py-2.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:table-cell sm:text-xs md:px-3 md:py-3.5"
+                className="hidden px-2 py-2.5 text-left text-[0.6rem] font-semibold text-night-400 sm:table-cell sm:text-xs md:px-3 md:py-3.5"
               >
                 Out
               </th>
               <th
                 scope="col"
-                className="px-2 py-2.5 text-left text-[0.6rem] font-semibold text-gray-400 sm:text-xs md:px-3 md:py-3.5"
+                className="px-2 py-2.5 text-left text-[0.6rem] font-semibold text-night-400 sm:text-xs md:px-3 md:py-3.5"
               >
                 Date
               </th>
@@ -186,7 +186,7 @@ export default function Analytics() {
                       }
                       enumValue={data.randomNumber}
                     />
-                    <ArrowRightIcon className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
+                    <ArrowRightIcon className="h-3.5 w-3.5 flex-shrink-0 text-night-400" />
                     <Pill
                       text={
                         swap.isAmount0Out
@@ -197,17 +197,17 @@ export default function Analytics() {
                     />
                   </div>
                 </td>
-                <td className="table-cell whitespace-nowrap px-2 py-2.5 text-[0.6rem] font-semibold text-gray-200 sm:text-sm md:px-3 md:py-2.5">
+                <td className="table-cell whitespace-nowrap px-2 py-2.5 text-[0.6rem] font-semibold text-night-200 sm:text-sm md:px-3 md:py-2.5">
                   {formatUsd(swap.amountUsd)}
                 </td>
-                <td className="hidden whitespace-nowrap px-2 py-2.5 text-sm text-gray-400 sm:table-cell md:px-3 md:py-2.5">
+                <td className="hidden whitespace-nowrap px-2 py-2.5 text-sm text-night-400 sm:table-cell md:px-3 md:py-2.5">
                   {formatNumber(swap.inAmount)}
                 </td>
-                <td className="hidden whitespace-nowrap px-2 py-2.5 text-sm text-gray-400 sm:table-cell md:px-3 md:py-2.5">
+                <td className="hidden whitespace-nowrap px-2 py-2.5 text-sm text-night-400 sm:table-cell md:px-3 md:py-2.5">
                   {formatNumber(swap.outAmount)}
                 </td>
                 <td
-                  className="whitespace-nowrap px-2 py-2.5 text-[0.6rem] text-gray-500 sm:text-sm md:px-3 md:py-2.5"
+                  className="whitespace-nowrap px-2 py-2.5 text-[0.6rem] text-night-500 sm:text-sm md:px-3 md:py-2.5"
                   title={new Date(swap.date * 1000).toLocaleString()}
                 >
                   <a
@@ -240,7 +240,7 @@ export function CatchBoundary() {
   if (caught.status === 404) {
     return (
       <div className="flex h-full flex-col items-center justify-center">
-        <p className="text-[0.6rem] text-gray-500 sm:text-base">
+        <p className="text-[0.6rem] text-night-500 sm:text-base">
           {params.poolId} not found.
         </p>
       </div>

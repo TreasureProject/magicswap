@@ -103,13 +103,13 @@ export default function Pools() {
             leaveFrom="translate-x-0"
             leaveTo="translate-x-full"
           >
-            <div className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-[#20232d] pt-4 shadow-xl">
+            <div className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto border border-night-800 bg-night-900 pt-4 shadow-xl">
               <div className="flex items-center justify-between px-4">
-                <h2 className="text-lg font-medium text-gray-200">
+                <h2 className="text-lg font-medium text-night-200">
                   Choose Pool
                 </h2>
                 <button
-                  className="-mr-2 flex h-10 w-10 items-center justify-center p-2 text-gray-400 hover:text-gray-500"
+                  className="-mr-2 flex h-10 w-10 items-center justify-center p-2 text-night-400 hover:text-night-500"
                   onClick={() => setMobileFiltersOpen(false)}
                 >
                   <span className="sr-only">Close menu</span>
@@ -127,15 +127,15 @@ export default function Pools() {
                       name="liquidity-pools"
                       id="liquidity-pools"
                       onChange={handleChange}
-                      className="block w-full rounded-md border-gray-700 bg-[#1C1C24] pr-10 text-sm focus:border-gray-500 focus:ring-gray-500"
+                      className="block w-full rounded-md border-night-700 bg-night-900 pr-10 text-sm focus:border-night-500 focus:ring-night-500"
                       placeholder="Search for liquidity pools"
                     />
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                       {isLoading ? (
-                        <SpinnerIcon className="h-5 w-5 animate-spin fill-gray-900 text-gray-700" />
+                        <SpinnerIcon className="h-5 w-5 animate-spin fill-night-900 text-night-700" />
                       ) : (
                         <SearchIcon
-                          className="h-5 w-5 text-gray-700"
+                          className="h-5 w-5 text-night-700"
                           aria-hidden="true"
                         />
                       )}
@@ -144,7 +144,7 @@ export default function Pools() {
                 </fetcher.Form>
               </div>
               <div className="mt-4 flex min-h-0 flex-1 flex-col">
-                <div className="sticky top-0 z-10 flex justify-between border-b-[0.5px] border-gray-600 px-6 py-2 text-sm font-medium text-gray-500">
+                <div className="sticky top-0 z-10 flex justify-between border-b-[0.5px] border-night-600 px-6 py-2 text-sm font-medium text-night-500">
                   <h3>Pools</h3>
                   <h3>APY</h3>
                 </div>
@@ -175,15 +175,15 @@ export default function Pools() {
                 <li key={tab.name}>
                   <div className="flex items-center">
                     {notFirstTab && (
-                      <SlashIcon className="h-10 w-10 flex-shrink-0 text-gray-400" />
+                      <SlashIcon className="h-10 w-10 flex-shrink-0 text-night-400" />
                     )}
                     <Link
                       to={`/pools/${poolId}/${tab.href}`}
                       prefetch="intent"
                       className={cn(
                         isActive
-                          ? "border-red-500 text-white"
-                          : "border-transparent text-gray-500 hover:border-gray-600 hover:text-gray-700",
+                          ? "border-ruby-900 text-white"
+                          : "border-transparent text-night-500 hover:border-night-600 hover:text-night-700",
                         notFirstTab && "ml-4",
                         "border-b-2 py-2 text-base font-medium sm:text-xl"
                       )}
@@ -197,7 +197,7 @@ export default function Pools() {
           </ol>
         ) : null}
         <div className="relative col-span-6 mt-4 block xl:hidden">
-          <div className="group block rounded-md bg-[#20232d] p-4 focus-within:ring-2 focus-within:ring-red-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
+          <div className="group block rounded-md border border-night-800 bg-night-900 p-4 focus-within:ring-2 focus-within:ring-ruby-500 focus-within:ring-offset-2 focus-within:ring-offset-night-100">
             {selectedPool ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
@@ -242,7 +242,7 @@ export default function Pools() {
         </div>
       </div>
       <div className="mt-2 grid flex-1 grid-cols-6 gap-x-4">
-        <div className="hidden h-[calc(100vh-256px)] flex-col overflow-hidden rounded-md bg-[#20232d] xl:col-span-2 xl:flex">
+        <div className="hidden h-[calc(100vh-256px)] flex-col overflow-hidden rounded-md border border-night-800 bg-night-900 xl:col-span-2 xl:flex">
           <div className="p-6">
             <fetcher.Form>
               <label htmlFor="liquidity-pools" className="sr-only">
@@ -254,15 +254,15 @@ export default function Pools() {
                   name="liquidity-pools"
                   id="liquidity-pools"
                   onChange={handleChange}
-                  className="block w-full rounded-md border-gray-700 bg-[#1C1C24] pr-10 focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
+                  className="block w-full rounded-md border-night-700 bg-night-900 pr-10 focus:border-night-500 focus:ring-night-500 sm:text-sm"
                   placeholder="Search for liquidity pools"
                 />
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                   {isLoading ? (
-                    <SpinnerIcon className="h-5 w-5 animate-spin fill-gray-900 text-gray-700" />
+                    <SpinnerIcon className="h-5 w-5 animate-spin fill-night-900 text-night-700" />
                   ) : (
                     <SearchIcon
-                      className="h-5 w-5 text-gray-700"
+                      className="h-5 w-5 text-night-700"
                       aria-hidden="true"
                     />
                   )}
@@ -271,7 +271,7 @@ export default function Pools() {
             </fetcher.Form>
           </div>
           <div className="flex min-h-0 flex-1 flex-col">
-            <div className="sticky top-0 z-10 flex justify-between border-b-[0.5px] border-gray-600 px-6 pb-2 text-sm font-medium text-gray-500">
+            <div className="sticky top-0 z-10 flex justify-between border-b-[0.5px] border-night-600 px-6 pb-2 text-sm font-medium text-night-500">
               <h3>Pools</h3>
               <h3>APY</h3>
             </div>
@@ -289,7 +289,7 @@ export default function Pools() {
             lastPath === "analytics"
               ? "xl:h-[calc(100vh-256px)]"
               : "xl:min-h-[calc(100vh-256px)]",
-            "col-span-6 overflow-hidden rounded-md bg-[#20232d] xl:col-span-4"
+            "col-span-6 overflow-hidden rounded-md border border-night-800 bg-night-900 xl:col-span-4"
           )}
         >
           <Outlet />
@@ -311,8 +311,8 @@ const PoolLink = ({ pair, lastPath }: { pair: Pair; lastPath: string }) => {
       >
         <div
           className={cn("group flex items-center border-l-2 px-6 py-5", {
-            "border-red-600 bg-red-500/10 text-red-600": isActive,
-            "border-transparent hover:border-gray-300": !isActive,
+            "border-ruby-900 bg-ruby-500/10 text-ruby-600": isActive,
+            "border-transparent hover:border-ruby-300": !isActive,
           })}
         >
           <div className="flex w-full items-center justify-between">
@@ -333,8 +333,8 @@ const PoolLink = ({ pair, lastPath }: { pair: Pair; lastPath: string }) => {
               </div>
               <p
                 className={cn("text-sm font-medium", {
-                  "text-red-500": isActive,
-                  "text-gray-400 group-hover:text-gray-200": !isActive,
+                  "text-ruby-500": isActive,
+                  "text-night-400 group-hover:text-night-200": !isActive,
                 })}
               >
                 {pair.name}
@@ -342,7 +342,7 @@ const PoolLink = ({ pair, lastPath }: { pair: Pair; lastPath: string }) => {
             </div>
             <p
               className={cn("font-bold", {
-                "text-red-500": isActive,
+                "text-ruby-500": isActive,
               })}
             >
               {formatPercent(pair.apy)}
