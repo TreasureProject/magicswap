@@ -187,16 +187,16 @@ export default function Index() {
         <h2 className="mt-4 text-sm font-bold sm:text-lg">
           Swap {inputPairToken.symbol} to {outputPairToken.symbol}
         </h2>
-        <p className="text-xs text-gray-500 sm:text-base">
+        <p className="text-xs text-night-500 sm:text-base">
           The easiest way to swap your tokens
         </p>
-        <div className="mt-8 w-full rounded-xl bg-gray-700/10 p-4 shadow-glass backdrop-blur-md">
+        <div className="mt-8 w-full rounded-xl bg-night-700/10 p-4 shadow-glass backdrop-blur-md">
           <div className="flex justify-end">
             <div className="relative inline-block text-left">
               <Popover className="relative">
                 <PopoverTrigger className="group">
                   <CogIcon
-                    className="h-6 w-6 text-gray-200/50 group-hover:text-white"
+                    className="h-6 w-6 text-night-200/50 group-hover:text-white"
                     aria-hidden="true"
                   />
                   <span className="sr-only">Open adjustment settings</span>
@@ -214,14 +214,14 @@ export default function Index() {
                         <span className="flex flex-grow flex-col">
                           <Switch.Label
                             as="span"
-                            className="text-sm text-gray-200"
+                            className="text-sm text-night-200"
                             passive
                           >
                             Show price graph
                           </Switch.Label>
                           <Switch.Description
                             as="span"
-                            className="text-[0.6rem] text-gray-500"
+                            className="text-[0.6rem] text-night-500"
                           >
                             Show a graph of the token price over time
                           </Switch.Description>
@@ -230,8 +230,8 @@ export default function Index() {
                           checked={showGraph}
                           onChange={setShowGraph}
                           className={cn(
-                            showGraph ? "bg-[#E5003E]" : "bg-gray-400",
-                            "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                            showGraph ? "bg-ruby-900" : "bg-night-400",
+                            "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-ruby-500 focus:ring-offset-2"
                           )}
                         >
                           <span
@@ -269,10 +269,10 @@ export default function Index() {
             <div className="flex basis-24 items-center justify-center xl:basis-32">
               <Link
                 to={`/?input=${outputPairToken.symbol}&output=${inputPairToken.symbol}`}
-                className="group rounded-full p-2 transition duration-300 ease-in-out hover:bg-gray-500/20"
+                className="group rounded-full p-2 transition duration-300 ease-in-out hover:bg-night-500/20"
               >
-                <ArrowRightIcon className="hidden h-6 w-6 animate-rotate-back text-gray-500 group-hover:animate-rotate-180 xl:block" />
-                <ArrowDownIcon className="block h-6 w-6 animate-rotate-back text-gray-500 group-hover:animate-rotate-180 xl:hidden" />
+                <ArrowRightIcon className="hidden h-6 w-6 animate-rotate-back text-night-500 group-hover:animate-rotate-180 xl:block" />
+                <ArrowDownIcon className="block h-6 w-6 animate-rotate-back text-night-500 group-hover:animate-rotate-180 xl:hidden" />
               </Link>
             </div>
             <PairTokenInput
@@ -383,12 +383,12 @@ const ConfirmSwapModal = ({
       <div>
         <Dialog.Title
           as="h3"
-          className="text-lg font-medium leading-6 text-gray-200"
+          className="text-lg font-medium leading-6 text-night-200"
         >
           Confirm Swap
         </Dialog.Title>
         <div className="mt-4 mb-4 flex flex-col items-center">
-          <div className="flex w-full justify-between rounded-md bg-gray-900 p-4">
+          <div className="flex w-full justify-between rounded-md bg-night-900 p-4">
             <span className="truncate text-lg font-medium tracking-wide">
               {formatNumber(inputValues[0])}
             </span>
@@ -403,10 +403,10 @@ const ConfirmSwapModal = ({
               </span>
             </div>
           </div>
-          <div className="z-10 -my-3 rounded-full border border-gray-900 bg-gray-800 p-1">
-            <ArrowDownIcon className="h-6 w-6 text-gray-500" />
+          <div className="z-10 -my-3 rounded-full border border-night-900 bg-night-800 p-1">
+            <ArrowDownIcon className="h-6 w-6 text-night-500" />
           </div>
-          <div className="flex w-full justify-between rounded-md bg-gray-900 p-4">
+          <div className="flex w-full justify-between rounded-md bg-night-900 p-4">
             <span className="text-lg font-medium tracking-wide">
               {formatNumber(inputValues[1])}
             </span>
@@ -423,51 +423,55 @@ const ConfirmSwapModal = ({
             </div>
           </div>
         </div>
-        <dl className="space-y-1.5 border-t border-gray-700">
+        <dl className="space-y-1.5 border-t border-night-700">
           <div className="mt-4 flex justify-between">
-            <dt className="text-xs text-gray-400">Price Impact</dt>
-            <dt className="text-xs text-gray-200">
+            <dt className="text-xs text-night-400">Price Impact</dt>
+            <dt className="text-xs text-night-200">
               {formatPercent(priceImpact)}
             </dt>
           </div>
           <div className="flex justify-between">
-            <dt className="text-xs text-gray-500">Slippage Tolerance</dt>
-            <dt className="text-xs text-gray-500">{formatPercent(slippage)}</dt>
+            <dt className="text-xs text-night-500">Slippage Tolerance</dt>
+            <dt className="text-xs text-night-500">
+              {formatPercent(slippage)}
+            </dt>
           </div>
           <div className="flex justify-between">
-            <dt className="text-xs text-gray-500">Liquidity Provider Fee</dt>
-            <dt className="text-xs text-gray-500">
+            <dt className="text-xs text-night-500">Liquidity Provider Fee</dt>
+            <dt className="text-xs text-night-500">
               {formatPercent(LIQUIDITY_PROVIDER_FEE)}
             </dt>
           </div>
         </dl>
-        <div className="mt-4 border-t border-gray-700">
+        <div className="mt-4 border-t border-night-700">
           <div className="my-4 space-y-1">
             {isExactOut ? (
               <>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-night-400">
                   Input is estimated. You will sell at most:
                 </p>
                 <p className="text-sm">
                   {formatNumber(worstAmountIn)}{" "}
-                  <span className="text-gray-300">{inputPairToken.symbol}</span>
+                  <span className="text-night-300">
+                    {inputPairToken.symbol}
+                  </span>
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-night-400">
                   or the transaction will revert.
                 </p>
               </>
             ) : (
               <>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-night-400">
                   Output is estimated. You will receieve at least:
                 </p>
                 <p className="text-sm">
                   {formatNumber(worstAmountOut)}{" "}
-                  <span className="text-gray-300">
+                  <span className="text-night-300">
                     {outputPairToken.symbol}
                   </span>
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-night-400">
                   or the transaction will revert.
                 </p>
               </>
@@ -539,12 +543,12 @@ const TokenSelectionModal = ({
       <div>
         <Dialog.Title
           as="h3"
-          className="text-lg font-medium leading-6 text-gray-200"
+          className="text-lg font-medium leading-6 text-night-200"
         >
           Select a Token
         </Dialog.Title>
         <div className="mt-2">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-night-500">
             Select a token to replace with {currentToken.symbol}.
           </p>
         </div>
@@ -559,18 +563,18 @@ const TokenSelectionModal = ({
               id="search-token"
               onChange={(e) => setSearchString(e.currentTarget.value)}
               value={searchString}
-              className="block w-full rounded-md border-gray-700 bg-gray-900 pr-10 focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
+              className="block w-full rounded-md border-night-700 bg-night-900 pr-10 focus:border-night-500 focus:ring-night-500 sm:text-sm"
               placeholder="Search token"
             />
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
               <SearchIcon
-                className="h-5 w-5 text-gray-700"
+                className="h-5 w-5 text-night-700"
                 aria-hidden="true"
               />
             </div>
           </div>
         </div>
-        <ul className="mt-2 h-80 overflow-auto rounded-md border border-gray-700 bg-gray-900">
+        <ul className="mt-2 h-80 overflow-auto rounded-md border border-night-700 bg-night-900">
           {filteredTokens.map((token) => {
             const isDisabled =
               token.id === currentToken.id || token.id === otherToken.id;
@@ -580,8 +584,8 @@ const TokenSelectionModal = ({
                   className={cn(
                     isDisabled
                       ? "pointer-events-none opacity-20"
-                      : "hover:bg-gray-700/40",
-                    "relative flex items-center space-x-3 px-6 py-5 transition duration-150 ease-in-out focus-within:ring-2 focus-within:ring-inset focus-within:ring-red-500"
+                      : "hover:bg-night-800/40",
+                    "relative flex items-center space-x-3 px-6 py-5 transition duration-150 ease-in-out focus-within:ring-2 focus-within:ring-inset focus-within:ring-ruby-500"
                   )}
                 >
                   <div className="flex-shrink-0">
@@ -594,10 +598,10 @@ const TokenSelectionModal = ({
                   <div className="min-w-0 flex-1">
                     {isDisabled ? (
                       <div>
-                        <p className="text-xs font-medium text-gray-500">
+                        <p className="text-xs font-medium text-night-500">
                           {token.name}
                         </p>
-                        <p className="truncate text-sm text-gray-200">
+                        <p className="truncate text-sm text-night-200">
                           {token.symbol}
                         </p>
                       </div>
@@ -614,10 +618,10 @@ const TokenSelectionModal = ({
                           className="absolute inset-0"
                           aria-hidden="true"
                         ></span>
-                        <p className="text-xs font-medium text-gray-500">
+                        <p className="text-xs font-medium text-night-500">
                           {token.name}
                         </p>
-                        <p className="truncate text-sm text-gray-200">
+                        <p className="truncate text-sm text-night-200">
                           {token.symbol}
                         </p>
                       </Link>
@@ -638,7 +642,7 @@ export function CatchBoundary() {
   if (caught.status === 404) {
     return (
       <div className="flex h-full flex-col items-center justify-center">
-        <p className="text-[0.6rem] text-gray-500 sm:text-base">
+        <p className="text-[0.6rem] text-night-500 sm:text-base">
           {caught.data}
         </p>
       </div>

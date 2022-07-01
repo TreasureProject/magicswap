@@ -31,9 +31,9 @@ export const NumberField = ({
             ref={inputRef}
             className={cn(
               sanitizedValue > 49
-                ? "focus:border-red-500 focus:ring-red-500"
-                : "focus:border-gray-500 focus:ring-gray-500",
-              "block w-full rounded-md bg-gray-800/60 text-sm focus:border-gray-500"
+                ? "focus:border-ruby-500 focus:ring-ruby-500"
+                : "focus:border-night-500 focus:ring-night-500",
+              "block w-full rounded-md bg-night-800/60 text-sm focus:border-night-500"
             )}
             placeholder={props.placeholder}
           />
@@ -41,7 +41,7 @@ export const NumberField = ({
         </div>
       </div>
       {props.errorMessage && errorCondition(sanitizedValue) ? (
-        <p className="mt-2 text-sm text-red-600">{props.errorMessage}</p>
+        <p className="mt-2 text-sm text-ruby-600">{props.errorMessage}</p>
       ) : null}
     </>
   );
