@@ -37,7 +37,7 @@ import { PieIcon, SpinnerIcon, SplitIcon, AMMIcon } from "./components/Icons";
 import NProgress from "nprogress";
 import nProgressStyles from "./styles/nprogress.css";
 import fontStyles from "./styles/font.css";
-import { Wallet } from "./components/Wallet";
+import { Wallet, WalletButton } from "./components/Wallet";
 import { getEnvVariable } from "./utils/env";
 
 import { getTokensImageAddress } from "./utils/tokens.server";
@@ -202,28 +202,28 @@ export default function App() {
             chains={chains}
             theme={darkTheme({
               fontStack: "system",
-              accentColor: "#ef4444",
+              accentColor: "#DC2626",
               borderRadius: "medium",
             })}
           >
             <UserProvider>
               <PriceProvider>
                 <SettingsProvider>
-                  <div className="z-10 flex h-16 items-center justify-center border-b border-night-800 px-8">
-                    <div className="relative m-auto flex max-w-3xl flex-1 items-center justify-between xl:max-w-6xl xl:justify-center 2xl:max-w-7xl">
-                      <AMMIcon className="h-8 w-8" />
+                  <div className="z-10 flex h-20 items-center justify-center px-8">
+                    <div className="relative m-auto flex flex-1 items-center justify-between xl:max-w-6xl xl:justify-center 2xl:max-w-7xl">
+                      <AMMIcon className="h-8 w-8 sm:h-10 sm:w-10" />
                       <div className="inset-y-0 right-5 flex items-center justify-center sm:absolute">
-                        <Wallet />
+                        <WalletButton />
                       </div>
                     </div>
                   </div>
                   <div className="relative overflow-hidden">
-                    <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] max-w-3xl flex-col p-8 xl:max-w-6xl 2xl:max-w-7xl">
+                    <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] flex-col p-8 xl:max-w-6xl 2xl:max-w-7xl">
                       <Outlet />
                     </div>
                     <header className="fixed left-0 right-0 bottom-[4.5rem] z-10 px-2 sm:bottom-24">
                       <div className="relative">
-                        <div className="absolute left-1/2 z-10 w-full max-w-lg -translate-x-1/2 transform rounded-xl bg-night-900/40 p-2 shadow-2xl shadow-night-800/30 backdrop-blur-md 2xl:max-w-2xl">
+                        <div className="absolute left-1/2 z-10 w-full max-w-lg -translate-x-1/2 transform rounded-xl bg-night-800/40 p-2 shadow-2xl shadow-night-800/30 backdrop-blur-md 2xl:max-w-2xl">
                           <nav className="flex gap-1">
                             <NavLink to="/">Swap</NavLink>
                             <NavLink to="pools">Pool</NavLink>
