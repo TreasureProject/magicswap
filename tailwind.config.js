@@ -12,6 +12,13 @@ module.exports = {
         sans: ["Whyte", ...defaultTheme.fontFamily.sans],
         mono: ["GroteskSemi", ...defaultTheme.fontFamily.mono],
       },
+      spacing: {
+        3.25: "0.775rem",
+        6.5: "1.65rem",
+      },
+      borderRadius: {
+        button: "0.9rem",
+      },
       colors: {
         night: {
           100: "#E7E8E9",

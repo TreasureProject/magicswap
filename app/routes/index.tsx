@@ -1,9 +1,9 @@
-import { StarIcon } from "~/components/Icons";
 import {
   ArrowRightIcon,
   ArrowDownIcon,
   SearchIcon,
 } from "@heroicons/react/solid";
+import magicLogo from "../images/magic-logomark.svg";
 import cn from "clsx";
 import { Button } from "~/components/Button";
 import { useCallback, useEffect } from "react";
@@ -183,7 +183,7 @@ export default function Index() {
   return (
     <>
       <div className="flex flex-col items-center">
-        <StarIcon className="h-5 w-5" />
+        <img src={magicLogo} className="h-5 w-5" alt="Magic Logo" />
         <h2 className="mt-4 text-sm font-bold sm:text-lg">
           Swap {inputPairToken.symbol} to {outputPairToken.symbol}
         </h2>

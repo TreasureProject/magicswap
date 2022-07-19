@@ -50,7 +50,7 @@ export default function TokenInput({
         <input
           id={id}
           type="text"
-          className="block w-full rounded-md border-0 bg-[#131D2E] pl-7 pb-6 text-right focus:outline-none focus:ring-2 focus:ring-ruby-600 sm:text-lg lg:text-2xl"
+          className="block w-full rounded-md border-0 bg-night-900 pl-7 pb-6 text-right focus:outline-none focus:ring-2 focus:ring-ruby-600 sm:text-lg lg:text-2xl"
           placeholder="0.00"
           value={inputValue}
           onChange={handleChange}

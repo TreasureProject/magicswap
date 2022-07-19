@@ -103,7 +103,7 @@ export default function Pools() {
             leaveFrom="translate-x-0"
             leaveTo="translate-x-full"
           >
-            <div className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto border border-night-800 bg-night-900 pt-4 shadow-xl">
+            <div className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto border border-night-800 bg-[#131D2E] pt-4 shadow-xl">
               <div className="flex items-center justify-between px-4">
                 <h2 className="text-lg font-medium text-night-200">
                   Choose Pool
@@ -197,7 +197,7 @@ export default function Pools() {
           </ol>
         ) : null}
         <div className="relative col-span-6 mt-4 block xl:hidden">
-          <div className="group block rounded-md border border-night-800 bg-night-900 p-4 focus-within:ring-2 focus-within:ring-ruby-500 focus-within:ring-offset-2 focus-within:ring-offset-night-100">
+          <div className="group block rounded-md border border-night-800 bg-[#131D2E] p-4 focus-within:ring-2 focus-within:ring-ruby-500 focus-within:ring-offset-2 focus-within:ring-offset-night-100">
             {selectedPool ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
@@ -242,7 +242,7 @@ export default function Pools() {
         </div>
       </div>
       <div className="mt-2 grid flex-1 grid-cols-6 gap-x-4">
-        <div className="hidden h-[calc(100vh-256px)] flex-col overflow-hidden rounded-md border border-night-800 bg-night-900 xl:col-span-2 xl:flex">
+        <div className="hidden h-[calc(100vh-256px)] flex-col overflow-hidden rounded-md border border-night-800 bg-[#131D2E] xl:col-span-2 xl:flex">
           <div className="p-6">
             <fetcher.Form>
               <label htmlFor="liquidity-pools" className="sr-only">
@@ -289,7 +289,7 @@ export default function Pools() {
             lastPath === "analytics"
               ? "xl:h-[calc(100vh-256px)]"
               : "xl:min-h-[calc(100vh-256px)]",
-            "col-span-6 overflow-hidden rounded-md border border-night-800 bg-night-900 xl:col-span-4"
+            "col-span-6 overflow-hidden rounded-md border border-night-800 bg-[#131D2E] xl:col-span-4"
           )}
         >
           <Outlet />
