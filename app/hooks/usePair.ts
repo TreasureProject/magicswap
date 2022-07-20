@@ -11,13 +11,11 @@ const usePairReserves = (
   token0Decimals = 18,
   token1Decimals = 18
 ) => {
-  const { data: pairData } = useContractRead(
-    {
-      addressOrName: id,
-      contractInterface: UniswapV2PairAbi,
-    },
-    "getReserves"
-  );
+  const { data: pairData } = useContractRead({
+    addressOrName: id,
+    contractInterface: UniswapV2PairAbi,
+    functionName: "getReserves",
+  });
 
   const reserves = {
     id,
