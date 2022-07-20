@@ -37,7 +37,7 @@ import { PieIcon, SpinnerIcon, SplitIcon, AMMIcon } from "./components/Icons";
 import NProgress from "nprogress";
 import nProgressStyles from "./styles/nprogress.css";
 import fontStyles from "./styles/font.css";
-import { Wallet, WalletButton } from "./components/Wallet";
+import { WalletButton } from "./components/Wallet";
 import { getEnvVariable } from "./utils/env";
 
 import { getTokensImageAddress } from "./utils/tokens.server";

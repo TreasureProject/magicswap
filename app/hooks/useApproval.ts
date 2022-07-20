@@ -13,20 +13,21 @@ const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
   };
 
   const { accountData } = useUser();
-  const { data: allowance, refetch } = useContractRead(
-    contractConfig,
-    "allowance",
-    {
-      args: [accountData?.address, getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS")],
-      enabled: !!accountData?.address,
-    }
-  );
+  const { data: allowance, refetch } = useContractRead({
+    ...contractConfig,
+    functionName: "allowance",
+    args: [accountData?.address, getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS")],
+    enabled: !!accountData?.address,
+  });
 
   const {
     write: writeApprove,
     isLoading,
     isSuccess,
-  } = useContractWrite(`Approve ${tokenSymbol}`, contractConfig, "approve");
+  } = useContractWrite(`Approve ${tokenSymbol}`, {
+    ...contractConfig,
+    functionName: "approve",
+  });
   return {
     refetch,
     isLoading,
