@@ -1,7 +1,7 @@
 import type { AdvancedToken } from "~/types";
 import { getFormatOptions } from "./number";
 
-export const LIQUIDITY_PROVIDER_FEE = 0.003;
+export const LIQUIDITY_PROVIDER_FEE = 0.03;
 
 export const aprToApy = (apr: number, frequency = 3650) =>
   ((1 + apr / 100 / frequency) ** frequency - 1) * 100;
