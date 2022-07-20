@@ -30,7 +30,11 @@ export function WalletButton() {
             {(() => {
               if (!mounted || !account || !chain) {
                 return (
-                  <Button onClick={openConnectModal} type="button">
+                  <Button
+                    className="py-2"
+                    onClick={openConnectModal}
+                    type="button"
+                  >
                     Connect Wallet
                   </Button>
                 );
@@ -38,7 +42,11 @@ export function WalletButton() {
 
               if (chain.unsupported) {
                 return (
-                  <Button onClick={openChainModal} type="button">
+                  <Button
+                    className="py-2"
+                    onClick={openChainModal}
+                    type="button"
+                  >
                     Wrong network
                   </Button>
                 );
