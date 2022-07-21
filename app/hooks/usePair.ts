@@ -2,7 +2,6 @@ import { utils } from "ethers";
 import { useContractRead } from "wagmi";
 import { usePrice } from "~/context/priceContext";
 import type { Pair } from "~/types";
-import { getEnvVariable } from "~/utils/env";
 import UniswapV2PairAbi from "../../artifacts/UniswapV2Pair.json";
 
 // Fetches pair reserve values directly from contract
@@ -35,10 +34,6 @@ const usePairReserves = (
 
   return reserves;
 };
-
-// Helper hook for the USDC-MAGIC pair
-export const useUsdcMagicPair = () =>
-  usePairReserves(getEnvVariable("USDC_MAGIC_PAIR_ADDRESS"));
 
 // Overrides subgraph data with latest from pair contract
 export const usePair = (pair: Pair) => {

@@ -3,7 +3,7 @@ import type {
   Pair_Filter,
 } from "~/graphql/exchange.generated";
 import type { Optional, Pair } from "~/types";
-import { exchangeSdk } from "./api.server";
+import { exchangeSdk } from "./api";
 import { getApy } from "./price";
 import { getEthUsd, normalizeAdvancedToken } from "./tokens.server";
 
