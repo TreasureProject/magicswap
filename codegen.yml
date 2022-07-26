@@ -7,3 +7,10 @@ generates:
       - "typescript"
       - "typescript-operations"
       - "typescript-graphql-request"
+  ./app/graphql/sushiswap.generated.ts:
+    schema: ${SUSHISWAP_EXCHANGE_ENDPOINT}
+    documents: "./app/graphql/sushiswap.queries.ts"
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-graphql-request"

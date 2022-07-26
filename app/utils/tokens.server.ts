@@ -9,7 +9,7 @@ import type {
   Token,
   TokenImageList,
 } from "~/types";
-import { exchangeSdk } from "./api.server";
+import { exchangeSdk } from "./api";
 
 type RawToken = GetSwapPairsQuery["pairs"][0]["token0"];
 type RawPairToken = GetSwapPairQuery["pairs"][0]["token0"];

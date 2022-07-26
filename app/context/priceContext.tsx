@@ -1,8 +1,8 @@
-import React, { createContext, useContext } from "react";
-import { useUsdcMagicPair } from "~/hooks/usePair";
+import type { PropsWithChildren } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { sushiswapExchangeSdk } from "~/utils/api";
 
 const Context = createContext<{
-  magicUsdPairId: string;
   magicUsd: number;
 } | null>(null);
 
@@ -16,18 +16,26 @@ export const usePrice = () => {
   return context;
 };
 
-export const PriceProvider = ({ children }: { children: React.ReactNode }) => {
-  const { id: magicUsdPairId, reserve0, reserve1 } = useUsdcMagicPair();
+type Props = PropsWithChildren<{
+  endpointUrl: string;
+}>;
 
-  const magicUsd = reserve0 > 0 && reserve1 > 0 ? reserve0 / reserve1 : 0;
-  return (
-    <Context.Provider
-      value={{
-        magicUsdPairId,
-        magicUsd,
-      }}
-    >
-      {children}
-    </Context.Provider>
-  );
+export const PriceProvider = ({ endpointUrl, children }: Props) => {
+  const [magicUsd, setMagicUsd] = useState(0);
+
+  useEffect(() => {
+    const client = sushiswapExchangeSdk(endpointUrl);
+
+    const fetchPrice = async () => {
+      const { bundle, token } = await client.getMagicPrice();
+      setMagicUsd((bundle?.ethPrice ?? 0) * (token?.derivedETH ?? 0));
+    };
+
+    const interval = setInterval(fetchPrice, 2000);
+    fetchPrice();
+
+    return () => clearInterval(interval);
+  }, [endpointUrl]);
+
+  return <Context.Provider value={{ magicUsd }}>{children}</Context.Provider>;
 };
