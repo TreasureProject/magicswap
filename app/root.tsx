@@ -207,7 +207,12 @@ export default function App() {
             })}
           >
             <UserProvider>
-              <PriceProvider>
+              <PriceProvider
+                endpointUrl={
+                  ENV.SUSHISWAP_EXCHANGE_ENDPOINT ??
+                  "https://api.thegraph.com/subgraphs/name/sushiswap/arbitrum-exchange"
+                }
+              >
                 <SettingsProvider>
                   <div className="z-10 flex h-20 items-center justify-center px-8">
                     <div className="relative m-auto flex flex-1 items-center justify-between xl:max-w-6xl xl:justify-center 2xl:max-w-7xl">

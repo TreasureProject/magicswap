@@ -60,12 +60,12 @@ export type Swap = {
 };
 
 export type CloudFlareEnvVar =
-  | "ALCHEMY_KEY"
   | "NODE_ENV"
+  | "ENABLE_TESTNETS"
   | "EXCHANGE_ENDPOINT"
-  | "UNISWAP_V2_ROUTER_ADDRESS"
-  | "USDC_MAGIC_PAIR_ADDRESS"
-  | "ENABLE_TESTNETS";
+  | "SUSHISWAP_EXCHANGE_ENDPOINT"
+  | "ALCHEMY_KEY"
+  | "UNISWAP_V2_ROUTER_ADDRESS";
 
 export type CloudFlareEnv = {
   [key in CloudFlareEnvVar]: string;
