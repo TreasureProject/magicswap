@@ -1,10 +1,6 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Button } from "./Button";
 
-export function Wallet() {
-  return <ConnectButton chainStatus="icon" />;
-}
-
 export function WalletButton() {
   return (
     <ConnectButton.Custom>

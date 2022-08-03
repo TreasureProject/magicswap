@@ -1,16 +1,14 @@
 import { useBalance } from "wagmi";
 import { utils } from "ethers";
 import type { Token } from "~/types";
-import { useIsMounted } from "./useIsMounted";
 import { useUser } from "~/context/userContext";
 
 export const useAddressBalance = (address?: string) => {
-  const isMounted = useIsMounted();
-  const { accountData } = useUser();
+  const { address: userAddress, isConnected } = useUser();
   const { data: balanceData, refetch } = useBalance({
-    addressOrName: accountData?.address,
+    addressOrName: userAddress,
     token: address,
-    enabled: isMounted && !!accountData?.address,
+    enabled: isConnected,
     staleTime: 2_000,
   });
 

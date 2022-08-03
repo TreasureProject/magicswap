@@ -1,10 +1,11 @@
 import React, { createContext, useContext } from "react";
-import { useAccount, useConnect, useNetwork } from "wagmi";
+import { useAccount, useNetwork } from "wagmi";
 import { useIsMounted } from "~/hooks";
+import type { Optional } from "~/types";
 
 const Context = createContext<{
   isConnected: boolean;
-  accountData: ReturnType<typeof useAccount>["data"];
+  address: Optional<string>;
   unsupported: boolean | undefined;
 } | null>(null);
 
@@ -20,18 +21,14 @@ export const useUser = () => {
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const isMounted = useIsMounted();
-  const { activeConnector } = useConnect();
-  const { data: accountData } = useAccount();
-  const { activeChain } = useNetwork();
-
-  const isConnected = !!isMounted && !!activeConnector && !!accountData;
-
+  const { address, isConnected } = useAccount();
+  const { chain } = useNetwork();
   return (
     <Context.Provider
       value={{
-        isConnected,
-        accountData,
-        unsupported: activeChain?.unsupported,
+        isConnected: isMounted && isConnected && !!address,
+        unsupported: chain?.unsupported,
+        address,
       }}
     >
       {children}
