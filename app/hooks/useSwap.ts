@@ -9,7 +9,7 @@ import { formatNumber } from "~/utils/number";
 import { useV2RouterWrite } from "./useV2RouterWrite";
 
 export const useSwap = () => {
-  const { accountData } = useUser();
+  const { address } = useUser();
   const { slippage, deadline } = useSettings();
   const statusRef = useRef<Optional<string>>(undefined);
 
@@ -91,7 +91,7 @@ export const useSwap = () => {
                 amountOut, // amountOut
                 amountIn, // amountInMax
                 path,
-                accountData?.address,
+                address,
                 transactionDeadline,
               ],
             }
@@ -106,7 +106,7 @@ export const useSwap = () => {
               args: [
                 amountOut, // amountOut
                 path,
-                accountData?.address,
+                address,
                 transactionDeadline,
               ],
             }
@@ -120,7 +120,7 @@ export const useSwap = () => {
               amountOut, // amountOut
               amountIn, // amountInMax
               path,
-              accountData?.address,
+              address,
               transactionDeadline,
             ],
           }
@@ -136,7 +136,7 @@ export const useSwap = () => {
                 amountIn, // amountIn
                 amountOut, // amountOutMin
                 path,
-                accountData?.address,
+                address,
                 transactionDeadline,
               ],
             }
@@ -151,7 +151,7 @@ export const useSwap = () => {
               args: [
                 amountOut, // amountOutMin
                 path,
-                accountData?.address,
+                address,
                 transactionDeadline,
               ],
             }
@@ -165,7 +165,7 @@ export const useSwap = () => {
               amountIn, // amountIn
               amountOut, // amountOutMin
               path,
-              accountData?.address,
+              address,
               transactionDeadline,
             ],
           }

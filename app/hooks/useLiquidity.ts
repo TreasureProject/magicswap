@@ -8,7 +8,7 @@ import type { Optional, Pair } from "~/types";
 import { useV2RouterWrite } from "./useV2RouterWrite";
 
 export const useRemoveLiquidity = () => {
-  const { accountData } = useUser();
+  const { address } = useUser();
   const { slippage, deadline } = useSettings();
   const statusRef = useRef<Optional<string>>(undefined);
 
@@ -55,7 +55,7 @@ export const useRemoveLiquidity = () => {
           lpAmount,
           isToken1Eth ? token0AmountMin : token1AmountMin,
           isToken1Eth ? token1AmountMin : token0AmountMin,
-          accountData?.address,
+          address,
           transactionDeadline,
         ],
       });
@@ -67,7 +67,7 @@ export const useRemoveLiquidity = () => {
           lpAmount,
           token0AmountMin,
           token1AmountMin,
-          accountData?.address,
+          address,
           transactionDeadline,
         ],
       });
@@ -83,7 +83,7 @@ export const useRemoveLiquidity = () => {
 };
 
 export const useAddLiquidity = () => {
-  const { accountData } = useUser();
+  const { address } = useUser();
   const { slippage, deadline } = useSettings();
   const statusRef = useRef<Optional<string>>(undefined);
 
@@ -137,7 +137,7 @@ export const useAddLiquidity = () => {
           isToken1Eth ? token0Amount : token1Amount,
           isToken1Eth ? token0AmountMin : token1AmountMin,
           isToken1Eth ? token1AmountMin : token0AmountMin,
-          accountData?.address,
+          address,
           transactionDeadline,
         ],
       });
@@ -150,7 +150,7 @@ export const useAddLiquidity = () => {
           token1Amount,
           token0AmountMin,
           token1AmountMin,
-          accountData?.address,
+          address,
           transactionDeadline,
         ],
       });

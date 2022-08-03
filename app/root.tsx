@@ -21,6 +21,7 @@ import { resolveValue, Toaster } from "react-hot-toast";
 import { chain, createClient, configureChains, WagmiConfig } from "wagmi";
 import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
 import {
+  ConnectButton,
   connectorsForWallets,
   darkTheme,
   getDefaultWallets,
@@ -37,7 +38,6 @@ import { PieIcon, SpinnerIcon, SplitIcon, AMMIcon } from "./components/Icons";
 import NProgress from "nprogress";
 import nProgressStyles from "./styles/nprogress.css";
 import fontStyles from "./styles/font.css";
-import { WalletButton } from "./components/Wallet";
 import { getEnvVariable } from "./utils/env";
 
 import { getTokensImageAddress } from "./utils/tokens.server";
@@ -203,7 +203,7 @@ export default function App() {
             theme={darkTheme({
               fontStack: "system",
               accentColor: "#DC2626",
-              borderRadius: "medium",
+              borderRadius: "large",
             })}
           >
             <UserProvider>
@@ -218,7 +218,13 @@ export default function App() {
                     <div className="relative m-auto flex flex-1 items-center justify-between xl:max-w-6xl xl:justify-center 2xl:max-w-7xl">
                       <AMMIcon className="h-8 w-8 sm:h-10 sm:w-10" />
                       <div className="inset-y-0 right-5 flex items-center justify-center sm:absolute">
-                        <WalletButton />
+                        <ConnectButton
+                          accountStatus="address"
+                          showBalance={{
+                            smallScreen: false,
+                            largeScreen: false,
+                          }}
+                        />
                       </div>
                     </div>
                   </div>

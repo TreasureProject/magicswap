@@ -12,12 +12,12 @@ const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
     contractInterface: erc20ABI,
   };
 
-  const { accountData } = useUser();
+  const { address } = useUser();
   const { data: allowance, refetch } = useContractRead({
     ...contractConfig,
     functionName: "allowance",
-    args: [accountData?.address, getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS")],
-    enabled: !!accountData?.address,
+    args: [address, getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS")],
+    enabled: !!address,
   });
 
   const {

@@ -23,7 +23,7 @@ import { CogIcon } from "@heroicons/react/outline";
 import { useUser } from "~/context/userContext";
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
 import { usePair } from "~/hooks/usePair";
-import { WalletButton } from "~/components/Wallet";
+import { WalletButton } from "~/components/WalletButton";
 
 type LoaderData = {
   pair: Pair;

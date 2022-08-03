@@ -31,8 +31,13 @@ import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPop
 import { Modal } from "~/components/Modal";
 import { useSettings } from "~/context/settingsContext";
 import { formatNumber, formatPercent } from "~/utils/number";
-import { LIQUIDITY_PROVIDER_FEE } from "~/utils/price";
-import { WalletButton } from "~/components/Wallet";
+import {
+  COMMUNITY_ECO_FUND,
+  COMMUNITY_GAME_FUND,
+  LIQUIDITY_PROVIDER_FEE,
+  TOTAL_FEE,
+} from "~/utils/price";
+import { WalletButton } from "~/components/WalletButton";
 
 type LoaderData = {
   pairs: Pair[];
@@ -58,7 +63,7 @@ export const meta: MetaFunction = ({ data }) => {
 export const loader: LoaderFunction = async ({ request, context }) => {
   const exchangeUrl = getEnvVariable("EXCHANGE_ENDPOINT", context);
   const url = new URL(request.url);
-  const inputSymbol = url.searchParams.get("input") ?? "USDC";
+  const inputSymbol = url.searchParams.get("input") ?? "MEDALS";
   const outputSymbol = url.searchParams.get("output") ?? "MAGIC";
 
   const pairs = await getPairs(exchangeUrl);
@@ -146,7 +151,7 @@ export default function Index() {
   const handleInputChange = (value: number) => {
     setIsExactOut(false);
     const rawAmountOut = value * outputPairToken.price;
-    const amountInWithFee = value * (1 - LIQUIDITY_PROVIDER_FEE);
+    const amountInWithFee = value * (1 - TOTAL_FEE);
     const amountOut = Math.max(
       (amountInWithFee * outputPairToken.reserve) /
         (inputPairToken.reserve + amountInWithFee),
@@ -161,7 +166,7 @@ export default function Index() {
     const rawAmountIn = value * inputPairToken.price;
     const amountIn = Math.max(
       (inputPairToken.reserve * value) /
-        ((outputPairToken.reserve - value) * (1 - LIQUIDITY_PROVIDER_FEE)),
+        ((outputPairToken.reserve - value) * (1 - TOTAL_FEE)),
       0
     );
     setPriceImpact(1 - rawAmountIn / amountIn);
@@ -440,6 +445,22 @@ const ConfirmSwapModal = ({
             <dt className="text-xs text-night-500">Liquidity Provider Fee</dt>
             <dt className="text-xs text-night-500">
               {formatPercent(LIQUIDITY_PROVIDER_FEE)}
+            </dt>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-xs text-night-500">
+              Community Gamification Fund Fee
+            </dt>
+            <dt className="text-xs text-night-500">
+              {formatPercent(COMMUNITY_GAME_FUND)}
+            </dt>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-xs text-night-500">
+              Community Ecosystem Fund Fee
+            </dt>
+            <dt className="text-xs text-night-500">
+              {formatPercent(COMMUNITY_ECO_FUND)}
             </dt>
           </div>
         </dl>
