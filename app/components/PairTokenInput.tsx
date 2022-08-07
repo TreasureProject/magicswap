@@ -90,11 +90,7 @@ export default function PairTokenInput({
         <div className="space-y-4 rounded-lg p-4 2xl:p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <TokenLogo
-                tokenAddress={token.id}
-                symbol={token.symbol}
-                className="h-5 w-5 rounded-full"
-              />
+              <TokenLogo token={token} className="h-5 w-5 rounded-full" />
               <p className="truncate text-xs font-bold sm:text-base">
                 {token.symbol}{" "}
                 {token.symbol.toLowerCase() !== token.name.toLowerCase() && (

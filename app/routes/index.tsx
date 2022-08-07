@@ -63,13 +63,15 @@ export const meta: MetaFunction = ({ data }) => {
 export const loader: LoaderFunction = async ({ request, context }) => {
   const exchangeUrl = getEnvVariable("EXCHANGE_ENDPOINT", context);
   const url = new URL(request.url);
-  const inputSymbol = url.searchParams.get("input") ?? "MEDALS";
-  const outputSymbol = url.searchParams.get("output") ?? "MAGIC";
 
   const pairs = await getPairs(exchangeUrl);
   const tokens = getUniqueTokens(pairs).sort((a, b) =>
     a.symbol.localeCompare(b.symbol)
   );
+  const inputSymbol =
+    url.searchParams.get("input") ??
+    tokens.find(({ symbol }) => symbol !== "MAGIC")!.symbol;
+  const outputSymbol = url.searchParams.get("output") ?? "MAGIC";
   const inputToken = getTokenBySymbol(tokens, inputSymbol);
   const outputToken = getTokenBySymbol(tokens, outputSymbol);
 
@@ -399,8 +401,7 @@ const ConfirmSwapModal = ({
             </span>
             <div className="flex flex-shrink-0 items-center space-x-2 pl-2">
               <TokenLogo
-                tokenAddress={inputPairToken.id}
-                symbol={inputPairToken.symbol}
+                token={inputPairToken}
                 className="h-5 w-5 rounded-full"
               />
               <span className="text-sm font-medium">
@@ -417,8 +418,7 @@ const ConfirmSwapModal = ({
             </span>
             <div className="flex items-center space-x-2 pl-2">
               <TokenLogo
-                tokenAddress={outputPairToken.id}
-                symbol={outputPairToken.symbol}
+                token={outputPairToken}
                 className="h-5 w-5 rounded-full"
               />
 
@@ -611,8 +611,7 @@ const TokenSelectionModal = ({
                 >
                   <div className="flex-shrink-0">
                     <TokenLogo
-                      tokenAddress={token.id}
-                      symbol={token.symbol}
+                      token={token}
                       className="h-10 w-10 rounded-full"
                     />
                   </div>

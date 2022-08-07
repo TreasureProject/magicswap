@@ -37,8 +37,7 @@ export default function TokenInput({
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center space-x-2 pl-3 pb-4">
           {token ? (
             <TokenLogo
-              tokenAddress={token.id}
-              symbol={token.symbol}
+              token={token}
               alt="placeholder"
               className="z-10 h-4 w-4 rounded-full ring-1"
             />

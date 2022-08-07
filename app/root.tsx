@@ -40,7 +40,6 @@ import nProgressStyles from "./styles/nprogress.css";
 import fontStyles from "./styles/font.css";
 import { getEnvVariable } from "./utils/env";
 
-import { getTokensImageAddress } from "./utils/tokens.server";
 import type { CloudFlareEnv, CloudFlareEnvVar } from "./types";
 import { UserProvider } from "./context/userContext";
 import { PriceProvider } from "./context/priceContext";
@@ -52,7 +51,6 @@ import {
 } from "@heroicons/react/outline";
 
 export type RootLoaderData = {
-  tokenImageList: Awaited<ReturnType<typeof getTokensImageAddress>>;
   ENV: Partial<CloudFlareEnv>;
 };
 
@@ -72,7 +70,6 @@ export const meta: MetaFunction = () => ({
 export const loader: LoaderFunction = async ({ context }) => {
   const env = context as CloudFlareEnv;
   return json<RootLoaderData>({
-    tokenImageList: await getTokensImageAddress(),
     ENV: Object.keys(env).reduce(
       (envVars, key) => ({
         ...envVars,
