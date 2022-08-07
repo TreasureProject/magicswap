@@ -11,6 +11,7 @@ export type Token = {
   isEth: boolean;
   isMagic: boolean;
   name: string;
+  image?: string;
   decimals: number;
   priceMagic: number;
 };
@@ -69,33 +70,4 @@ export type CloudFlareEnvVar =
 
 export type CloudFlareEnv = {
   [key in CloudFlareEnvVar]: string;
-};
-
-export type TokenImageList = {
-  name: string;
-  timestamp: Date;
-  version: {
-    major: number;
-    minor: number;
-    patch: number;
-  };
-  tokens: {
-    logoURI?: string;
-    chainId: number;
-    address: string;
-    name: string;
-    symbol: string;
-    decimals: number;
-    extensions?: {
-      bridgeInfo: {
-        tokenAddress: string;
-        originBridgeAddress: string;
-        destBridgeAddress: string;
-      };
-      l1Address: string;
-      l2GatewayAddress: string;
-      l1GatewayAddress: string;
-    };
-  }[];
-  logoURI: string;
 };
