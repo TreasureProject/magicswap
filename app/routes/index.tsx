@@ -68,10 +68,10 @@ export const loader: LoaderFunction = async ({ request, context }) => {
   const tokens = getUniqueTokens(pairs).sort((a, b) =>
     a.symbol.localeCompare(b.symbol)
   );
-  const inputSymbol =
-    url.searchParams.get("input") ??
+  const inputSymbol = url.searchParams.get("input") ?? "MAGIC";
+  const outputSymbol =
+    url.searchParams.get("output") ??
     tokens.find((token) => !token.isMagic)!.symbol;
-  const outputSymbol = url.searchParams.get("output") ?? "MAGIC";
   const inputToken = getTokenBySymbol(tokens, inputSymbol);
   const outputToken = getTokenBySymbol(tokens, outputSymbol);
 
