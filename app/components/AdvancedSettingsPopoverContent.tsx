@@ -27,7 +27,7 @@ export const AdvancedSettingsPopoverContent = ({
                 className="rounded-md bg-night-800/50 py-2 px-3.5 text-[0.6rem] font-medium text-white ring-offset-night-800 hover:bg-night-800 focus:outline-none focus:ring-1 focus:ring-night-500 focus:ring-offset-1 sm:text-xs"
                 onClick={() => updateSlippage(option)}
               >
-                {formatPercent(option)}
+                {formatPercent(option, 1)}
               </button>
             ))}
           </div>

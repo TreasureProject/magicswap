@@ -197,7 +197,7 @@ export default function Index() {
         <p className="text-xs text-night-500 sm:text-base">
           The easiest way to swap your tokens
         </p>
-        <div className="mt-8 w-full rounded-xl bg-night-700/10 p-4 shadow-glass backdrop-blur-md">
+        <div className="z-10 mt-8 w-full rounded-xl bg-night-700/10 p-4 shadow-glass backdrop-blur-md">
           <div className="flex justify-end">
             <div className="relative inline-block text-left">
               <Popover className="relative">
@@ -208,9 +208,9 @@ export default function Index() {
                   />
                   <span className="sr-only">Open adjustment settings</span>
                 </PopoverTrigger>
-                <PopoverContent className="absolute right-0 z-10 w-80 rounded-lg p-4 shadow-md">
+                <PopoverContent className="absolute right-0 z-20 w-80 rounded-lg p-4 shadow-md">
                   <AdvancedSettingsPopoverContent>
-                    <div className="mt-4">
+                    {/* <div className="mt-4">
                       <h3 className="font-medium text-white">
                         Display Settings
                       </h3>
@@ -250,7 +250,7 @@ export default function Index() {
                           />
                         </Switch>
                       </Switch.Group>
-                    </div>
+                    </div> */}
                   </AdvancedSettingsPopoverContent>
                 </PopoverContent>
               </Popover>
@@ -265,7 +265,7 @@ export default function Index() {
               value={inputValues[0]}
               locked={inputPairToken.isMagic}
               onChange={handleInputChange}
-              showPriceGraph={showGraph}
+              // showPriceGraph={showGraph}
               onTokenClick={() =>
                 setOpenTokenListModalProps({
                   open: true,
@@ -290,7 +290,7 @@ export default function Index() {
               value={inputValues[1]}
               locked={outputPairToken.isMagic}
               onChange={handleOutputChange}
-              showPriceGraph={showGraph}
+              // showPriceGraph={showGraph}
               onTokenClick={() =>
                 setOpenTokenListModalProps({
                   open: true,
