@@ -36,7 +36,7 @@ const tabs = [
 ] as const;
 
 export const meta: MetaFunction = ({ data }: { data: LoaderData }) => ({
-  title: `${data.pair.name} - Manage | Magicswap`,
+  title: `${data.pair.name} - Manage | MagicSwap`,
 });
 
 export const loader: LoaderFunction = async ({

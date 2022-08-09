@@ -50,13 +50,13 @@ type LoaderData = {
 export const meta: MetaFunction = ({ data }) => {
   if (!data) {
     return {
-      title: "Swap | Magicswap",
+      title: "Swap | MagicSwap",
     };
   }
 
   const { inputToken, outputToken } = data as LoaderData;
   return {
-    title: `Swap ${inputToken.symbol} to ${outputToken.symbol} | Magicswap`,
+    title: `Swap ${inputToken.symbol} to ${outputToken.symbol} | MagicSwap`,
   };
 };
 

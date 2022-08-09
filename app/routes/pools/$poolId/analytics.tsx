@@ -27,7 +27,7 @@ type LoaderData = {
 };
 
 export const meta: MetaFunction = ({ data }: { data: LoaderData }) => ({
-  title: `${data.pair.name} - Analytics | Magicswap`,
+  title: `${data.pair.name} - Analytics | MagicSwap`,
 });
 
 export const loader: LoaderFunction = async ({
