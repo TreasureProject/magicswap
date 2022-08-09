@@ -1,15 +1,21 @@
 import {
-  ArrowSmDownIcon,
-  ArrowSmUpIcon,
+  // ArrowSmDownIcon,
+  // ArrowSmUpIcon,
   ChevronDownIcon,
 } from "@heroicons/react/solid";
-import clsx from "clsx";
+// import clsx from "clsx";
 import { usePrice } from "~/context/priceContext";
 import { useNumberInput } from "~/hooks/useNumberInput";
 import type { PairToken } from "~/types";
-import { formatNumber, formatPercent } from "~/utils/number";
-import { formatUsd, getPrice24hChange } from "~/utils/price";
-import { TimeIntervalLineGraph } from "./Graph";
+import {
+  formatNumber,
+  // formatPercent
+} from "~/utils/number";
+import {
+  formatUsd,
+  // getPrice24hChange
+} from "~/utils/price";
+// import { TimeIntervalLineGraph } from "./Graph";
 import { TokenLogo } from "./TokenLogo";
 
 export default function PairTokenInput({
@@ -21,8 +27,8 @@ export default function PairTokenInput({
   locked = false,
   onChange,
   onTokenClick,
-  showPriceGraph,
-}: {
+}: // showPriceGraph,
+{
   id: string;
   label: string;
   token: PairToken;
@@ -31,15 +37,15 @@ export default function PairTokenInput({
   locked?: boolean;
   onChange: (value: number) => void;
   onTokenClick: () => void;
-  showPriceGraph: boolean;
+  // showPriceGraph: boolean;
 }) {
   const { inputValue, parsedValue, handleChange } = useNumberInput({
     value,
     onChange,
   });
   const { magicUsd } = usePrice();
-  const price24hChange = getPrice24hChange(token);
-  const positive = price24hChange >= 0;
+  // const price24hChange = getPrice24hChange(token);
+  // const positive = price24hChange >= 0;
 
   return (
     <div className="group flex-1">
@@ -106,7 +112,7 @@ export default function PairTokenInput({
               <p className="whitespace-nowrap text-xs font-normal text-night-300 sm:text-lg">
                 {formatUsd(token.priceMagic * magicUsd)} USD
               </p>
-              <p
+              {/* <p
                 className={clsx(
                   "flex items-baseline text-[0.5rem] font-semibold sm:ml-1 sm:text-xs",
                   {
@@ -130,10 +136,10 @@ export default function PairTokenInput({
                   {positive ? "Increased by" : "Decreased by"}
                 </span>
                 {formatPercent(price24hChange)}
-              </p>
+              </p> */}
             </div>
           </div>
-          {showPriceGraph ? (
+          {/* {showPriceGraph ? (
             <>
               <div className="h-24 2xl:h-36">
                 <TimeIntervalLineGraph
@@ -148,7 +154,7 @@ export default function PairTokenInput({
                 VOL {formatUsd(token.volume1wMagic)}
               </p>
             </>
-          ) : null}
+          ) : null} */}
         </div>
       </div>
     </div>

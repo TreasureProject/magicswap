@@ -17,8 +17,8 @@ export const getFormatOptions = (
 export const formatNumber = (value: number) =>
   value.toLocaleString("en-US", getFormatOptions(value));
 
-export const formatPercent = (value: number) =>
+export const formatPercent = (value: number, minimumFractionDigits = 2) =>
   `${(value * 100).toLocaleString("en-US", {
-    minimumFractionDigits: 2,
+    minimumFractionDigits,
     maximumFractionDigits: 3,
   })}%`;
