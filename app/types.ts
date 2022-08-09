@@ -10,6 +10,7 @@ export type Token = {
   symbol: string;
   isEth: boolean;
   isMagic: boolean;
+  isSupported: boolean;
   name: string;
   image?: string;
   decimals: number;

@@ -70,7 +70,7 @@ export const loader: LoaderFunction = async ({ request, context }) => {
   );
   const inputSymbol =
     url.searchParams.get("input") ??
-    tokens.find(({ symbol }) => symbol !== "MAGIC")!.symbol;
+    tokens.find((token) => !token.isMagic)!.symbol;
   const outputSymbol = url.searchParams.get("output") ?? "MAGIC";
   const inputToken = getTokenBySymbol(tokens, inputSymbol);
   const outputToken = getTokenBySymbol(tokens, outputSymbol);

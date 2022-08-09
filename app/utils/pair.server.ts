@@ -135,7 +135,12 @@ export const getPairs = async (
       },
     }),
   ]);
-  return pairs
-    .map((pair) => normalizePair(pair as RawPair, ethUsd))
-    .filter(({ token0, token1 }) => token0.isMagic || token1.isMagic);
+  return (
+    pairs
+      .map((pair) => normalizePair(pair as RawPair, ethUsd))
+      // Both sides of the pair must be supported tokens
+      .filter(({ token0, token1 }) => token0.isSupported && token1.isSupported)
+      // One side of the pair must be MAGIC
+      .filter(({ token0, token1 }) => token0.isMagic || token1.isMagic)
+  );
 };

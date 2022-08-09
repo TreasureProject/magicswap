@@ -17,7 +17,7 @@ const SUPPORTED_TOKENS = [
   {
     symbol: "ELM",
     name: "Ellerium",
-    image: "/img/tokens/ell.png",
+    image: "/img/tokens/elm.png",
   },
 ];
 
@@ -31,12 +31,17 @@ export const normalizeToken = ({
   derivedETH,
 }: RawToken): Token => {
   const symbol = normalizeSymbol(rawSymbol);
+  const supportedToken = SUPPORTED_TOKENS.find(
+    (token) => token.symbol === symbol
+  );
   return {
     id,
     symbol,
     isEth: symbol === "ETH" || symbol === "WETH",
     isMagic: symbol === "MAGIC",
+    isSupported: !!supportedToken,
     name,
+    image: supportedToken?.image,
     decimals: parseInt(decimals),
     priceMagic: parseFloat(derivedETH),
   };
@@ -74,30 +79,14 @@ export const getUniqueTokens = (pairs: Pair[]) => {
   const tokens: Token[] = [];
 
   pairs.forEach(({ token0, token1 }) => {
-    if (token0.isMagic || token1.isMagic) {
-      const supportedToken0 = SUPPORTED_TOKENS.find(
-        ({ symbol }) => symbol === token0.symbol
-      );
-      const supportedToken1 = SUPPORTED_TOKENS.find(
-        ({ symbol }) => symbol === token1.symbol
-      );
-      if (supportedToken0 && supportedToken1) {
-        if (!tokenSymbols.includes(token0.symbol)) {
-          tokenSymbols.push(token0.symbol);
-          tokens.push({
-            ...token0,
-            image: supportedToken0.image,
-          });
-        }
+    if (!tokenSymbols.includes(token0.symbol)) {
+      tokenSymbols.push(token0.symbol);
+      tokens.push(token0);
+    }
 
-        if (!tokenSymbols.includes(token1.symbol)) {
-          tokenSymbols.push(token1.symbol);
-          tokens.push({
-            ...token1,
-            image: supportedToken1.image,
-          });
-        }
-      }
+    if (!tokenSymbols.includes(token1.symbol)) {
+      tokenSymbols.push(token1.symbol);
+      tokens.push(token1);
     }
   });
 
