@@ -239,7 +239,9 @@ export default function App() {
                 <SettingsProvider>
                   <div className="z-10 flex h-20 items-center justify-center px-8">
                     <div className="relative m-auto flex flex-1 items-center justify-between xl:max-w-6xl xl:justify-center 2xl:max-w-7xl">
-                      <AMMIcon className="h-8 w-8 sm:h-10 sm:w-10" />
+                      <Link to="/">
+                        <AMMIcon className="h-8 w-8 sm:h-10 sm:w-10" />
+                      </Link>
                       <div className="inset-y-0 right-5 flex items-center justify-center sm:absolute">
                         <ConnectButton
                           accountStatus="address"

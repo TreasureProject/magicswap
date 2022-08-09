@@ -3,7 +3,6 @@ import type {
   GetSwapPairsQuery,
 } from "~/graphql/exchange.generated";
 import type { AdvancedToken, Optional, Pair, Token } from "~/types";
-import { exchangeSdk } from "./api";
 
 type RawToken = GetSwapPairsQuery["pairs"][0]["token0"];
 type RawPairToken = GetSwapPairQuery["pairs"][0]["token0"];
@@ -47,14 +46,14 @@ export const normalizeToken = ({
   };
 };
 
-export const normalizeAdvancedToken = (
-  { hourData, dayData, ...rawToken }: RawPairToken,
-  ethUsd: number
-): AdvancedToken => {
+export const normalizeAdvancedToken = ({
+  hourData,
+  dayData,
+  ...rawToken
+}: RawPairToken): AdvancedToken => {
   const token = normalizeToken(rawToken);
   return {
     ...token,
-    priceUsd: token.priceMagic * ethUsd,
     price1dUsdIntervals: hourData.map(({ date, priceUSD }) => ({
       date,
       value: parseFloat(priceUSD),
@@ -63,12 +62,12 @@ export const normalizeAdvancedToken = (
       date,
       value: parseFloat(priceUSD),
     })),
-    volume1dUsd: hourData.reduce(
-      (total, { volumeUSD }) => total + parseFloat(volumeUSD),
+    volume1dMagic: hourData.reduce(
+      (total, { volumeETH }) => total + parseFloat(volumeETH),
       0
     ),
-    volume1wUsd: dayData.reduce(
-      (total, { volumeUSD }) => total + parseFloat(volumeUSD),
+    volume1wMagic: dayData.reduce(
+      (total, { volumeETH }) => total + parseFloat(volumeETH),
       0
     ),
   };
@@ -101,9 +100,3 @@ export const getTokenBySymbol = (
     (token) =>
       token.symbol.toLowerCase() === normalizeSymbol(symbol).toLowerCase()
   );
-
-export const getEthUsd = async (url: string): Promise<number> => {
-  const sdk = exchangeSdk(url);
-  const { bundle } = await sdk.getEthPrice();
-  return parseFloat(bundle?.ethPrice ?? 0);
-};

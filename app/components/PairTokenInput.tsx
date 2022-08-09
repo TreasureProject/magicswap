@@ -4,6 +4,7 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/solid";
 import clsx from "clsx";
+import { usePrice } from "~/context/priceContext";
 import { useNumberInput } from "~/hooks/useNumberInput";
 import type { PairToken } from "~/types";
 import { formatNumber, formatPercent } from "~/utils/number";
@@ -36,6 +37,7 @@ export default function PairTokenInput({
     value,
     onChange,
   });
+  const { magicUsd } = usePrice();
   const price24hChange = getPrice24hChange(token);
   const positive = price24hChange >= 0;
 
@@ -59,7 +61,9 @@ export default function PairTokenInput({
               <span className="text-xs text-night-500">
                 ~{" "}
                 {formatUsd(
-                  token.priceUsd * (parsedValue > 0 ? parsedValue : 1)
+                  token.priceMagic *
+                    magicUsd *
+                    (parsedValue > 0 ? parsedValue : 1)
                 )}
               </span>
             </div>
@@ -100,7 +104,7 @@ export default function PairTokenInput({
             </div>
             <div className="flex flex-col items-end sm:flex-row sm:items-baseline">
               <p className="whitespace-nowrap text-xs font-normal text-night-300 sm:text-lg">
-                {formatUsd(token.priceUsd)} USD
+                {formatUsd(token.priceMagic * magicUsd)} USD
               </p>
               <p
                 className={clsx(
@@ -141,7 +145,7 @@ export default function PairTokenInput({
                 />
               </div>
               <p className="text-xs font-light text-night-500">
-                VOL {formatUsd(token.volume1wUsd)}
+                VOL {formatUsd(token.volume1wMagic)}
               </p>
             </>
           ) : null}

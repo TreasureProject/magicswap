@@ -19,6 +19,7 @@ import { getSwaps } from "~/utils/swap.server";
 import { getEnvVariable } from "~/utils/env";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import { chain, useNetwork } from "wagmi";
+import { usePrice } from "~/context/priceContext";
 
 type LoaderData = {
   randomNumber: number;
@@ -65,6 +66,7 @@ export default function Analytics() {
 
   const { load, data: fetchedData } = useFetcher<LoaderData>();
   const { chain: activeChain } = useNetwork();
+  const { magicUsd } = usePrice();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -98,7 +100,7 @@ export default function Analytics() {
           <div className="flex justify-between">
             <h3 className="col-span-4 font-semibold">Liquidity</h3>
             <p className="col-span-2 font-semibold">
-              {formatUsd(pair.liquidityUsd)}
+              {formatUsd(pair.liquidityMagic * magicUsd)}
             </p>
           </div>
           <div className="h-36 sm:h-40">
@@ -107,7 +109,7 @@ export default function Analytics() {
                 from: "#96e4df",
                 to: "#21d190",
               }}
-              data={pair.liquidity1dUsdIntervals}
+              data={pair.liquidity1dMagicIntervals}
             />
           </div>
         </div>
@@ -123,7 +125,7 @@ export default function Analytics() {
           <div className="flex justify-between">
             <h3 className="col-span-4 font-semibold">Volume</h3>
             <p className="col-span-2 font-semibold">
-              {formatUsd(pair.volume1dUsd)}{" "}
+              {formatUsd(pair.volume1dMagic * magicUsd)}{" "}
             </p>
           </div>
           <div className="h-36 sm:h-40">
@@ -132,7 +134,7 @@ export default function Analytics() {
                 from: "#96e4df",
                 to: "#21d190",
               }}
-              data={pair.volume1dUsdIntervals}
+              data={pair.volume1dMagicIntervals}
             />
           </div>
         </div>
@@ -146,12 +148,6 @@ export default function Analytics() {
                 className="py-3.5 pl-4 pr-3 text-left text-[0.6rem] font-semibold text-night-400 sm:pl-6 sm:text-xs"
               >
                 Swap
-              </th>
-              <th
-                scope="col"
-                className="table-cell px-2 py-2.5 text-left text-[0.6rem] font-semibold text-night-400 sm:text-xs md:px-3 md:py-3.5"
-              >
-                Amount
               </th>
               <th
                 scope="col"
@@ -196,9 +192,6 @@ export default function Analytics() {
                       enumValue={data.randomNumber}
                     />
                   </div>
-                </td>
-                <td className="table-cell whitespace-nowrap px-2 py-2.5 text-[0.6rem] font-semibold text-night-200 sm:text-sm md:px-3 md:py-2.5">
-                  {formatUsd(swap.amountUsd)}
                 </td>
                 <td className="hidden whitespace-nowrap px-2 py-2.5 text-sm text-night-400 sm:table-cell md:px-3 md:py-2.5">
                   {formatNumber(swap.inAmount)}

@@ -24,6 +24,7 @@ import { useUser } from "~/context/userContext";
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
 import { usePair } from "~/hooks/usePair";
 import { WalletButton } from "~/components/WalletButton";
+import { usePrice } from "~/context/priceContext";
 
 type LoaderData = {
   pair: Pair;
@@ -114,6 +115,7 @@ const Liquidity = () => {
   const data = useLoaderData<LoaderData>();
   const { isConnected, unsupported } = useUser();
   const pair = usePair(data.pair);
+  const { magicUsd } = usePrice();
 
   const { value: token0Balance, refetch: refetchPair0 } = useTokenBalance(
     pair.token0
@@ -336,7 +338,7 @@ const Liquidity = () => {
               id="removeLiquidity"
               label="Amount"
               tokenSymbol={`${pair.name} LP`}
-              price={pair.lpPriceUsd}
+              price={pair.lpPriceMagic * magicUsd}
               balance={lpBalance}
               value={removeInputValue}
               onChange={(value) => setRemoveInputValue(value)}
@@ -354,7 +356,9 @@ const Liquidity = () => {
                   <span className="text-night-200">
                     ≈{" "}
                     {formatUsd(
-                      removeLiquidityToken0Estimate * pair.token0.priceUsd
+                      removeLiquidityToken0Estimate *
+                        pair.token0.priceMagic *
+                        magicUsd
                     )}
                   </span>
                 </div>
@@ -366,7 +370,9 @@ const Liquidity = () => {
                   <span className="text-night-200">
                     ={" "}
                     {formatUsd(
-                      removeLiquidityToken1Estimate * pair.token1.priceUsd
+                      removeLiquidityToken1Estimate *
+                        pair.token1.priceMagic *
+                        magicUsd
                     )}
                   </span>
                 </div>
