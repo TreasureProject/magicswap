@@ -12,7 +12,6 @@ const normalizeSwap = ({
   amount1In: rawAmount1In,
   amount0Out: rawAmount0Out,
   amount1Out: rawAmount1Out,
-  amountUSD,
   transaction: { id: transactionId },
 }: RawSwap): Swap => {
   const amount0In = parseFloat(rawAmount0In);
@@ -28,7 +27,6 @@ const normalizeSwap = ({
     isAmount0Out: amount0Out > 0,
     inAmount: amount0In || amount1In,
     outAmount: amount0Out || amount1Out,
-    amountUsd: parseFloat(amountUSD),
   };
 };
 

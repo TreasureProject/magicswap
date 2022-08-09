@@ -13,7 +13,7 @@ const tokenFieldsFragment = gql`
 const tokenHourDataFieldsFragment = gql`
   fragment tokenHourDataFields on TokenHourData {
     date
-    volumeUSD
+    volumeETH
     priceUSD
   }
 `;
@@ -21,7 +21,7 @@ const tokenHourDataFieldsFragment = gql`
 const tokenDayDataFieldsFragment = gql`
   fragment tokenDayDataFields on TokenDayData {
     date
-    volumeUSD
+    volumeETH
     priceUSD
   }
 `;
@@ -47,16 +47,20 @@ const advancedTokenFieldsFragment = gql`
 const pairHourDataFieldsFragment = gql`
   fragment pairHourDataFields on PairHourData {
     date
-    reserveUSD
-    volumeUSD
+    reserve0
+    reserve1
+    volumeToken0
+    volumeToken1
   }
 `;
 
 const pairDayDataFieldsFragment = gql`
   fragment pairDayDataFields on PairDayData {
     date
-    reserveUSD
-    volumeUSD
+    reserve0
+    reserve1
+    volumeToken0
+    volumeToken1
   }
 `;
 
@@ -66,7 +70,6 @@ const pairFieldsFragment = gql`
     name
     reserveUSD
     reserveETH
-    volumeUSD
     reserve0
     reserve1
     token0Price
@@ -81,14 +84,6 @@ const pairFieldsFragment = gql`
   }
   ${pairHourDataFieldsFragment}
   ${pairDayDataFieldsFragment}
-`;
-
-export const getEthPrice = gql`
-  query getEthPrice {
-    bundle(id: "1") {
-      ethPrice
-    }
-  }
 `;
 
 export const getPairs = gql`
@@ -158,7 +153,6 @@ export const getSwaps = gql`
       amount1In
       amount0Out
       amount1Out
-      amountUSD
       transaction {
         id
       }

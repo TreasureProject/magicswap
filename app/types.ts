@@ -18,11 +18,10 @@ export type Token = {
 };
 
 export type AdvancedToken = Token & {
-  priceUsd: number;
   price1dUsdIntervals: TimeInterval[];
   price1wUsdIntervals: TimeInterval[];
-  volume1dUsd: number;
-  volume1wUsd: number;
+  volume1dMagic: number;
+  volume1wMagic: number;
 };
 
 export type PairToken = AdvancedToken & {
@@ -38,14 +37,14 @@ export type Pair = {
   hasEth: boolean;
   hasMagic: boolean;
   totalSupply: number;
-  liquidityUsd: number;
-  lpPriceUsd: number;
-  liquidity1dUsdIntervals: TimeInterval[];
-  liquidity1wUsdIntervals: TimeInterval[];
-  volume1dUsdIntervals: TimeInterval[];
-  volume1wUsdIntervals: TimeInterval[];
-  volume1dUsd: number;
-  volume1wUsd: number;
+  liquidityMagic: number;
+  lpPriceMagic: number;
+  liquidity1dMagicIntervals: TimeInterval[];
+  liquidity1wMagicIntervals: TimeInterval[];
+  volume1dMagicIntervals: TimeInterval[];
+  volume1wMagicIntervals: TimeInterval[];
+  volume1dMagic: number;
+  volume1wMagic: number;
   apy: number;
 };
 
@@ -58,7 +57,6 @@ export type Swap = {
   isAmount0Out: boolean;
   inAmount: number;
   outAmount: number;
-  amountUsd: number;
 };
 
 export type CloudFlareEnvVar =
