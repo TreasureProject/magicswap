@@ -23,7 +23,7 @@ type LoaderData = {
 };
 
 export const meta: MetaFunction = () => ({
-  title: "Pools | Magicswap",
+  title: "Pools | MagicSwap",
 });
 
 const tabs = [

@@ -59,12 +59,38 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: nProgressStyles },
   { rel: "stylesheet", href: rainbowStyles },
   { rel: "stylesheet", href: fontStyles },
+  {
+    rel: "icon",
+    type: "image/png",
+    sizes: "180x180",
+    href: "/img/apple-touch-icon.png",
+  },
+  {
+    rel: "icon",
+    type: "image/png",
+    sizes: "32x32",
+    href: "/img/favicon-32x32.png",
+  },
+  {
+    rel: "icon",
+    type: "image/png",
+    sizes: "16x16",
+    href: "/img/favicon-16x16.png",
+  },
+  { rel: "manifest", href: "/site.webmanifest" },
+  { rel: "mask-icon", href: "/img/safari-pinned-tab.svg", color: "#DC2626" },
+  { rel: "shortcut icon", href: "/img/favicon.ico" },
 ];
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
-  title: "Swap | Magicswap",
+  title: "Swap | MagicSwap",
   viewport: "width=device-width,initial-scale=1",
+  "apple-mobile-web-app-title": "MagicSwap",
+  "application-name": "MagicSwap",
+  "msapplication-TileColor": "#DC2626",
+  "msapplication-config": "/browserconfig.xml",
+  "theme-color": "#DC2626",
 });
 
 export const loader: LoaderFunction = async ({ context }) => {
@@ -135,7 +161,7 @@ export default function App() {
   const { wallets } = React.useMemo(
     () =>
       getDefaultWallets({
-        appName: "Magicswap",
+        appName: "MagicSwap",
         chains,
       }),
     [chains]
@@ -194,7 +220,7 @@ export default function App() {
         <WagmiConfig client={client}>
           <RainbowKitProvider
             appInfo={{
-              appName: "Magicswap",
+              appName: "MagicSwap",
             }}
             chains={chains}
             theme={darkTheme({
