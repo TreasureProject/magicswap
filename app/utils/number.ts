@@ -1,3 +1,6 @@
+import { utils } from "ethers";
+import type { Token } from "~/types";
+
 export const getFormatOptions = (
   value: number,
   isUsd = false
@@ -22,3 +25,6 @@ export const formatPercent = (value: number, minimumFractionDigits = 2) =>
     minimumFractionDigits,
     maximumFractionDigits: 3,
   })}%`;
+
+export const formatTokenAmountInWei = (token: Token, amount: number) =>
+  utils.parseUnits(amount.toFixed(token.decimals));
