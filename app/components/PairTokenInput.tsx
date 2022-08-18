@@ -1,3 +1,4 @@
+import { ExternalLinkIcon } from "@heroicons/react/outline";
 import {
   // ArrowSmDownIcon,
   // ArrowSmUpIcon,
@@ -5,6 +6,7 @@ import {
 } from "@heroicons/react/solid";
 // import clsx from "clsx";
 import { usePrice } from "~/context/priceContext";
+import { useBlockExplorer } from "~/hooks/useBlockExplorer";
 import { useNumberInput } from "~/hooks/useNumberInput";
 import type { PairToken } from "~/types";
 import {
@@ -44,6 +46,7 @@ export default function PairTokenInput({
     onChange,
   });
   const { magicUsd } = usePrice();
+  const blockExplorer = useBlockExplorer();
   // const price24hChange = getPrice24hChange(token);
   // const positive = price24hChange >= 0;
 
@@ -99,15 +102,22 @@ export default function PairTokenInput({
         </div>
         <div className="space-y-4 rounded-lg p-4 2xl:p-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            <a
+              className="flex items-center gap-2"
+              href={`${blockExplorer}/token/${token.id}`}
+              title={`${token.symbol} (${token.id})`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <TokenLogo token={token} className="h-5 w-5 rounded-full" />
-              <p className="truncate text-xs font-bold sm:text-base">
+              <span className="truncate text-xs font-bold sm:text-base">
                 {token.symbol}{" "}
                 {token.symbol.toLowerCase() !== token.name.toLowerCase() && (
                   <>({token.name})</>
                 )}
-              </p>
-            </div>
+              </span>
+              <ExternalLinkIcon className="h-3 w-3" />
+            </a>
             <div className="flex flex-col items-end sm:flex-row sm:items-baseline">
               <p className="whitespace-nowrap text-xs font-normal text-night-300 sm:text-lg">
                 {formatUsd(token.priceMagic * magicUsd)} USD
