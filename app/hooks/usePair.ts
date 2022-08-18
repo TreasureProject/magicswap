@@ -14,6 +14,7 @@ const usePairReserves = (
     addressOrName: id,
     contractInterface: UniswapV2PairAbi,
     functionName: "getReserves",
+    watch: true,
   });
 
   const reserves = {
@@ -37,7 +38,7 @@ const usePairReserves = (
 
 // Overrides subgraph data with latest from pair contract
 export const usePair = (pair: Pair) => {
-  const { magicUsd } = usePrice();
+  // const { magicUsd } = usePrice();
   const { reserve0, reserve1 } = usePairReserves(
     pair.id,
     pair.token0.decimals,
@@ -51,9 +52,9 @@ export const usePair = (pair: Pair) => {
     reserve0 > 0 && reserve1 > 0 ? reserve0 / reserve1 : 0;
   nextPair.token1.price =
     reserve0 > 0 && reserve1 > 0 ? reserve1 / reserve0 : 0;
-  nextPair.token0.priceUsd =
-    (nextPair.token0.isMagic ? 1 : nextPair.token1.price) * magicUsd;
-  nextPair.token1.priceUsd =
-    (nextPair.token1.isMagic ? 1 : nextPair.token0.price) * magicUsd;
+  // nextPair.token0.priceUsd =
+  //   (nextPair.token0.isMagic ? 1 : nextPair.token1.price) * magicUsd;
+  // nextPair.token1.priceUsd =
+  //   (nextPair.token1.isMagic ? 1 : nextPair.token0.price) * magicUsd;
   return nextPair;
 };

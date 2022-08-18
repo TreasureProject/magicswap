@@ -1,10 +1,9 @@
 import { useRef } from "react";
-import { utils } from "ethers";
 import { useSettings } from "~/context/settingsContext";
 import { useUser } from "~/context/userContext";
 
 import type { Optional, Token } from "~/types";
-import { formatNumber } from "~/utils/number";
+import { formatNumber, formatTokenAmountInWei } from "~/utils/number";
 
 import { useV2RouterWrite } from "./useV2RouterWrite";
 
@@ -65,12 +64,8 @@ export const useSwap = () => {
     const worstAmountOut =
       rawAmountOut * (isExactOut ? 1 : (100 - slippage) / 100);
 
-    const amountIn = utils.parseUnits(
-      worstAmountIn.toFixed(inputToken.decimals)
-    );
-    const amountOut = utils.parseUnits(
-      worstAmountOut.toFixed(outputToken.decimals)
-    );
+    const amountIn = formatTokenAmountInWei(inputToken, worstAmountIn);
+    const amountOut = formatTokenAmountInWei(outputToken, worstAmountOut);
     const path = [inputToken.id, outputToken.id];
 
     const transactionDeadline = (

@@ -35,9 +35,9 @@ import {
   COMMUNITY_ECO_FUND,
   COMMUNITY_GAME_FUND,
   LIQUIDITY_PROVIDER_FEE,
-  TOTAL_FEE,
 } from "~/utils/price";
 import { WalletButton } from "~/components/WalletButton";
+import { useAmountIn, useAmountOut } from "~/hooks/useAmount";
 
 type LoaderData = {
   pairs: Pair[];
@@ -117,8 +117,10 @@ export default function Index() {
     open: false,
     type: "input",
   });
-  const [isExactOut, setIsExactOut] = useState(false);
-  const [inputValues, setInputValues] = useState([0, 0]);
+  const [amounts, setAmounts] = useState({
+    exactIn: 0,
+    exactOut: 0,
+  });
   const { value: inputTokenBalance, refetch: refetchInputToken } =
     useTokenBalance(data.inputToken);
   const { value: outputTokenBalance, refetch: refetchOutputToken } =
@@ -130,16 +132,19 @@ export default function Index() {
     defaultValue: false,
   });
   const [isOpenConfirmSwapModal, setIsOpenConfirmSwapModal] = useState(false);
-  const [priceImpact, setPriceImpact] = useState(0);
-
-  const refetchAll = useCallback(async () => {
-    Promise.all([refetchInputToken(), refetchOutputToken()]);
-  }, [refetchInputToken, refetchOutputToken]);
 
   const inputPairToken =
     pair.token0.id === data.inputToken.id ? pair.token0 : pair.token1;
   const outputPairToken =
     pair.token0.id === data.outputToken.id ? pair.token0 : pair.token1;
+
+  // Reset inputs if swap changes
+  useEffect(() => {
+    setAmounts((currentAmounts) => ({
+      exactIn: currentAmounts.exactOut,
+      exactOut: currentAmounts.exactIn,
+    }));
+  }, [inputPairToken.id, outputPairToken.id]);
 
   const onClose = useCallback(
     () =>
@@ -151,41 +156,34 @@ export default function Index() {
   );
 
   const handleInputChange = (value: number) => {
-    setIsExactOut(false);
-    const rawAmountOut = value * outputPairToken.price;
-    const amountInWithFee = value * (1 - TOTAL_FEE);
-    const amountOut = Math.max(
-      (amountInWithFee * outputPairToken.reserve) /
-        (inputPairToken.reserve + amountInWithFee),
-      0
-    );
-    setPriceImpact(1 - amountOut / rawAmountOut);
-    setInputValues([value, amountOut]);
+    setAmounts({ exactIn: value, exactOut: 0 });
   };
 
   const handleOutputChange = (value: number) => {
-    setIsExactOut(true);
-    const rawAmountIn = value * inputPairToken.price;
-    const amountIn = Math.max(
-      (inputPairToken.reserve * value) /
-        ((outputPairToken.reserve - value) * (1 - TOTAL_FEE)),
-      0
-    );
-    setPriceImpact(1 - rawAmountIn / amountIn);
-    setInputValues([amountIn, value]);
+    setAmounts({ exactIn: 0, exactOut: value });
   };
 
-  // Reset inputs if swap changes
-  useEffect(() => {
-    setInputValues([0, 0]);
-  }, [inputPairToken.id, outputPairToken.id]);
-
-  const insufficientBalance = inputTokenBalance < inputValues[0];
-
-  const onCloseConfirmModal = useCallback(
+  const handleCloseConfirmModal = useCallback(
     () => setIsOpenConfirmSwapModal(false),
     []
   );
+
+  const handleSwapSuccess = useCallback(() => {
+    setIsOpenConfirmSwapModal(false);
+    setAmounts({ exactIn: 0, exactOut: 0 });
+  }, []);
+
+  const amountIn =
+    useAmountIn(inputPairToken, outputPairToken, amounts.exactOut) ||
+    amounts.exactIn;
+  const amountOut =
+    useAmountOut(inputPairToken, outputPairToken, amounts.exactIn) ||
+    amounts.exactOut;
+  const isExactOut = amounts.exactOut > 0;
+  const priceImpact = isExactOut
+    ? 1 - (amountOut * inputPairToken.price) / amountIn
+    : 1 - amountOut / (amountIn * outputPairToken.price);
+  const insufficientBalance = inputTokenBalance < amountIn;
 
   return (
     <>
@@ -262,7 +260,7 @@ export default function Index() {
               label={`${inputPairToken.symbol} Amount`}
               token={inputPairToken}
               balance={inputTokenBalance}
-              value={inputValues[0]}
+              value={amountIn}
               locked={inputPairToken.isMagic}
               onChange={handleInputChange}
               // showPriceGraph={showGraph}
@@ -287,7 +285,7 @@ export default function Index() {
               label={`${outputPairToken.symbol} Amount`}
               token={outputPairToken}
               balance={outputTokenBalance}
-              value={inputValues[1]}
+              value={amountOut}
               locked={outputPairToken.isMagic}
               onChange={handleOutputChange}
               // showPriceGraph={showGraph}
@@ -305,14 +303,12 @@ export default function Index() {
             <WalletButton />
           ) : (
             <Button
-              disabled={
-                !inputValues[0] || !inputValues[1] || insufficientBalance
-              }
+              disabled={!amountIn || !amountOut || insufficientBalance}
               onClick={() => setIsOpenConfirmSwapModal(true)}
             >
               {insufficientBalance
                 ? "Insufficient Balance"
-                : inputValues[0] && inputValues[1]
+                : amountIn && amountOut
                 ? "Swap"
                 : "Enter an Amount"}
             </Button>
@@ -325,13 +321,13 @@ export default function Index() {
       />
       <ConfirmSwapModal
         isOpen={isOpenConfirmSwapModal}
-        onClose={onCloseConfirmModal}
+        onClose={handleCloseConfirmModal}
         inputPairToken={inputPairToken}
         outputPairToken={outputPairToken}
-        inputValues={inputValues}
+        inputValues={[amountIn, amountOut]}
         isExactOut={isExactOut}
         priceImpact={priceImpact}
-        refetch={refetchAll}
+        onSuccess={handleSwapSuccess}
       />
     </>
   );
@@ -345,7 +341,7 @@ const ConfirmSwapModal = ({
   inputValues,
   isExactOut,
   priceImpact,
-  refetch,
+  onSuccess,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -354,7 +350,7 @@ const ConfirmSwapModal = ({
   inputValues: number[];
   isExactOut: boolean;
   priceImpact: number;
-  refetch: () => Promise<void>;
+  onSuccess: () => void;
 }) => {
   const { swap, isLoading, isSuccess } = useSwap();
   const { slippage } = useSettings();
@@ -380,10 +376,9 @@ const ConfirmSwapModal = ({
 
   useEffect(() => {
     if (isSuccess) {
-      refetch();
-      onClose();
+      onSuccess();
     }
-  }, [isSuccess, onClose, refetch]);
+  }, [isSuccess, onSuccess]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
