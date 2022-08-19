@@ -1,53 +1,51 @@
-# Welcome to Remix!
+# MagicSwap UI
 
-- [Remix Docs](https://remix.run/docs)
+[MagicSwap](https://magicswap.lol) is the automated market maker of the [Treasure ecosystem](https://treasure.lol).
+
+Supporting code:
+- [Solidity Contracts](https://github.com/TreasureProject/magicswap-contracts)
+- [Exchange Subgraph](https://github.com/TreasureProject/treasure-subgraphs/tree/master/subgraphs/magicswap-exchange)
 
 ## Development
 
-From your terminal:
+Create environment variables file:
+
+```sh
+cp .env.sample .env
+```
+
+Fill in the `ALCHEMY_KEY` environment variable with your own API key.
+
+Install dependencies:
+
+```sh
+npm install
+```
+
+Generate code:
+
+```sh
+npm run codegen
+```
+
+Start development server:
 
 ```sh
 npm run dev
 ```
 
-This starts your app in development mode, rebuilding assets on file changes.
+## Contributing
+
+### Feature Requests
+
+Coming soon
+
+### Issues/Bugs
+
+To file a bug, please create an [issue](https://github.com/TreasureProject/magicswap/issues), providing as many details as possible.
+
+To fix a bug, please fork the repository, make changes on your fork, then create a PR for the community and AMM Council to review.
 
 ## Deployment
 
-First, build your app for production:
-
-```sh
-npm run build
-```
-
-Then run the app in production mode:
-
-```sh
-npm start
-```
-
-Now you'll need to pick a host to deploy it to.
-
-### DIY
-
-If you're familiar with deploying node applications, the built-in Remix app server is production-ready.
-
-Make sure to deploy the output of `remix build`
-
-- `build/`
-- `public/build/`
-
-### Using a Template
-
-When you ran `npx create-remix@latest` there were a few choices for hosting. You can run that again to create a new project, then copy over your `app/` folder to the new project that's pre-configured for your target server.
-
-```sh
-cd ..
-# create a new project, and pick a pre-configured host
-npx create-remix@latest
-cd my-new-remix-app
-# remove the new project's app (not the old one!)
-rm -rf app
-# copy your app over
-cp -R ../my-old-remix-app/app app
-```
+Merge changes to `main` branch to trigger push to [Cloudflare Pages](https://pages.cloudflare.com/).
