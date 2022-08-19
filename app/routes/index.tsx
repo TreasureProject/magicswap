@@ -71,7 +71,8 @@ export const loader: LoaderFunction = async ({ request, context }) => {
   const inputSymbol = url.searchParams.get("input") ?? "MAGIC";
   const outputSymbol =
     url.searchParams.get("output") ??
-    tokens.find((token) => !token.isMagic)!.symbol;
+    tokens.find((token) => !token.isMagic)?.symbol ??
+    "";
   const inputToken = getTokenBySymbol(tokens, inputSymbol);
   const outputToken = getTokenBySymbol(tokens, outputSymbol);
 
