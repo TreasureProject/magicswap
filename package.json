@@ -12,11 +12,12 @@
     "dev:css": "npm run generate:css -- --watch",
     "dev:remix": "remix watch",
     "dev:wrangler": "cross-env NODE_ENV=development wrangler pages dev ./public -b $(cat .env)",
+    "generate": "run-p generate:*",
     "generate:css": "tailwindcss -o ./app/styles/tailwind.css",
-    "codegen": "node -r dotenv/config node_modules/.bin/gql-gen",
+    "generate:gql": "graphql-codegen -r dotenv/config",
     "start": "cross-env NODE_ENV=production npm run dev:wrangler",
     "lint": "prettier --write 'app/**/{*.ts,*.tsx}' && eslint --fix --no-error-on-unmatched-pattern 'app/**/{*.ts,*.tsx}'",
-    "postinstall": "patch-package",
+    "postinstall": "patch-package && npm run generate",
     "prepare": "husky install"
   },
   "dependencies": {

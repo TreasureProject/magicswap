@@ -22,12 +22,6 @@ Install dependencies:
 npm install
 ```
 
-Generate code:
-
-```sh
-npm run codegen
-```
-
 Start development server:
 
 ```sh
