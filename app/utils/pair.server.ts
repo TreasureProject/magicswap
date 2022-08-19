@@ -9,6 +9,10 @@ import { normalizeAdvancedToken } from "./tokens.server";
 
 type RawPair = GetSwapPairQuery["pairs"][0];
 
+const SUPPORTED_PAIRS = [
+  "0x172cc0903c2175e565d5b844c81893998a910500", // MAGIC-ELM Rinkeby
+];
+
 const normalizePair = ({
   id,
   token0: rawToken0,
@@ -123,15 +127,9 @@ export const getPairs = async (
   const { pairs } = await sdk.getPairs({
     where: {
       ...where,
+      id_in: SUPPORTED_PAIRS,
       reserveETH_gt: 0,
     },
   });
-  return (
-    pairs
-      .map((pair) => normalizePair(pair as RawPair))
-      // Both sides of the pair must be supported tokens
-      .filter(({ token0, token1 }) => token0.isSupported && token1.isSupported)
-      // One side of the pair must be MAGIC
-      .filter(({ token0, token1 }) => token0.isMagic || token1.isMagic)
-  );
+  return pairs.map((pair) => normalizePair(pair as RawPair));
 };

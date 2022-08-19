@@ -7,7 +7,7 @@ import type { AdvancedToken, Optional, Pair, Token } from "~/types";
 type RawToken = GetSwapPairsQuery["pairs"][0]["token0"];
 type RawPairToken = GetSwapPairQuery["pairs"][0]["token0"];
 
-const SUPPORTED_TOKENS = [
+const TOKEN_LIST = [
   {
     symbol: "MAGIC",
     name: "MAGIC",
@@ -30,17 +30,13 @@ export const normalizeToken = ({
   derivedETH,
 }: RawToken): Token => {
   const symbol = normalizeSymbol(rawSymbol);
-  const supportedToken = SUPPORTED_TOKENS.find(
-    (token) => token.symbol === symbol
-  );
   return {
     id,
     symbol,
     isEth: symbol === "ETH" || symbol === "WETH",
     isMagic: symbol === "MAGIC",
-    isSupported: !!supportedToken,
     name,
-    image: supportedToken?.image,
+    image: TOKEN_LIST.find((token) => token.symbol === symbol)?.image,
     decimals: parseInt(decimals),
     priceMagic: parseFloat(derivedETH),
   };
