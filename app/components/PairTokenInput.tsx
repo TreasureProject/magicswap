@@ -53,7 +53,7 @@ export default function PairTokenInput({
   return (
     <div className="group flex-1">
       <div className="rounded-md border border-night-800/50 bg-[#131D2E] transition-colors group-hover:border-night-700/50">
-        <div className="border-b border-night-800/50 p-4 transition-colors group-hover:border-night-700/50 2xl:p-6">
+        <div className="border-b border-night-800/50 p-2 transition-colors group-hover:border-night-700/50 sm:p-4 2xl:p-6">
           <label htmlFor={id} className="sr-only">
             {label}
           </label>

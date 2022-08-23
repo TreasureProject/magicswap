@@ -3,7 +3,6 @@ import {
   ArrowDownIcon,
   SearchIcon,
 } from "@heroicons/react/solid";
-import magicLogo from "../images/magic-logomark.svg";
 import cn from "clsx";
 import { Button } from "~/components/Button";
 import { useCallback, useEffect } from "react";
@@ -191,12 +190,11 @@ export default function Index() {
   return (
     <>
       <div className="flex flex-col items-center">
-        <img src={magicLogo} className="h-5 w-5" alt="Magic Logo" />
-        <h2 className="mt-4 text-sm font-bold sm:text-lg">
+        <h2 className="mt-4 font-bold sm:text-lg">
           Swap {inputPairToken.symbol} to {outputPairToken.symbol}
         </h2>
-        <p className="text-xs text-night-500 sm:text-base">
-          The easiest way to swap your tokens
+        <p className="text-sm text-night-500 sm:text-base">
+          The gateway to the cross-game economy
         </p>
         <div className="z-10 mt-8 w-full rounded-xl bg-night-700/10 p-4 shadow-glass backdrop-blur-md">
           <div className="flex justify-end">
@@ -274,7 +272,7 @@ export default function Index() {
                 })
               }
             />
-            <div className="flex basis-24 items-center justify-center xl:basis-32">
+            <div className="flex basis-16 items-center justify-center xl:basis-32">
               <Link
                 to={`/?input=${outputPairToken.symbol}&output=${inputPairToken.symbol}`}
                 className="group rounded-full p-2 transition duration-300 ease-in-out hover:bg-night-500/20"
