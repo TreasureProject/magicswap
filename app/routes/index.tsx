@@ -48,11 +48,12 @@ type LoaderData = {
 };
 
 export const meta: MetaFunction = ({ data }) => {
-  if (!data) {
-    return createMetaTags("Swap | MagicSwap");
+  const { inputToken, outputToken } = (data || {}) as LoaderData;
+
+  if (!inputToken || !outputToken) {
+    return createMetaTags("404 | MagicSwap");
   }
 
-  const { inputToken, outputToken } = data as LoaderData;
   return createMetaTags(
     `Swap ${inputToken.symbol} to ${outputToken.symbol} | MagicSwap`
   );
