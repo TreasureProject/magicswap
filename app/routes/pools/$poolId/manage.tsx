@@ -25,6 +25,7 @@ import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPop
 import { usePair } from "~/hooks/usePair";
 import { WalletButton } from "~/components/WalletButton";
 import { usePrice } from "~/context/priceContext";
+import { createMetaTags } from "~/utils/meta";
 
 type LoaderData = {
   pair: Pair;
@@ -36,9 +37,8 @@ const tabs = [
   // { name: "Rewards", query: "rewards" },
 ] as const;
 
-export const meta: MetaFunction = ({ data }: { data: LoaderData }) => ({
-  title: `${data.pair.name} - Manage | MagicSwap`,
-});
+export const meta: MetaFunction = ({ data }: { data: LoaderData }) =>
+  createMetaTags(`${data.pair.name} - Manage | MagicSwap`);
 
 export const loader: LoaderFunction = async ({
   params: { poolId },

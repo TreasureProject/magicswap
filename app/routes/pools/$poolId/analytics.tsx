@@ -20,6 +20,7 @@ import { getEnvVariable } from "~/utils/env";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import { chain, useNetwork } from "wagmi";
 import { usePrice } from "~/context/priceContext";
+import { createMetaTags } from "~/utils/meta";
 
 type LoaderData = {
   randomNumber: number;
@@ -27,9 +28,8 @@ type LoaderData = {
   swaps: Swap[];
 };
 
-export const meta: MetaFunction = ({ data }: { data: LoaderData }) => ({
-  title: `${data.pair.name} - Analytics | MagicSwap`,
-});
+export const meta: MetaFunction = ({ data }: { data: LoaderData }) =>
+  createMetaTags(`${data.pair.name} - Analytics | MagicSwap`);
 
 export const loader: LoaderFunction = async ({
   params: { poolId },
