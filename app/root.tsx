@@ -33,7 +33,15 @@ import { alchemyProvider } from "wagmi/providers/alchemy";
 
 import styles from "./styles/tailwind.css";
 import React from "react";
-import { PieIcon, SpinnerIcon, SplitIcon, AMMIcon } from "./components/Icons";
+import {
+  PieIcon,
+  SpinnerIcon,
+  SplitIcon,
+  AMMIcon,
+  TwitterIcon,
+  DiscordIcon,
+  GitHubIcon,
+} from "./components/Icons";
 
 import NProgress from "nprogress";
 import nProgressStyles from "./styles/nprogress.css";
@@ -237,12 +245,40 @@ export default function App() {
                 }
               >
                 <SettingsProvider>
-                  <div className="z-10 flex h-20 items-center justify-center px-8">
-                    <div className="relative m-auto flex flex-1 items-center justify-between xl:max-w-6xl xl:justify-center 2xl:max-w-7xl">
-                      <Link to="/">
-                        <AMMIcon className="h-8 w-8 sm:h-10 sm:w-10" />
-                      </Link>
-                      <div className="inset-y-0 right-5 flex items-center justify-center sm:absolute">
+                  <div className="z-10 flex items-center justify-center px-8">
+                    <div className="mx-auto flex w-full flex-row items-center gap-2 py-4 xl:max-w-6xl 2xl:max-w-7xl">
+                      <div className="mr-auto hidden flex-1 items-center divide-x divide-night-800 sm:flex">
+                        <a
+                          className="px-3 text-night-500 transition-colors hover:text-white"
+                          href="https://twitter.com/Treasure_DAO"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <TwitterIcon className="h-6 w-6" />
+                        </a>
+                        <a
+                          className="px-3 text-night-500 transition-colors hover:text-white"
+                          href="http://discord.gg/treasuredao"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <DiscordIcon className="h-6 w-6" />
+                        </a>
+                        <a
+                          className="px-3 text-night-500 transition-colors hover:text-white"
+                          href="https://github.com/TreasureProject/magicswap"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <GitHubIcon className="h-6 w-6" />
+                        </a>
+                      </div>
+                      <div className="flex flex-1 items-center sm:justify-center">
+                        <Link to="/">
+                          <AMMIcon className="h-10 w-10 sm:h-14 sm:w-14" />
+                        </Link>
+                      </div>
+                      <div className="ml-auto flex-1">
                         <ConnectButton
                           accountStatus="address"
                           showBalance={{
@@ -254,7 +290,7 @@ export default function App() {
                     </div>
                   </div>
                   <div className="relative overflow-hidden">
-                    <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] flex-col p-8 xl:max-w-6xl 2xl:max-w-7xl">
+                    <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] flex-col p-8 pt-0 sm:pt-8 xl:max-w-6xl 2xl:max-w-7xl">
                       <Outlet />
                     </div>
                     <header className="fixed left-0 right-0 bottom-[4.5rem] z-10 px-2 sm:bottom-24">
