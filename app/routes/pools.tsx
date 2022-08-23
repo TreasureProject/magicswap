@@ -2,6 +2,7 @@ import { useState, useEffect, Fragment } from "react";
 import type { ChangeEvent } from "react";
 import { ChevronDownIcon, SearchIcon, XIcon } from "@heroicons/react/solid";
 import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
+import { redirect } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import type { ShouldReloadFunction } from "@remix-run/react";
 import { useFetcher } from "@remix-run/react";
@@ -31,7 +32,7 @@ const tabs = [
   { name: "Analytics", href: "analytics" },
 ];
 
-export const loader: LoaderFunction = async ({ request, context }) => {
+export const loader: LoaderFunction = async ({ request, context, params }) => {
   const exchangeUrl = getEnvVariable("EXCHANGE_ENDPOINT", context);
 
   const url = new URL(request.url);
@@ -40,6 +41,10 @@ export const loader: LoaderFunction = async ({ request, context }) => {
   const pairs = await getPairs(exchangeUrl, {
     name_contains: name,
   });
+
+  if (pairs.length === 1 && !params.poolId) {
+    return redirect(`/pools/${pairs[0].id}/manage`);
+  }
 
   return json<LoaderData>({ pairs });
 };
