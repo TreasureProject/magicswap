@@ -69,21 +69,20 @@ export const loader: LoaderFunction = async ({ request, context }) => {
     a.symbol.localeCompare(b.symbol)
   );
   const inputSymbol = url.searchParams.get("input") ?? "MAGIC";
-  const outputSymbol =
-    url.searchParams.get("output") ??
-    tokens.find((token) => !token.isMagic)?.symbol ??
-    "";
   const inputToken = getTokenBySymbol(tokens, inputSymbol);
-  const outputToken = getTokenBySymbol(tokens, outputSymbol);
-
-  if (!inputToken || !outputToken) {
-    throw new Response("Token not found", {
+  if (!inputToken) {
+    throw new Response(`${inputSymbol} token not found`, {
       status: 404,
     });
   }
 
-  if (inputToken.id === outputToken.id) {
-    throw new Response("Swap not allowed", {
+  const outputSymbol =
+    url.searchParams.get("output") ??
+    tokens.find((token) => !token.isMagic)?.symbol ??
+    "";
+  const outputToken = getTokenBySymbol(tokens, outputSymbol);
+  if (!outputToken) {
+    throw new Response(`${outputSymbol} token not found`, {
       status: 404,
     });
   }
@@ -95,9 +94,12 @@ export const loader: LoaderFunction = async ({ request, context }) => {
   );
 
   if (!pair) {
-    throw new Response("Swap not allowed", {
-      status: 404,
-    });
+    throw new Response(
+      `${inputToken.symbol}-${outputToken.symbol} swap not allowed`,
+      {
+        status: 404,
+      }
+    );
   }
 
   return json<LoaderData>({
