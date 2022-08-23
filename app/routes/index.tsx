@@ -37,6 +37,7 @@ import {
 } from "~/utils/price";
 import { WalletButton } from "~/components/WalletButton";
 import { useAmountIn, useAmountOut } from "~/hooks/useAmount";
+import { createMetaTags } from "~/utils/meta";
 
 type LoaderData = {
   pairs: Pair[];
@@ -48,15 +49,13 @@ type LoaderData = {
 
 export const meta: MetaFunction = ({ data }) => {
   if (!data) {
-    return {
-      title: "Swap | MagicSwap",
-    };
+    return createMetaTags("Swap | MagicSwap");
   }
 
   const { inputToken, outputToken } = data as LoaderData;
-  return {
-    title: `Swap ${inputToken.symbol} to ${outputToken.symbol} | MagicSwap`,
-  };
+  return createMetaTags(
+    `Swap ${inputToken.symbol} to ${outputToken.symbol} | MagicSwap`
+  );
 };
 
 export const loader: LoaderFunction = async ({ request, context }) => {

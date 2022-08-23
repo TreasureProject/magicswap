@@ -18,14 +18,13 @@ import type { Pair } from "~/types";
 import { getPairs } from "~/utils/pair.server";
 import { TokenLogo } from "~/components/TokenLogo";
 import { getEnvVariable } from "~/utils/env";
+import { createMetaTags } from "~/utils/meta";
 
 type LoaderData = {
   pairs: Pair[];
 };
 
-export const meta: MetaFunction = () => ({
-  title: "Pools | MagicSwap",
-});
+export const meta: MetaFunction = () => createMetaTags("Pools | MagicSwap");
 
 const tabs = [
   { name: "Manage Liquidity", href: "manage" },

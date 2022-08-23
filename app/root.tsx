@@ -57,6 +57,7 @@ import {
   CheckCircleIcon,
   ExclamationCircleIcon,
 } from "@heroicons/react/outline";
+import { createMetaTags } from "./utils/meta";
 
 export type RootLoaderData = {
   ENV: Partial<CloudFlareEnv>;
@@ -91,8 +92,8 @@ export const links: LinksFunction = () => [
 ];
 
 export const meta: MetaFunction = () => ({
+  ...createMetaTags("Swap | MagicSwap"),
   charset: "utf-8",
-  title: "Swap | MagicSwap",
   viewport: "width=device-width,initial-scale=1",
   "apple-mobile-web-app-title": "MagicSwap",
   "application-name": "MagicSwap",
