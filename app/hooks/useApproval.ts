@@ -1,10 +1,10 @@
-import { utils } from "ethers";
 import { MaxUint256 } from "@ethersproject/constants";
 import { erc20ABI, useContractRead } from "wagmi";
 import type { Pair, Token } from "~/types";
 import { useContractWrite } from "./useContractWrite";
 import { getEnvVariable } from "~/utils/env";
 import { useUser } from "~/context/userContext";
+import { formatEther } from "ethers/lib/utils";
 
 const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
   const contractConfig = {
@@ -32,9 +32,7 @@ const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
     refetch,
     isLoading,
     isSuccess,
-    isApproved: allowance
-      ? parseFloat(utils.formatEther(allowance)) > 0
-      : false,
+    isApproved: allowance ? parseFloat(formatEther(allowance)) > 0 : false,
     approve: () =>
       writeApprove({
         args: [

@@ -26,6 +26,7 @@ import { usePair } from "~/hooks/usePair";
 import { WalletButton } from "~/components/WalletButton";
 import { usePrice } from "~/context/priceContext";
 import { createMetaTags } from "~/utils/meta";
+import { useQuote } from "~/hooks/useQuote";
 
 type LoaderData = {
   pair: Pair;
@@ -109,9 +110,10 @@ export default function Manage() {
 const Liquidity = () => {
   const [isAddLiquidity, setIsAddLiquidity] = useState(true);
   const [removeInputValue, setRemoveInputValue] = useState(0);
-  const [addInputValues, setAddInputValues] = useState<[number, number]>([
-    0, 0,
-  ]);
+  const [addAmounts, setAddAmounts] = useState({
+    token0: 0,
+    token1: 0,
+  });
   const data = useLoaderData<LoaderData>();
   const { isConnected, unsupported } = useUser();
   const pair = usePair(data.pair);
@@ -156,8 +158,13 @@ const Liquidity = () => {
     isLoading: isRemoveLoading,
   } = useRemoveLiquidity();
 
-  const token0BalanceInsufficient = addInputValues[0] > token0Balance;
-  const token1BalanceInsufficient = addInputValues[1] > token1Balance;
+  const amountToken0 =
+    useQuote(pair.token1, pair.token0, addAmounts.token1) || addAmounts.token0;
+  const amountToken1 =
+    useQuote(pair.token0, pair.token1, addAmounts.token0) || addAmounts.token1;
+
+  const token0BalanceInsufficient = amountToken0 > token0Balance;
+  const token1BalanceInsufficient = amountToken1 > token1Balance;
   const insufficientBalance =
     token0BalanceInsufficient || token1BalanceInsufficient;
   const lpBalanceInsufficient = removeInputValue > lpBalance;
@@ -191,6 +198,7 @@ const Liquidity = () => {
 
   useEffect(() => {
     if (isAddSuccess || isRemoveSuccess) {
+      setAddAmounts({ token0: 0, token1: 0 });
       refetchAll();
     }
   }, [isAddSuccess, isRemoveSuccess, refetchAll]);
@@ -205,15 +213,15 @@ const Liquidity = () => {
       : 0;
 
   const handleAdd0InputChanged = (value: number) => {
-    setAddInputValues([value, value * pair.token1.price]);
+    setAddAmounts({ token0: value, token1: 0 });
   };
 
   const handleAdd1InputChanged = (value: number) => {
-    setAddInputValues([value * pair.token0.price, value]);
+    setAddAmounts({ token0: 0, token1: value });
   };
 
   const handleAddLiquidity = () => {
-    addLiquidity(pair, addInputValues[0], addInputValues[1]);
+    addLiquidity(pair, amountToken0, amountToken1);
   };
 
   const handleRemoveLiquidity = () => {
@@ -226,7 +234,7 @@ const Liquidity = () => {
   };
 
   useEffect(() => {
-    setAddInputValues([0, 0]);
+    setAddAmounts({ token0: 0, token1: 0 });
     setRemoveInputValue(0);
   }, [pair.id]);
 
@@ -299,7 +307,7 @@ const Liquidity = () => {
               label={`${pair.token0.symbol} Amount`}
               token={pair.token0}
               balance={token0Balance}
-              value={addInputValues[0]}
+              value={amountToken0}
               onChange={handleAdd0InputChanged}
             />
             <div className="flex justify-center">
@@ -310,27 +318,25 @@ const Liquidity = () => {
               label={`${pair.token1.symbol} Amount`}
               token={pair.token1}
               balance={token1Balance}
-              value={addInputValues[1]}
+              value={amountToken1}
               onChange={handleAdd1InputChanged}
             />
-            {addInputValues.some((value) => value > 0) && (
-              <div className="space-y-2 rounded-md bg-night-900 p-4">
-                <p className="text-xs text-night-600 sm:text-base">
-                  You'll receive (at least):
-                </p>
-                <p className="text-sm font-medium sm:text-lg">
-                  ≈{" "}
-                  {formatNumber(
-                    getLpTokenCount(
-                      addInputValues[0],
-                      pair.token0.reserve,
-                      pair.totalSupply
-                    )
-                  )}{" "}
-                  {pair.name} Pool Tokens
-                </p>
-              </div>
-            )}
+            <div className="space-y-2 rounded-md bg-night-900 p-4">
+              <p className="text-xs text-night-600 sm:text-base">
+                You'll receive (at least):
+              </p>
+              <p className="text-sm font-medium sm:text-lg">
+                ≈{" "}
+                {formatNumber(
+                  getLpTokenCount(
+                    amountToken0,
+                    pair.token0.reserve,
+                    pair.totalSupply
+                  )
+                )}{" "}
+                {pair.name} Pool Tokens
+              </p>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
@@ -343,48 +349,46 @@ const Liquidity = () => {
               value={removeInputValue}
               onChange={(value) => setRemoveInputValue(value)}
             />
-            {removeInputValue > 0 && (
-              <div className="space-y-2 rounded-md bg-night-900 p-4">
-                <p className="text-xs text-night-600 sm:text-base">
-                  You'll receive (at least):
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">
-                    {formatNumber(removeLiquidityToken0Estimate)}{" "}
-                    {pair.token0.symbol}
-                  </span>
-                  <span className="text-night-200">
-                    ≈{" "}
-                    {formatUsd(
-                      removeLiquidityToken0Estimate *
-                        pair.token0.priceMagic *
-                        magicUsd
-                    )}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">
-                    {formatNumber(removeLiquidityToken1Estimate)}{" "}
-                    {pair.token1.symbol}
-                  </span>
-                  <span className="text-night-200">
-                    ={" "}
-                    {formatUsd(
-                      removeLiquidityToken1Estimate *
-                        pair.token1.priceMagic *
-                        magicUsd
-                    )}
-                  </span>
-                </div>
+            <div className="space-y-2 rounded-md bg-night-900 p-4">
+              <p className="text-xs text-night-600 sm:text-base">
+                You'll receive (at least):
+              </p>
+              <div className="flex items-center justify-between">
+                <span className="font-medium">
+                  {formatNumber(removeLiquidityToken0Estimate)}{" "}
+                  {pair.token0.symbol}
+                </span>
+                <span className="text-night-200">
+                  ≈{" "}
+                  {formatUsd(
+                    removeLiquidityToken0Estimate *
+                      pair.token0.priceMagic *
+                      magicUsd
+                  )}
+                </span>
               </div>
-            )}
+              <div className="flex items-center justify-between">
+                <span className="font-medium">
+                  {formatNumber(removeLiquidityToken1Estimate)}{" "}
+                  {pair.token1.symbol}
+                </span>
+                <span className="text-night-200">
+                  ={" "}
+                  {formatUsd(
+                    removeLiquidityToken1Estimate *
+                      pair.token1.priceMagic *
+                      magicUsd
+                  )}
+                </span>
+              </div>
+            </div>
           </div>
         )}
 
         {isAddLiquidity ? (
           <>
-            {addInputValues[0] > 0 &&
-              addInputValues[1] > 0 &&
+            {amountToken0 > 0 &&
+              amountToken1 > 0 &&
               (!isToken0Approved || !isToken1Approved) &&
               !insufficientBalance &&
               isConnected && (
@@ -408,8 +412,8 @@ const Liquidity = () => {
             ) : (
               <Button
                 disabled={
-                  !addInputValues[0] ||
-                  !addInputValues[1] ||
+                  !amountToken0 ||
+                  !amountToken1 ||
                   insufficientBalance ||
                   !isToken0Approved ||
                   !isToken1Approved ||
@@ -429,7 +433,7 @@ const Liquidity = () => {
                   </>
                 ) : (
                   <>
-                    {addInputValues[0] && addInputValues[1]
+                    {amountToken0 && amountToken1
                       ? "Add Liquidity"
                       : "Enter an Amount"}
                   </>

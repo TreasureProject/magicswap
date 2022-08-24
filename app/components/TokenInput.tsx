@@ -3,6 +3,7 @@ import { formatNumber } from "~/utils/number";
 import { formatUsd } from "~/utils/price";
 import { useNumberInput } from "~/hooks/useNumberInput";
 import { TokenLogo } from "~/components/TokenLogo";
+import { usePrice } from "~/context/priceContext";
 
 export default function TokenInput({
   id,
@@ -27,6 +28,7 @@ export default function TokenInput({
     value,
     onChange,
   });
+  const { magicUsd } = usePrice();
 
   return (
     <div>
@@ -66,7 +68,8 @@ export default function TokenInput({
           <span className="text-xs text-night-500">
             ~{" "}
             {formatUsd(
-              (token?.priceUsd ?? price ?? 0) *
+              (token?.priceMagic ?? 0) *
+                magicUsd *
                 (parsedValue > 0 ? parsedValue : 1)
             )}
           </span>
