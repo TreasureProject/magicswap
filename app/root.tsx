@@ -251,9 +251,10 @@ export default function App() {
                       <div className="mr-auto hidden flex-1 items-center divide-x divide-night-800 sm:flex">
                         <a
                           className="px-3 text-night-500 transition-colors hover:text-white"
-                          href="https://twitter.com/Treasure_DAO"
+                          href="https://twitter.com/MagicSwap_"
                           target="_blank"
                           rel="noopener noreferrer"
+                          title="Twitter"
                         >
                           <TwitterIcon className="h-6 w-6" />
                         </a>
@@ -262,6 +263,7 @@ export default function App() {
                           href="http://discord.gg/treasuredao"
                           target="_blank"
                           rel="noopener noreferrer"
+                          title="Discord"
                         >
                           <DiscordIcon className="h-6 w-6" />
                         </a>
@@ -270,6 +272,7 @@ export default function App() {
                           href="https://github.com/TreasureProject/magicswap"
                           target="_blank"
                           rel="noopener noreferrer"
+                          title="GitHub"
                         >
                           <GitHubIcon className="h-6 w-6" />
                         </a>
