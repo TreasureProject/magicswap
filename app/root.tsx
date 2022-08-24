@@ -248,7 +248,7 @@ export default function App() {
                 <SettingsProvider>
                   <div className="z-10 flex items-center justify-center px-8">
                     <div className="mx-auto flex w-full flex-row items-center gap-2 py-4 xl:max-w-6xl 2xl:max-w-7xl">
-                      <div className="mr-auto hidden items-center divide-x divide-night-800 sm:flex">
+                      <div className="mr-auto hidden flex-1 items-center divide-x divide-night-800 sm:flex">
                         <a
                           className="px-3 text-night-500 transition-colors hover:text-white"
                           href="https://twitter.com/Treasure_DAO"
@@ -279,7 +279,7 @@ export default function App() {
                           <AMMIcon className="h-10 w-10 sm:h-14 sm:w-14" />
                         </Link>
                       </div>
-                      <div className="ml-auto">
+                      <div className="ml-auto flex flex-1 items-center justify-end">
                         <ConnectButton
                           accountStatus="address"
                           showBalance={{
