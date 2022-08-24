@@ -11,6 +11,7 @@ type RawPair = GetSwapPairQuery["pairs"][0];
 
 const SUPPORTED_PAIRS = [
   "0x172cc0903c2175e565d5b844c81893998a910500", // MAGIC-ELM Rinkeby
+  "0xf904469497e6a179a9d47a7b468e4be42ec56e65", // MAGIC-ELM Mainnet
 ];
 
 const normalizePair = ({
