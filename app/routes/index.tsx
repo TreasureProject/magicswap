@@ -187,13 +187,13 @@ export default function Index() {
   return (
     <>
       <div className="flex flex-col items-center">
-        <h2 className="mt-4 font-bold sm:text-lg">
+        <h2 className="mt-2 font-bold sm:mt-4 sm:text-lg">
           Swap {inputPairToken.symbol} to {outputPairToken.symbol}
         </h2>
         <p className="text-sm text-night-500 sm:text-base">
           The gateway to the cross-game economy
         </p>
-        <div className="z-10 mt-8 w-full rounded-xl bg-night-700/10 p-4 shadow-glass backdrop-blur-md">
+        <div className="z-10 mt-4 w-full rounded-xl bg-night-700/10 p-4 shadow-glass backdrop-blur-md sm:mt-8">
           <div className="flex justify-end">
             <div className="relative inline-block text-left">
               <Popover className="relative">
@@ -269,13 +269,13 @@ export default function Index() {
                 })
               }
             />
-            <div className="flex basis-16 items-center justify-center xl:basis-32">
+            <div className="flex basis-10 items-center justify-center sm:basis-16 xl:basis-32">
               <Link
                 to={`/?input=${outputPairToken.symbol}&output=${inputPairToken.symbol}`}
                 className="group rounded-full p-2 transition duration-300 ease-in-out hover:bg-night-500/20"
               >
                 <ArrowRightIcon className="hidden h-6 w-6 animate-rotate-back text-night-500 group-hover:animate-rotate-180 xl:block" />
-                <ArrowDownIcon className="block h-6 w-6 animate-rotate-back text-night-500 group-hover:animate-rotate-180 xl:hidden" />
+                <ArrowDownIcon className="block h-5 w-5 animate-rotate-back text-night-500 group-hover:animate-rotate-180 xl:hidden" />
               </Link>
             </div>
             <PairTokenInput
@@ -296,7 +296,7 @@ export default function Index() {
             />
           </div>
         </div>
-        <div className="mt-8 w-full space-y-4 px-0 xl:px-72 2xl:mt-12">
+        <div className="mt-4 w-full space-y-4 px-0 sm:mt-8 xl:px-72 2xl:mt-12">
           <Button
             disabled={!amountIn || !amountOut || insufficientBalance}
             onClick={() => setIsOpenConfirmSwapModal(true)}
