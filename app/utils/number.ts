@@ -1,4 +1,4 @@
-import { utils } from "ethers";
+import { parseUnits } from "ethers/lib/utils";
 import type { Token } from "~/types";
 
 export const getFormatOptions = (value: number, isUsd = false) => {
@@ -34,4 +34,4 @@ export const formatPercent = (
   })}%`;
 
 export const formatTokenAmountInWei = (token: Token, amount: number) =>
-  utils.parseUnits(amount.toFixed(token.decimals));
+  parseUnits(amount.toFixed(token.decimals));
