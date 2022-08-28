@@ -1,6 +1,7 @@
-import type { PropsWithChildren } from "react";
-import { createContext, useContext, useEffect, useState } from "react";
-import { sushiswapExchangeSdk } from "~/utils/api";
+import type { ReactNode } from "react";
+import { createContext, useContext } from "react";
+import { useQuery } from "wagmi";
+import { ARBITRUM_MAGIC_ADDRESS, fetchMagicPrice } from "~/utils/price";
 
 const Context = createContext<{
   magicUsd: number;
@@ -16,26 +17,19 @@ export const usePrice = () => {
   return context;
 };
 
-type Props = PropsWithChildren<{
-  endpointUrl: string;
-}>;
+export const PriceProvider = ({ children }: { children: ReactNode }) => {
+  const { data } = useQuery<
+    unknown,
+    unknown,
+    Record<string, number> | undefined,
+    string[]
+  >(["price:magic-usd"], fetchMagicPrice, {
+    refetchInterval: 2_500,
+  });
 
-export const PriceProvider = ({ endpointUrl, children }: Props) => {
-  const [magicUsd, setMagicUsd] = useState(0);
-
-  useEffect(() => {
-    const client = sushiswapExchangeSdk(endpointUrl);
-
-    const fetchPrice = async () => {
-      const { bundle, token } = await client.getMagicPrice();
-      setMagicUsd((bundle?.ethPrice ?? 0) * (token?.derivedETH ?? 0));
-    };
-
-    const interval = setInterval(fetchPrice, 2000);
-    fetchPrice();
-
-    return () => clearInterval(interval);
-  }, [endpointUrl]);
-
-  return <Context.Provider value={{ magicUsd }}>{children}</Context.Provider>;
+  return (
+    <Context.Provider value={{ magicUsd: data?.[ARBITRUM_MAGIC_ADDRESS] ?? 0 }}>
+      {children}
+    </Context.Provider>
+  );
 };
