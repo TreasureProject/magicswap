@@ -10,7 +10,6 @@ import { Link } from "@remix-run/react";
 import { useLocation } from "@remix-run/react";
 import { useParams } from "@remix-run/react";
 import { Outlet, useLoaderData } from "@remix-run/react";
-import cn from "clsx";
 import { Dialog, Transition } from "@headlessui/react";
 import { SlashIcon, SpinnerIcon } from "~/components/Icons";
 import { formatPercent } from "~/utils/number";
@@ -19,6 +18,7 @@ import { getPairs } from "~/utils/pair.server";
 import { TokenLogo } from "~/components/TokenLogo";
 import { getEnvVariable } from "~/utils/env";
 import { createMetaTags } from "~/utils/meta";
+import { twMerge } from "tailwind-merge";
 
 type LoaderData = {
   pairs: Pair[];
@@ -184,7 +184,7 @@ export default function Pools() {
                     <Link
                       to={`/pools/${poolId}/${tab.href}`}
                       prefetch="intent"
-                      className={cn(
+                      className={twMerge(
                         isActive
                           ? "border-ruby-900 text-white"
                           : "border-transparent text-night-500 hover:border-night-600 hover:text-night-700",
@@ -287,7 +287,7 @@ export default function Pools() {
           </div>
         </div>
         <div
-          className={cn(
+          className={twMerge(
             lastPath === "analytics"
               ? "xl:h-[calc(100vh-256px)]"
               : "xl:min-h-[calc(100vh-256px)]",
@@ -312,10 +312,12 @@ const PoolLink = ({ pair, lastPath }: { pair: Pair; lastPath: string }) => {
         className="focus:outline-none"
       >
         <div
-          className={cn("group flex items-center border-l-2 px-6 py-5", {
-            "border-ruby-900 bg-ruby-500/10 text-ruby-600": isActive,
-            "border-transparent hover:border-ruby-300": !isActive,
-          })}
+          className={twMerge(
+            "group flex items-center border-l-2 px-6 py-5",
+            isActive
+              ? "border-ruby-900 bg-ruby-500/10 text-ruby-600"
+              : "border-transparent hover:border-ruby-300"
+          )}
         >
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -332,19 +334,17 @@ const PoolLink = ({ pair, lastPath }: { pair: Pair; lastPath: string }) => {
                 />
               </div>
               <p
-                className={cn("text-sm font-medium", {
-                  "text-ruby-500": isActive,
-                  "text-night-400 group-hover:text-night-200": !isActive,
-                })}
+                className={twMerge(
+                  "text-sm font-medium",
+                  isActive
+                    ? "text-ruby-500"
+                    : "text-night-400 group-hover:text-night-200"
+                )}
               >
                 {pair.name}
               </p>
             </div>
-            <p
-              className={cn("font-bold", {
-                "text-ruby-500": isActive,
-              })}
-            >
+            <p className={twMerge("font-bold", isActive && "text-ruby-500")}>
               {formatPercent(pair.apy)}
             </p>
           </div>

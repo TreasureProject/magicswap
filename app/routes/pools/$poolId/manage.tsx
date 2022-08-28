@@ -5,7 +5,6 @@ import type { ShouldReloadFunction } from "@remix-run/react";
 import { useCatch, useLoaderData } from "@remix-run/react";
 import { PlusIcon } from "@heroicons/react/solid";
 import { Link, useParams, useSearchParams } from "@remix-run/react";
-import cn from "clsx";
 import invariant from "tiny-invariant";
 import { Button } from "~/components/Button";
 import { Switch } from "@headlessui/react";
@@ -26,6 +25,7 @@ import { usePair } from "~/hooks/usePair";
 import { usePrice } from "~/context/priceContext";
 import { createMetaTags } from "~/utils/meta";
 import { useQuote } from "~/hooks/useQuote";
+import { twMerge } from "tailwind-merge";
 
 type LoaderData = {
   pair: Pair;
@@ -78,7 +78,7 @@ export default function Manage() {
               <Link
                 key={tab.name}
                 to={`/pools/${params.poolId}/manage?tab=${tab.query}`}
-                className={cn(
+                className={twMerge(
                   isActive
                     ? "border-ruby-500 bg-night-500/20 text-white"
                     : "border-transparent text-night-500 hover:border-night-300 hover:text-night-700",
@@ -243,7 +243,7 @@ const Liquidity = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <span
-              className={cn(
+              className={twMerge(
                 isAddLiquidity && "text-night-500",
                 "text-[0.6rem] font-bold uppercase sm:text-base"
               )}
@@ -264,21 +264,21 @@ const Liquidity = () => {
               />
               <span
                 aria-hidden="true"
-                className={cn(
+                className={twMerge(
                   isAddLiquidity ? "bg-ruby-900" : "bg-night-200",
                   "pointer-events-none absolute mx-auto h-2.5 w-8 rounded-full transition-colors duration-200 ease-in-out"
                 )}
               />
               <span
                 aria-hidden="true"
-                className={cn(
+                className={twMerge(
                   isAddLiquidity ? "translate-x-5" : "translate-x-0",
                   "pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full border border-ruby-700 bg-ruby-700 shadow ring-0 transition-transform duration-200 ease-in-out"
                 )}
               />
             </Switch>
             <span
-              className={cn(
+              className={twMerge(
                 !isAddLiquidity && "text-night-500",
                 "text-[0.6rem] font-bold uppercase sm:text-base"
               )}
@@ -483,7 +483,7 @@ const Stake = () => {
       <div className="flex max-w-xl flex-1 flex-col space-y-4">
         <div className="flex items-center space-x-2">
           <span
-            className={cn(
+            className={twMerge(
               isStake && "text-night-500",
               "text-[0.6rem] font-bold uppercase sm:text-base"
             )}
@@ -504,21 +504,21 @@ const Stake = () => {
             />
             <span
               aria-hidden="true"
-              className={cn(
+              className={twMerge(
                 isStake ? "bg-ruby-900" : "bg-night-200",
                 "pointer-events-none absolute mx-auto h-2.5 w-8 rounded-full transition-colors duration-200 ease-in-out"
               )}
             />
             <span
               aria-hidden="true"
-              className={cn(
+              className={twMerge(
                 isStake ? "translate-x-5" : "translate-x-0",
                 "pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full border border-[#FF4E7E] bg-[#FF4E7E] shadow ring-0 transition-transform duration-200 ease-in-out"
               )}
             />
           </Switch>
           <span
-            className={cn(
+            className={twMerge(
               !isStake && "text-night-500",
               "text-[0.6rem] font-bold uppercase sm:text-base"
             )}

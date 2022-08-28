@@ -3,7 +3,6 @@ import {
   ArrowDownIcon,
   SearchIcon,
 } from "@heroicons/react/solid";
-import cn from "clsx";
 import { Button } from "~/components/Button";
 import { useCallback, useEffect } from "react";
 import { Link, useCatch, useLoaderData, useLocation } from "@remix-run/react";
@@ -36,6 +35,7 @@ import {
 } from "~/utils/price";
 import { useAmountIn, useAmountOut } from "~/hooks/useAmount";
 import { createMetaTags } from "~/utils/meta";
+import { twMerge } from "tailwind-merge";
 
 type LoaderData = {
   pairs: Pair[];
@@ -592,7 +592,7 @@ const TokenSelectionModal = ({
             return (
               <li key={token.id}>
                 <div
-                  className={cn(
+                  className={twMerge(
                     isDisabled
                       ? "pointer-events-none opacity-20"
                       : "hover:bg-night-800/40",

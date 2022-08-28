@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Fragment } from "react";
 import { XIcon } from "@heroicons/react/outline";
 import { Popover as ReactPopover, Transition } from "@headlessui/react";
-import cn from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export const Popover = ReactPopover;
 
@@ -26,7 +26,7 @@ export const PopoverContent = ({ children, className }: Props) => (
     <Popover.Panel
       // align="center"
       // sideOffset={5}
-      className={cn("bg-night-900", className)}
+      className={twMerge("bg-night-900", className)}
     >
       {({ close }) => (
         <>

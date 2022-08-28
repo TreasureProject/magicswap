@@ -2,7 +2,7 @@ import React from "react";
 import { useLocale } from "@react-aria/i18n";
 import { useNumberField } from "@react-aria/numberfield";
 import { useNumberFieldState } from "@react-stately/numberfield";
-import cn from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export const NumberField = ({
   children,
@@ -29,7 +29,7 @@ export const NumberField = ({
           <input
             {...inputProps}
             ref={inputRef}
-            className={cn(
+            className={twMerge(
               sanitizedValue > 49
                 ? "focus:border-ruby-500 focus:ring-ruby-500"
                 : "focus:border-night-500 focus:ring-night-500",
