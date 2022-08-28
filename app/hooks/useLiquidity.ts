@@ -1,5 +1,5 @@
+import { parseUnits } from "ethers/lib/utils";
 import { useRef } from "react";
-import { utils } from "ethers";
 import { useSettings } from "~/context/settingsContext";
 import { useUser } from "~/context/userContext";
 
@@ -34,11 +34,11 @@ export const useRemoveLiquidity = () => {
     const slippageMultiplier = (100 - slippage) / 100;
     const isToken1Eth = pair.token1.isEth;
 
-    const lpAmount = utils.parseUnits(rawLpAmount.toFixed(18));
-    const token0AmountMin = utils.parseUnits(
+    const lpAmount = parseUnits(rawLpAmount.toFixed(18));
+    const token0AmountMin = parseUnits(
       (rawToken0Amount * slippageMultiplier).toFixed(pair.token0.decimals)
     );
-    const token1AmountMin = utils.parseUnits(
+    const token1AmountMin = parseUnits(
       (rawToken1Amount * slippageMultiplier).toFixed(pair.token1.decimals)
     );
     const transactionDeadline = (
@@ -108,16 +108,16 @@ export const useAddLiquidity = () => {
     const slippageMultiplier = (100 - slippage) / 100;
     const isToken1Eth = pair.token1.isEth;
 
-    const token0Amount = utils.parseUnits(
+    const token0Amount = parseUnits(
       rawToken0Amount.toFixed(pair.token0.decimals)
     );
-    const token1Amount = utils.parseUnits(
+    const token1Amount = parseUnits(
       rawToken1Amount.toFixed(pair.token1.decimals)
     );
-    const token0AmountMin = utils.parseUnits(
+    const token0AmountMin = parseUnits(
       (rawToken0Amount * slippageMultiplier).toFixed(pair.token0.decimals)
     );
-    const token1AmountMin = utils.parseUnits(
+    const token1AmountMin = parseUnits(
       (rawToken1Amount * slippageMultiplier).toFixed(pair.token1.decimals)
     );
     const transactionDeadline = (

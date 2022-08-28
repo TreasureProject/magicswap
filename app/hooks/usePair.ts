@@ -1,6 +1,5 @@
-import { utils } from "ethers";
+import { formatUnits } from "ethers/lib/utils";
 import { useContractRead } from "wagmi";
-import { usePrice } from "~/context/priceContext";
 import type { Pair } from "~/types";
 import UniswapV2PairAbi from "../../artifacts/UniswapV2Pair.json";
 
@@ -25,12 +24,8 @@ const usePairReserves = (
 
   if (pairData) {
     const [rawReserve0, rawReserve1] = pairData;
-    reserves.reserve0 = parseFloat(
-      utils.formatUnits(rawReserve0, token0Decimals)
-    );
-    reserves.reserve1 = parseFloat(
-      utils.formatUnits(rawReserve1, token1Decimals)
-    );
+    reserves.reserve0 = parseFloat(formatUnits(rawReserve0, token0Decimals));
+    reserves.reserve1 = parseFloat(formatUnits(rawReserve1, token1Decimals));
   }
 
   return reserves;
