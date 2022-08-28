@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { ArrowRightIcon } from "@heroicons/react/solid";
 import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import {
@@ -10,9 +9,8 @@ import {
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { TimeIntervalLineGraph } from "~/components/Graph";
-import { Pill } from "~/components/Pill";
 import { formatUsd } from "~/utils/price";
-import { formatNumber } from "~/utils/number";
+import { formatCurrency, formatNumber } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
 import type { Pair, Swap } from "~/types";
 import { getSwaps } from "~/utils/swap.server";
@@ -21,9 +19,10 @@ import { ExternalLinkIcon } from "@heroicons/react/outline";
 import { chain, useNetwork } from "wagmi";
 import { usePrice } from "~/context/priceContext";
 import { createMetaTags } from "~/utils/meta";
+import { TokenLogo } from "~/components/TokenLogo";
+import { truncateEthAddress } from "~/utils/address";
 
 type LoaderData = {
-  randomNumber: number;
   pair: Pair;
   swaps: Swap[];
 };
@@ -36,8 +35,6 @@ export const loader: LoaderFunction = async ({
   context,
 }) => {
   const exchangeUrl = getEnvVariable("EXCHANGE_ENDPOINT", context);
-
-  const randomNumber = Math.floor(Math.random() * 6);
 
   invariant(poolId, `poolId is required`);
 
@@ -53,7 +50,6 @@ export const loader: LoaderFunction = async ({
   }
 
   return json<LoaderData>({
-    randomNumber,
     pair,
     swaps,
   });
@@ -147,19 +143,19 @@ export default function Analytics() {
                 scope="col"
                 className="py-3.5 pl-4 pr-3 text-left text-[0.6rem] font-semibold text-night-400 sm:pl-6 sm:text-xs"
               >
-                Swap
-              </th>
-              <th
-                scope="col"
-                className="hidden px-2 py-2.5 text-left text-[0.6rem] font-semibold text-night-400 sm:table-cell sm:text-xs md:px-3 md:py-3.5"
-              >
                 In
               </th>
               <th
                 scope="col"
-                className="hidden px-2 py-2.5 text-left text-[0.6rem] font-semibold text-night-400 sm:table-cell sm:text-xs md:px-3 md:py-3.5"
+                className="py-3.5 pl-4 pr-3 text-left text-[0.6rem] font-semibold text-night-400 sm:pl-6 sm:text-xs"
               >
                 Out
+              </th>
+              <th
+                scope="col"
+                className="hidden pl-6 text-left text-xs font-semibold text-night-400 sm:table-cell"
+              >
+                User
               </th>
               <th
                 scope="col"
@@ -170,56 +166,80 @@ export default function Analytics() {
             </tr>
           </thead>
           <tbody>
-            {swaps.map((swap) => (
-              <tr key={swap.id}>
-                <td className="whitespace-nowrap py-2.5 pl-4 pr-3 text-sm font-medium sm:pl-6">
-                  <div className="flex items-center space-x-2 sm:space-x-4">
-                    <Pill
-                      text={
-                        swap.isAmount0In
-                          ? pair.token0.symbol
-                          : pair.token1.symbol
-                      }
-                      enumValue={data.randomNumber}
-                    />
-                    <ArrowRightIcon className="h-3.5 w-3.5 flex-shrink-0 text-night-400" />
-                    <Pill
-                      text={
-                        swap.isAmount0Out
-                          ? pair.token0.symbol
-                          : pair.token1.symbol
-                      }
-                      enumValue={data.randomNumber}
-                    />
-                  </div>
-                </td>
-                <td className="hidden whitespace-nowrap px-2 py-2.5 text-sm text-night-400 sm:table-cell md:px-3 md:py-2.5">
-                  {formatNumber(swap.inAmount)}
-                </td>
-                <td className="hidden whitespace-nowrap px-2 py-2.5 text-sm text-night-400 sm:table-cell md:px-3 md:py-2.5">
-                  {formatNumber(swap.outAmount)}
-                </td>
-                <td
-                  className="whitespace-nowrap px-2 py-2.5 text-[0.6rem] text-night-500 sm:text-sm md:px-3 md:py-2.5"
-                  title={new Date(swap.date * 1000).toLocaleString()}
-                >
-                  <a
-                    href={`${
-                      (activeChain ?? chain.arbitrum).blockExplorers?.default
-                        .url ?? "https://arbiscan.io"
-                    }/tx/${swap.transactionId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-center gap-1"
+            {swaps.map((swap) => {
+              const tokenIn = swap.isAmount0In ? pair.token0 : pair.token1;
+              const tokenOut = swap.isAmount0In ? pair.token1 : pair.token0;
+              return (
+                <tr key={swap.id}>
+                  <td className="whitespace-nowrap px-2 py-2.5 text-xs text-night-500 sm:text-sm md:px-3 md:py-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <TokenLogo
+                        className="h-4 w-4 rounded-full ring-1"
+                        token={tokenIn}
+                      />
+                      <span>
+                        <span className="font-semibold text-white">
+                          {formatCurrency(swap.inAmount)}
+                        </span>{" "}
+                        {tokenIn.symbol}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-2.5 text-xs text-night-500 sm:text-sm md:px-3 md:py-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <TokenLogo
+                        className="h-4 w-4 rounded-full ring-1"
+                        token={tokenOut}
+                      />
+                      <span>
+                        <span className="font-semibold text-white">
+                          {formatCurrency(swap.outAmount)}
+                        </span>{" "}
+                        {tokenOut.symbol}
+                      </span>
+                    </div>
+                  </td>
+                  <td
+                    className="hidden whitespace-nowrap px-3 py-2.5 text-sm text-night-500 sm:table-cell"
+                    title={swap.sender}
                   >
-                    <span className="group-hover:underline">
-                      {swap.formattedDate}
-                    </span>
-                    <ExternalLinkIcon className="h-3 w-3 md:h-4 md:w-4" />
-                  </a>
-                </td>
-              </tr>
-            ))}
+                    <a
+                      href={`${
+                        (activeChain ?? chain.arbitrum).blockExplorers?.default
+                          .url ?? "https://arbiscan.io"
+                      }/address/${swap.sender}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-1"
+                    >
+                      <span className="group-hover:underline">
+                        {truncateEthAddress(swap.sender)}
+                      </span>
+                      <ExternalLinkIcon className="h-3 w-3 md:h-4 md:w-4" />
+                    </a>
+                  </td>
+                  <td
+                    className="whitespace-nowrap px-2 py-2.5 text-xs text-night-500 sm:text-sm md:px-3 md:py-2.5"
+                    title={new Date(swap.date * 1000).toLocaleString()}
+                  >
+                    <a
+                      href={`${
+                        (activeChain ?? chain.arbitrum).blockExplorers?.default
+                          .url ?? "https://arbiscan.io"
+                      }/tx/${swap.transactionId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-1"
+                    >
+                      <span className="group-hover:underline">
+                        {swap.formattedDate}
+                      </span>
+                      <ExternalLinkIcon className="h-3 w-3 md:h-4 md:w-4" />
+                    </a>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

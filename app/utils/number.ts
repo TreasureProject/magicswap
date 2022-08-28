@@ -17,6 +17,12 @@ export const getFormatOptions = (value: number, isUsd = false) => {
 export const formatNumber = (value: number) =>
   value.toLocaleString("en-US", getFormatOptions(value));
 
+export const formatCurrency = (value: number) =>
+  value.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+
 export const formatPercent = (
   value: number,
   minimumFractionDigits = 0,
