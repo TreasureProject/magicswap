@@ -422,19 +422,19 @@ const ConfirmSwapModal = ({
           <div className="mt-4 flex justify-between">
             <dt className="text-xs text-night-400">Price Impact</dt>
             <dt className="text-xs text-night-200">
-              {formatPercent(priceImpact)}
+              {formatPercent(priceImpact, 0, 3)}
             </dt>
           </div>
           <div className="flex justify-between">
             <dt className="text-xs text-night-500">Slippage Tolerance</dt>
             <dt className="text-xs text-night-500">
-              {formatPercent(slippage)}
+              {formatPercent(slippage, 1)}
             </dt>
           </div>
           <div className="flex justify-between">
             <dt className="text-xs text-night-500">Liquidity Provider Fee</dt>
             <dt className="text-xs text-night-500">
-              {formatPercent(LIQUIDITY_PROVIDER_FEE)}
+              {formatPercent(LIQUIDITY_PROVIDER_FEE, 0, 3)}
             </dt>
           </div>
           <div className="flex justify-between">
@@ -442,7 +442,7 @@ const ConfirmSwapModal = ({
               Community Gamification Fund Fee
             </dt>
             <dt className="text-xs text-night-500">
-              {formatPercent(COMMUNITY_GAME_FUND)}
+              {formatPercent(COMMUNITY_GAME_FUND, 0, 3)}
             </dt>
           </div>
           <div className="flex justify-between">
@@ -450,7 +450,7 @@ const ConfirmSwapModal = ({
               Community Ecosystem Fund Fee
             </dt>
             <dt className="text-xs text-night-500">
-              {formatPercent(COMMUNITY_ECO_FUND)}
+              {formatPercent(COMMUNITY_ECO_FUND, 0, 3)}
             </dt>
           </div>
         </dl>

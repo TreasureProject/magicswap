@@ -1,10 +1,7 @@
 import { utils } from "ethers";
 import type { Token } from "~/types";
 
-export const getFormatOptions = (
-  value: number,
-  isUsd = false
-): Intl.NumberFormatOptions => {
+export const getFormatOptions = (value: number, isUsd = false) => {
   const formatOptions: Intl.NumberFormatOptions = {};
 
   if (isUsd) {
@@ -20,10 +17,14 @@ export const getFormatOptions = (
 export const formatNumber = (value: number) =>
   value.toLocaleString("en-US", getFormatOptions(value));
 
-export const formatPercent = (value: number, minimumFractionDigits = 2) =>
+export const formatPercent = (
+  value: number,
+  minimumFractionDigits = 0,
+  maximumFractionDigits = 2
+) =>
   `${(value * 100).toLocaleString("en-US", {
     minimumFractionDigits,
-    maximumFractionDigits: 3,
+    maximumFractionDigits,
   })}%`;
 
 export const formatTokenAmountInWei = (token: Token, amount: number) =>
