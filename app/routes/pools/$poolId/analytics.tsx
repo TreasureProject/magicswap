@@ -10,7 +10,7 @@ import {
 import invariant from "tiny-invariant";
 import { TimeIntervalLineGraph } from "~/components/Graph";
 import { formatUsd } from "~/utils/price";
-import { formatCurrency, formatNumber } from "~/utils/number";
+import { formatCurrency } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
 import type { Pair, Swap } from "~/types";
 import { getSwaps } from "~/utils/swap.server";

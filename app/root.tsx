@@ -16,7 +16,6 @@ import {
   useFetchers,
   useLoaderData,
 } from "@remix-run/react";
-import cn from "clsx";
 import { resolveValue, Toaster } from "react-hot-toast";
 import { chain, createClient, configureChains, WagmiConfig } from "wagmi";
 import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
@@ -58,6 +57,7 @@ import {
   ExclamationCircleIcon,
 } from "@heroicons/react/outline";
 import { createMetaTags } from "./utils/meta";
+import { twMerge } from "tailwind-merge";
 
 export type RootLoaderData = {
   ENV: Partial<CloudFlareEnv>;
@@ -130,20 +130,14 @@ const NavLink = ({
     <Link to={to} className="flex-1" prefetch="render">
       {({ isActive }) => (
         <div
-          className={cn(
+          className={twMerge(
             "flex flex-1 items-center justify-center space-x-6 rounded-lg px-4 py-3 text-base font-medium tracking-wide 2xl:px-8 2xl:py-4 2xl:text-base",
-            {
-              "bg-night-900 text-white": isActive,
-              "text-night-500 hover:bg-night-700/10 hover:text-night-500":
-                !isActive,
-            }
+            isActive
+              ? "bg-night-900 text-white"
+              : "text-night-500 hover:bg-night-700/10 hover:text-night-500"
           )}
         >
-          <Icon
-            className={cn("h-6 w-6", {
-              "fill-ruby-500": isActive,
-            })}
-          />
+          <Icon className={twMerge("h-6 w-6", isActive && "fill-ruby-500")} />
           <span>{children}</span>
         </div>
       )}

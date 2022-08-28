@@ -4,7 +4,6 @@ import {
   // ArrowSmUpIcon,
   ChevronDownIcon,
 } from "@heroicons/react/solid";
-// import clsx from "clsx";
 import { usePrice } from "~/context/priceContext";
 import { useBlockExplorer } from "~/hooks/useBlockExplorer";
 import { useNumberInput } from "~/hooks/useNumberInput";
@@ -123,7 +122,7 @@ export default function PairTokenInput({
                 {formatUsd(token.priceMagic * magicUsd)} USD
               </p>
               {/* <p
-                className={clsx(
+                className={twMerge(
                   "flex items-baseline text-[0.5rem] font-semibold sm:ml-1 sm:text-xs",
                   {
                     "text-ruby-900": !positive,
