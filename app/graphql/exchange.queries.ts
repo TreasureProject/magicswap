@@ -149,7 +149,7 @@ export const getSwaps = gql`
     ) {
       id
       timestamp
-      sender
+      to
       amount0In
       amount1In
       amount0Out

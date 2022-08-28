@@ -201,19 +201,19 @@ export default function Analytics() {
                   </td>
                   <td
                     className="hidden whitespace-nowrap px-3 py-2.5 text-sm text-night-500 sm:table-cell"
-                    title={swap.sender}
+                    title={swap.userAddress}
                   >
                     <a
                       href={`${
                         (activeChain ?? chain.arbitrum).blockExplorers?.default
                           .url ?? "https://arbiscan.io"
-                      }/address/${swap.sender}`}
+                      }/address/${swap.userAddress}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="group flex items-center gap-1"
                     >
                       <span className="group-hover:underline">
-                        {truncateEthAddress(swap.sender)}
+                        {truncateEthAddress(swap.userAddress)}
                       </span>
                       <ExternalLinkIcon className="h-3 w-3 md:h-4 md:w-4" />
                     </a>
