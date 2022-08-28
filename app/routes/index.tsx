@@ -24,7 +24,6 @@ import { useTokenApproval } from "~/hooks/useApproval";
 import { getEnvVariable } from "~/utils/env";
 import useLocalStorageState from "use-local-storage-state";
 
-import { useUser } from "~/context/userContext";
 import { usePair } from "~/hooks/usePair";
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
 import { Modal } from "~/components/Modal";
@@ -35,7 +34,6 @@ import {
   COMMUNITY_GAME_FUND,
   LIQUIDITY_PROVIDER_FEE,
 } from "~/utils/price";
-import { WalletButton } from "~/components/WalletButton";
 import { useAmountIn, useAmountOut } from "~/hooks/useAmount";
 import { createMetaTags } from "~/utils/meta";
 
@@ -128,7 +126,6 @@ export default function Index() {
   const { value: outputTokenBalance, refetch: refetchOutputToken } =
     useTokenBalance(data.outputToken);
   const pair = usePair(data.pair);
-  const { isConnected, unsupported } = useUser();
   const [showGraph, setShowGraph] = useLocalStorageState("ms:showGraph", {
     ssr: true,
     defaultValue: false,
@@ -300,20 +297,17 @@ export default function Index() {
           </div>
         </div>
         <div className="mt-8 w-full space-y-4 px-0 xl:px-72 2xl:mt-12">
-          {!isConnected || unsupported ? (
-            <WalletButton />
-          ) : (
-            <Button
-              disabled={!amountIn || !amountOut || insufficientBalance}
-              onClick={() => setIsOpenConfirmSwapModal(true)}
-            >
-              {insufficientBalance
-                ? "Insufficient Balance"
-                : amountIn && amountOut
-                ? "Swap"
-                : "Enter an Amount"}
-            </Button>
-          )}
+          <Button
+            disabled={!amountIn || !amountOut || insufficientBalance}
+            onClick={() => setIsOpenConfirmSwapModal(true)}
+            requiresConnect
+          >
+            {insufficientBalance
+              ? "Insufficient Balance"
+              : amountIn && amountOut
+              ? "Swap"
+              : "Enter an Amount"}
+          </Button>
         </div>
       </div>
       <TokenSelectionModal

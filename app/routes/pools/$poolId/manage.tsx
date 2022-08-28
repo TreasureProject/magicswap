@@ -23,7 +23,6 @@ import { CogIcon } from "@heroicons/react/outline";
 import { useUser } from "~/context/userContext";
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
 import { usePair } from "~/hooks/usePair";
-import { WalletButton } from "~/components/WalletButton";
 import { usePrice } from "~/context/priceContext";
 import { createMetaTags } from "~/utils/meta";
 import { useQuote } from "~/hooks/useQuote";
@@ -115,7 +114,7 @@ const Liquidity = () => {
     token1: 0,
   });
   const data = useLoaderData<LoaderData>();
-  const { isConnected, unsupported } = useUser();
+  const { isConnected } = useUser();
   const pair = usePair(data.pair);
   const { magicUsd } = usePrice();
 
@@ -407,39 +406,36 @@ const Liquidity = () => {
                       }`}
                 </Button>
               )}
-            {!isConnected || unsupported ? (
-              <WalletButton />
-            ) : (
-              <Button
-                disabled={
-                  !amountToken0 ||
-                  !amountToken1 ||
-                  insufficientBalance ||
-                  !isToken0Approved ||
-                  !isToken1Approved ||
-                  isAddLoading
-                }
-                onClick={handleAddLiquidity}
-              >
-                {isAddLoading ? (
-                  "Adding Liquidity..."
-                ) : insufficientBalance ? (
-                  <>
-                    Insufficient{" "}
-                    {token0BalanceInsufficient
-                      ? pair.token0.symbol
-                      : pair.token1.symbol}{" "}
-                    Balance
-                  </>
-                ) : (
-                  <>
-                    {amountToken0 && amountToken1
-                      ? "Add Liquidity"
-                      : "Enter an Amount"}
-                  </>
-                )}
-              </Button>
-            )}
+            <Button
+              disabled={
+                !amountToken0 ||
+                !amountToken1 ||
+                insufficientBalance ||
+                !isToken0Approved ||
+                !isToken1Approved ||
+                isAddLoading
+              }
+              onClick={handleAddLiquidity}
+              requiresConnect
+            >
+              {isAddLoading ? (
+                "Adding Liquidity..."
+              ) : insufficientBalance ? (
+                <>
+                  Insufficient{" "}
+                  {token0BalanceInsufficient
+                    ? pair.token0.symbol
+                    : pair.token1.symbol}{" "}
+                  Balance
+                </>
+              ) : (
+                <>
+                  {amountToken0 && amountToken1
+                    ? "Add Liquidity"
+                    : "Enter an Amount"}
+                </>
+              )}
+            </Button>
           </>
         ) : (
           <>
@@ -453,28 +449,25 @@ const Liquidity = () => {
                     : `Approve ${pair.name} LP Token`}
                 </Button>
               )}
-            {!isConnected || unsupported ? (
-              <WalletButton />
-            ) : (
-              <Button
-                disabled={
-                  (isConnected &&
-                    (!removeInputValue ||
-                      lpBalanceInsufficient ||
-                      !isLpApproved)) ||
-                  isRemoveLoading
-                }
-                onClick={handleRemoveLiquidity}
-              >
-                {isRemoveLoading
-                  ? "Removing Liquidity..."
-                  : lpBalanceInsufficient
-                  ? "Insufficient LP Token Balance"
-                  : removeInputValue > 0
-                  ? "Remove Liquidity"
-                  : "Enter an Amount"}
-              </Button>
-            )}
+            <Button
+              disabled={
+                (isConnected &&
+                  (!removeInputValue ||
+                    lpBalanceInsufficient ||
+                    !isLpApproved)) ||
+                isRemoveLoading
+              }
+              onClick={handleRemoveLiquidity}
+              requiresConnect
+            >
+              {isRemoveLoading
+                ? "Removing Liquidity..."
+                : lpBalanceInsufficient
+                ? "Insufficient LP Token Balance"
+                : removeInputValue > 0
+                ? "Remove Liquidity"
+                : "Enter an Amount"}
+            </Button>
           </>
         )}
       </div>
