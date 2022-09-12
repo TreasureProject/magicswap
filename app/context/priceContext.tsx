@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { createContext, useContext } from "react";
 import { useQuery } from "wagmi";
-import { ARBITRUM_MAGIC_ADDRESS, fetchMagicPrice } from "~/utils/price";
+import { fetchMagicPrice } from "~/utils/price";
 
 const Context = createContext<{
   magicUsd: number;
@@ -28,7 +28,7 @@ export const PriceProvider = ({ children }: { children: ReactNode }) => {
   });
 
   return (
-    <Context.Provider value={{ magicUsd: data?.[ARBITRUM_MAGIC_ADDRESS] ?? 0 }}>
+    <Context.Provider value={{ magicUsd: data?.magicUsd ?? 0 }}>
       {children}
     </Context.Provider>
   );
