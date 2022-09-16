@@ -62,7 +62,7 @@
     "@graphql-codegen/typescript-graphql-request": "^4.5.3",
     "@graphql-codegen/typescript-operations": "^2.5.3",
     "@remix-run/dev": "^1.4.3",
-    "@remix-run/eslint-config": "^1.4.3",
+    "@remix-run/eslint-config": "^1.7.1",
     "@tailwindcss/forms": "^0.5.2",
     "@types/nprogress": "^0.2.0",
     "@types/react": "^17.0.24",
