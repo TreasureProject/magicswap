@@ -5,18 +5,14 @@ import { getEnvVariable } from "~/utils/env";
 import { formatTokenAmountInWei } from "~/utils/number";
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
 
-const contractConfig = {
-  addressOrName: getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS"),
-  contractInterface: UniswapV2Router02Abi,
-};
-
 export const useAmountIn = (
   tokenIn: PairToken,
   tokenOut: PairToken,
   amountOut: number
 ) => {
   const { data = "0" } = useContractRead({
-    ...contractConfig,
+    addressOrName: getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS"),
+    contractInterface: UniswapV2Router02Abi,
     functionName: "getAmountIn",
     enabled: amountOut > 0,
     args: [
@@ -35,7 +31,8 @@ export const useAmountOut = (
   amountIn: number
 ) => {
   const { data = 0 } = useContractRead({
-    ...contractConfig,
+    addressOrName: getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS"),
+    contractInterface: UniswapV2Router02Abi,
     functionName: "getAmountOut",
     enabled: amountIn > 0,
     args: [

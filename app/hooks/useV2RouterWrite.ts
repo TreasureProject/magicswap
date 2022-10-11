@@ -2,11 +2,6 @@ import { getEnvVariable } from "~/utils/env";
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
 import { useContractWrite } from "./useContractWrite";
 
-const contractConfig = {
-  addressOrName: getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS"),
-  contractInterface: UniswapV2Router02Abi,
-};
-
 type FunctionName =
   | "addLiquidity"
   | "addLiquidityETH"
@@ -24,7 +19,8 @@ export const useV2RouterWrite = (
   statusHeader?: string
 ) =>
   useContractWrite(statusHeader, {
-    ...contractConfig,
+    addressOrName: getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS"),
+    contractInterface: UniswapV2Router02Abi,
     mode: "recklesslyUnprepared",
     functionName,
   });
