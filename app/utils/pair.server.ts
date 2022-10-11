@@ -10,7 +10,7 @@ import { normalizeAdvancedToken } from "./tokens.server";
 type RawPair = GetSwapPairQuery["pairs"][0];
 
 const SUPPORTED_PAIRS = [
-  "0x172cc0903c2175e565d5b844c81893998a910500", // MAGIC-ELM Rinkeby
+  "0x82b79579f07a3539f10d0b2c35316b0e8333b2cc", // MAGIC-ELM Goerli
   "0xf904469497e6a179a9d47a7b468e4be42ec56e65", // MAGIC-ELM Mainnet
 ];
 

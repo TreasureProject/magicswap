@@ -21,11 +21,9 @@ import { chain, createClient, configureChains, WagmiConfig } from "wagmi";
 import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
 import {
   ConnectButton,
-  connectorsForWallets,
   darkTheme,
   getDefaultWallets,
   RainbowKitProvider,
-  wallet,
 } from "@rainbow-me/rainbowkit";
 import { publicProvider } from "wagmi/providers/public";
 import { alchemyProvider } from "wagmi/providers/alchemy";
@@ -153,33 +151,21 @@ export default function App() {
     () =>
       configureChains(
         [
-          ...(ENV.ENABLE_TESTNETS === "true" ? [chain.arbitrumRinkeby] : []),
+          ...(ENV.ENABLE_TESTNETS === "true" ? [chain.arbitrumGoerli] : []),
           chain.arbitrum,
         ],
-        [alchemyProvider({ alchemyId: ENV.ALCHEMY_KEY }), publicProvider()]
+        [alchemyProvider({ apiKey: ENV.ALCHEMY_KEY }), publicProvider()]
       ),
     [ENV.ENABLE_TESTNETS, ENV.ALCHEMY_KEY]
   );
 
-  const { wallets } = React.useMemo(
+  const { connectors } = React.useMemo(
     () =>
       getDefaultWallets({
         appName: "MagicSwap",
         chains,
       }),
     [chains]
-  );
-
-  const connectors = React.useMemo(
-    () =>
-      connectorsForWallets([
-        ...wallets,
-        {
-          groupName: "Others",
-          wallets: [wallet.trust({ chains }), wallet.ledger({ chains })],
-        },
-      ]),
-    [chains, wallets]
   );
 
   const client = React.useMemo(

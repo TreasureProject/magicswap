@@ -22,4 +22,9 @@ type FunctionName =
 export const useV2RouterWrite = (
   functionName: FunctionName,
   statusHeader?: string
-) => useContractWrite(statusHeader, { ...contractConfig, functionName });
+) =>
+  useContractWrite(statusHeader, {
+    ...contractConfig,
+    mode: "recklesslyUnprepared",
+    functionName,
+  });

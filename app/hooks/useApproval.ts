@@ -26,6 +26,7 @@ const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
     isSuccess,
   } = useContractWrite(`Approve ${tokenSymbol}`, {
     ...contractConfig,
+    mode: "recklesslyUnprepared",
     functionName: "approve",
   });
   return {
@@ -34,8 +35,8 @@ const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
     isSuccess,
     isApproved: allowance ? parseFloat(formatEther(allowance)) > 0 : false,
     approve: () =>
-      writeApprove({
-        args: [
+      writeApprove?.({
+        recklesslySetUnpreparedArgs: [
           getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS"),
           MaxUint256.toString(),
         ],

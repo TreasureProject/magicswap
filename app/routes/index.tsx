@@ -121,10 +121,8 @@ export default function Index() {
     exactIn: 0,
     exactOut: 0,
   });
-  const { value: inputTokenBalance, refetch: refetchInputToken } =
-    useTokenBalance(data.inputToken);
-  const { value: outputTokenBalance, refetch: refetchOutputToken } =
-    useTokenBalance(data.outputToken);
+  const { value: inputTokenBalance } = useTokenBalance(data.inputToken);
+  const { value: outputTokenBalance } = useTokenBalance(data.outputToken);
   const pair = usePair(data.pair);
   const [showGraph, setShowGraph] = useLocalStorageState("ms:showGraph", {
     ssr: true,
