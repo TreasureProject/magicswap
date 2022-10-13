@@ -21,7 +21,7 @@ const TOKEN_LIST = [
   {
     symbol: "GFLY",
     name: "gFly",
-    image: "/img/tokens/gfly.jpg",
+    image: "/img/tokens/gfly.png",
   },
 ];
 

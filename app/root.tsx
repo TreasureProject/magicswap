@@ -106,7 +106,7 @@ export const loader: LoaderFunction = async ({ context }) => {
     ENV: Object.keys(env).reduce(
       (envVars, key) => ({
         ...envVars,
-        [key]: getEnvVariable(key as CloudFlareEnvVar, context),
+        [key]: getEnvVariable(key as CloudFlareEnvVar, env),
       }),
       {}
     ),
