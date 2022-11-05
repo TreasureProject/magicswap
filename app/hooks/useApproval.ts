@@ -2,9 +2,10 @@ import { MaxUint256 } from "@ethersproject/constants";
 import { erc20ABI, useContractRead } from "wagmi";
 import type { Pair, Token } from "~/types";
 import { useContractWrite } from "./useContractWrite";
-import { getEnvVariable } from "~/utils/env";
 import { useUser } from "~/context/userContext";
 import { formatEther } from "ethers/lib/utils";
+import { useContractAddress } from "./useContractAddress";
+import { AppContract } from "~/const";
 
 const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
   const contractConfig = {
@@ -12,11 +13,12 @@ const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
     contractInterface: erc20ABI,
   };
 
+  const contractAddress = useContractAddress(AppContract.Router);
   const { address } = useUser();
   const { data: allowance, refetch } = useContractRead({
     ...contractConfig,
     functionName: "allowance",
-    args: [address, getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS")],
+    args: [address, contractAddress],
     enabled: !!address,
   });
 
@@ -26,6 +28,7 @@ const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
     isSuccess,
   } = useContractWrite(`Approve ${tokenSymbol}`, {
     ...contractConfig,
+    mode: "recklesslyUnprepared",
     functionName: "approve",
   });
   return {
@@ -34,11 +37,8 @@ const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
     isSuccess,
     isApproved: allowance ? parseFloat(formatEther(allowance)) > 0 : false,
     approve: () =>
-      writeApprove({
-        args: [
-          getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS"),
-          MaxUint256.toString(),
-        ],
+      writeApprove?.({
+        recklesslySetUnpreparedArgs: [contractAddress, MaxUint256.toString()],
       }),
   };
 };

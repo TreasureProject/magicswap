@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
-import { json } from "@remix-run/cloudflare";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   useCatch,
   useFetcher,
@@ -14,7 +14,6 @@ import { formatCurrency } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
 import type { Pair, Swap } from "~/types";
 import { getSwaps } from "~/utils/swap.server";
-import { getEnvVariable } from "~/utils/env";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import { chain, useNetwork } from "wagmi";
 import { usePrice } from "~/context/priceContext";
@@ -30,17 +29,12 @@ type LoaderData = {
 export const meta: MetaFunction = ({ data }: { data: LoaderData }) =>
   createMetaTags(`${data.pair.name} - Analytics | MagicSwap`);
 
-export const loader: LoaderFunction = async ({
-  params: { poolId },
-  context,
-}) => {
-  const exchangeUrl = getEnvVariable("EXCHANGE_ENDPOINT", context);
-
+export const loader: LoaderFunction = async ({ params: { poolId } }) => {
   invariant(poolId, `poolId is required`);
 
   const [pair, swaps] = await Promise.all([
-    getPairById(poolId, exchangeUrl),
-    getSwaps(poolId, exchangeUrl),
+    getPairById(poolId, process.env.EXCHANGE_ENDPOINT),
+    getSwaps(poolId, process.env.EXCHANGE_ENDPOINT),
   ]);
 
   if (!pair) {

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
-import { json } from "@remix-run/cloudflare";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import type { ShouldReloadFunction } from "@remix-run/react";
 import { useCatch, useLoaderData } from "@remix-run/react";
 import { PlusIcon } from "@heroicons/react/solid";
@@ -16,7 +16,6 @@ import { useAddressBalance, useTokenBalance } from "~/hooks/useTokenBalance";
 import { useAddLiquidity, useRemoveLiquidity } from "~/hooks/useLiquidity";
 import TokenInput from "~/components/TokenInput";
 import { usePairApproval, useTokenApproval } from "~/hooks/useApproval";
-import { getEnvVariable } from "~/utils/env";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
 import { CogIcon } from "@heroicons/react/outline";
 import { useUser } from "~/context/userContext";
@@ -40,15 +39,10 @@ const tabs = [
 export const meta: MetaFunction = ({ data }: { data: LoaderData }) =>
   createMetaTags(`${data.pair.name} - Manage | MagicSwap`);
 
-export const loader: LoaderFunction = async ({
-  params: { poolId },
-  context,
-}) => {
-  const exchangeUrl = getEnvVariable("EXCHANGE_ENDPOINT", context);
-
+export const loader: LoaderFunction = async ({ params: { poolId } }) => {
   invariant(poolId, `poolId is required`);
 
-  const pair = await getPairById(poolId, exchangeUrl);
+  const pair = await getPairById(poolId, process.env.EXCHANGE_ENDPOINT);
 
   if (!pair) {
     throw new Response("Pool not found", {
