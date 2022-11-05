@@ -42,4 +42,4 @@ To fix a bug, please fork the repository, make changes on your fork, then create
 
 ## Deployment
 
-Merge changes to `main` branch to trigger push to [Cloudflare Pages](https://pages.cloudflare.com/).
+Merge changes to `main` branch to trigger push to [Vercel](https://vercel.com).

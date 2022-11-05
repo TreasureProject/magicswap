@@ -1,17 +1,19 @@
 import { formatEther } from "ethers/lib/utils";
 import { useContractRead } from "wagmi";
+import { AppContract } from "~/const";
 import type { PairToken } from "~/types";
-import { getEnvVariable } from "~/utils/env";
 import { formatTokenAmountInWei } from "~/utils/number";
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
+import { useContractAddress } from "./useContractAddress";
 
 export const useAmountIn = (
   tokenIn: PairToken,
   tokenOut: PairToken,
   amountOut: number
 ) => {
+  const contractAddress = useContractAddress(AppContract.Router);
   const { data = "0" } = useContractRead({
-    addressOrName: getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS"),
+    addressOrName: contractAddress,
     contractInterface: UniswapV2Router02Abi,
     functionName: "getAmountIn",
     enabled: amountOut > 0,
@@ -30,8 +32,9 @@ export const useAmountOut = (
   tokenOut: PairToken,
   amountIn: number
 ) => {
+  const contractAddress = useContractAddress(AppContract.Router);
   const { data = 0 } = useContractRead({
-    addressOrName: getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS"),
+    addressOrName: contractAddress,
     contractInterface: UniswapV2Router02Abi,
     functionName: "getAmountOut",
     enabled: amountIn > 0,

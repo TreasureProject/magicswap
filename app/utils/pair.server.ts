@@ -1,3 +1,4 @@
+import { SUPPORTED_CONTRACT_ADDRESSES } from "~/const";
 import type {
   GetSwapPairQuery,
   Pair_Filter,
@@ -8,12 +9,6 @@ import { getApy } from "./price";
 import { normalizeAdvancedToken } from "./tokens.server";
 
 type RawPair = GetSwapPairQuery["pairs"][0];
-
-const SUPPORTED_PAIRS = [
-  "0x82b79579f07a3539f10d0b2c35316b0e8333b2cc", // MAGIC-ELM Goerli
-  "0xf904469497e6a179a9d47a7b468e4be42ec56e65", // MAGIC-ELM Mainnet
-  "0x32c4151748d6efe734bedb9931dd1e050586b605", // MAGIC-gFly Goerli
-];
 
 const normalizePair = ({
   id,
@@ -129,7 +124,7 @@ export const getPairs = async (
   const { pairs } = await sdk.getPairs({
     where: {
       ...where,
-      id_in: SUPPORTED_PAIRS,
+      id_in: SUPPORTED_CONTRACT_ADDRESSES,
       reserveETH_gt: 0,
     },
   });
