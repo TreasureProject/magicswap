@@ -22,3 +22,5 @@ export const CONTRACT_ADDRESSES: Record<number, Record<AppContract, string>> = {
 export const SUPPORTED_CONTRACT_ADDRESSES = Object.entries(
   CONTRACT_ADDRESSES
 ).flatMap(([, contracts]) => Object.values(contracts));
+
+export const REFETCH_INTERVAL_HIGH_PRIORITY = 2_500;

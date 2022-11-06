@@ -1,10 +1,10 @@
 import { formatEther } from "ethers/lib/utils";
-import { useContractRead } from "wagmi";
-import { AppContract } from "~/const";
+import { AppContract, REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
 import type { PairToken } from "~/types";
 import { formatTokenAmountInWei } from "~/utils/number";
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
 import { useContractAddress } from "./useContractAddress";
+import { useContractRead } from "./useContractRead";
 
 export const useAmountIn = (
   tokenIn: PairToken,
@@ -22,7 +22,7 @@ export const useAmountIn = (
       formatTokenAmountInWei(tokenIn, tokenIn.reserve),
       formatTokenAmountInWei(tokenOut, tokenOut.reserve),
     ],
-    watch: true,
+    refetchInterval: REFETCH_INTERVAL_HIGH_PRIORITY,
   });
   return parseFloat(formatEther(data));
 };
@@ -43,7 +43,7 @@ export const useAmountOut = (
       formatTokenAmountInWei(tokenIn, tokenIn.reserve),
       formatTokenAmountInWei(tokenOut, tokenOut.reserve),
     ],
-    watch: true,
+    refetchInterval: REFETCH_INTERVAL_HIGH_PRIORITY,
   });
   return parseFloat(formatEther(data));
 };
