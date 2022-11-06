@@ -42,7 +42,9 @@ export const getPrice24hChange = ({
 export const formatUsd = (value: number) =>
   `$${value.toLocaleString("en-US", getFormatOptions(value, true))}`;
 
-export const fetchMagicPrice = async () => {
+export const fetchMagicPrice = async (): Promise<{
+  magicUsd: number;
+}> => {
   const response = await fetch("https://api.treasure.lol/magic/price");
   return response.json();
 };

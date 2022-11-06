@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { createContext, useContext } from "react";
 import { useQuery } from "wagmi";
+import { REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
 import { fetchMagicPrice } from "~/utils/price";
 
 const Context = createContext<{
@@ -18,18 +19,14 @@ export const usePrice = () => {
 };
 
 export const PriceProvider = ({ children }: { children: ReactNode }) => {
-  const { data } = useQuery<
-    unknown,
-    unknown,
-    Record<string, number> | undefined,
-    string[]
-  >(["price:magic-usd"], fetchMagicPrice, {
-    refetchInterval: 2_500,
-  });
-
-  return (
-    <Context.Provider value={{ magicUsd: data?.magicUsd ?? 0 }}>
-      {children}
-    </Context.Provider>
+  const { data: magicUsd = 0 } = useQuery(
+    ["price:magic-usd"],
+    fetchMagicPrice,
+    {
+      refetchInterval: REFETCH_INTERVAL_HIGH_PRIORITY,
+      select: (data) => data.magicUsd,
+    }
   );
+
+  return <Context.Provider value={{ magicUsd }}>{children}</Context.Provider>;
 };
