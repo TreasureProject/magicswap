@@ -6,7 +6,7 @@ import type { Optional } from "~/types";
 const Context = createContext<{
   isConnected: boolean;
   address: Optional<string>;
-  unsupported: boolean | undefined;
+  unsupported: boolean;
 } | null>(null);
 
 export const useUser = () => {
@@ -27,7 +27,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     <Context.Provider
       value={{
         isConnected: isMounted && isConnected && !!address,
-        unsupported: chain?.unsupported,
+        unsupported: chain?.unsupported ?? true,
         address,
       }}
     >

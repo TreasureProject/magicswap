@@ -18,18 +18,14 @@ export const usePrice = () => {
 };
 
 export const PriceProvider = ({ children }: { children: ReactNode }) => {
-  const { data } = useQuery<
-    unknown,
-    unknown,
-    Record<string, number> | undefined,
-    string[]
-  >(["price:magic-usd"], fetchMagicPrice, {
-    refetchInterval: 2_500,
-  });
-
-  return (
-    <Context.Provider value={{ magicUsd: data?.magicUsd ?? 0 }}>
-      {children}
-    </Context.Provider>
+  const { data: magicUsd = 0 } = useQuery(
+    ["price:magic-usd"],
+    fetchMagicPrice,
+    {
+      refetchInterval: 2_500,
+      select: (data) => data.magicUsd,
+    }
   );
+
+  return <Context.Provider value={{ magicUsd }}>{children}</Context.Provider>;
 };

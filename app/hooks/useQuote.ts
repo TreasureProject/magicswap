@@ -1,9 +1,9 @@
 import { formatEther } from "ethers/lib/utils";
-import { useContractRead } from "wagmi";
 import type { PairToken } from "~/types";
 import { getEnvVariable } from "~/utils/env";
 import { formatTokenAmountInWei } from "~/utils/number";
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
+import { useContractRead } from "./useContractRead";
 
 const contractConfig = {
   addressOrName: getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS"),
@@ -24,7 +24,7 @@ export const useQuote = (
       formatTokenAmountInWei(tokenIn, tokenIn.reserve),
       formatTokenAmountInWei(tokenOut, tokenOut.reserve),
     ],
-    watch: true,
+    refetchInterval: 2_500,
   });
   return parseFloat(formatEther(data));
 };

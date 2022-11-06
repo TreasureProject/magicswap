@@ -1,7 +1,7 @@
 import { formatUnits } from "ethers/lib/utils";
-import { useContractRead } from "wagmi";
 import type { Pair } from "~/types";
 import UniswapV2PairAbi from "../../artifacts/UniswapV2Pair.json";
+import { useContractRead } from "./useContractRead";
 
 // Fetches pair reserve values directly from contract
 const usePairReserves = (
@@ -13,7 +13,7 @@ const usePairReserves = (
     addressOrName: id,
     contractInterface: UniswapV2PairAbi,
     functionName: "getReserves",
-    watch: true,
+    refetchInterval: 2_500,
   });
 
   const reserves = {
