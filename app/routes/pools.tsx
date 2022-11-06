@@ -286,14 +286,7 @@ export default function Pools() {
             </div>
           </div>
         </div>
-        <div
-          className={twMerge(
-            lastPath === "analytics"
-              ? "xl:h-[calc(100vh-256px)]"
-              : "xl:min-h-[calc(100vh-256px)]",
-            "col-span-6 overflow-hidden rounded-md border border-night-800 bg-[#131D2E] xl:col-span-4"
-          )}
-        >
+        <div className="col-span-6 xl:col-span-4">
           <Outlet />
         </div>
       </div>

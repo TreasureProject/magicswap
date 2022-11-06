@@ -69,7 +69,7 @@ export default function Manage() {
     tabs.find(({ query }) => query === searchParams.get("tab")) ?? tabs[0];
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col rounded-md border border-night-800 bg-[#131D2E]">
       <div className="border-b border-night-700">
         <nav className="-mb-px flex" aria-label="Tabs">
           {tabs.map((tab) => {
