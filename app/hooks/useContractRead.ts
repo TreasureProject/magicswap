@@ -16,13 +16,19 @@ type UseContractReadsParams = Parameters<typeof wagmiUseContractReads>[0] & {
 export const useContractRead = (params: UseContractReadParams) => {
   const { refetchInterval, ...wagmiParams } = params;
   const response = wagmiUseContractRead(wagmiParams);
-  useInterval(response.refetch, refetchInterval);
+  useInterval(
+    response.refetch,
+    params.enabled || params.enabled === undefined ? refetchInterval : undefined
+  );
   return response;
 };
 
 export const useContractReads = (params: UseContractReadsParams) => {
   const { refetchInterval, ...wagmiParams } = params;
   const response = wagmiUseContractReads(wagmiParams);
-  useInterval(response.refetch, refetchInterval);
+  useInterval(
+    response.refetch,
+    params.enabled || params.enabled === undefined ? refetchInterval : undefined
+  );
   return response;
 };
