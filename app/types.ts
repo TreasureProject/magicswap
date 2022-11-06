@@ -64,6 +64,7 @@ export type CloudFlareEnvVar =
   | "ENABLE_TESTNETS"
   | "EXCHANGE_ENDPOINT"
   | "ALCHEMY_KEY"
+  | "TREASURE_RPC_API_KEY"
   | "UNISWAP_V2_ROUTER_ADDRESS";
 
 export type CloudFlareEnv = {

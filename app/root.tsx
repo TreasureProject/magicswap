@@ -29,6 +29,7 @@ import {
 } from "@rainbow-me/rainbowkit";
 import { publicProvider } from "wagmi/providers/public";
 import { alchemyProvider } from "wagmi/providers/alchemy";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 
 import styles from "./styles/tailwind.css";
 import React from "react";
@@ -156,7 +157,21 @@ export default function App() {
           ...(ENV.ENABLE_TESTNETS === "true" ? [chain.arbitrumRinkeby] : []),
           chain.arbitrum,
         ],
-        [alchemyProvider({ alchemyId: ENV.ALCHEMY_KEY }), publicProvider()]
+        [
+          ...(ENV.TREASURE_RPC_API_KEY
+            ? [
+                jsonRpcProvider({
+                  rpc: () => ({
+                    http: `https://arbitrum-rpc.treasure.lol/?t=${ENV.TREASURE_RPC_API_KEY}`,
+                  }),
+                }),
+              ]
+            : []),
+          ...(ENV.ALCHEMY_KEY
+            ? [alchemyProvider({ alchemyId: ENV.ALCHEMY_KEY })]
+            : []),
+          publicProvider(),
+        ]
       ),
     [ENV.ENABLE_TESTNETS, ENV.ALCHEMY_KEY]
   );
