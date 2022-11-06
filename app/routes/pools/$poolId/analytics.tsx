@@ -185,7 +185,18 @@ export default function Analytics() {
         </div>
       </div>
       <div className="space-y-2">
-        <h2 className="text-xl font-medium">Transactions</h2>
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-xl font-medium">Transactions</h2>
+          <a
+            className="flex items-center gap-1 text-right text-xs text-night-400 hover:underline"
+            href={`https://dexscreener.com/arbitrum/${pair.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            More on DEX Screener
+            <ExternalLinkIcon className="h-3 w-3" />
+          </a>
+        </div>
         <div className="max-h-96 flex-1 overflow-auto rounded-md border border-night-700 bg-[#131D2E]">
           <table className="min-w-full divide-y divide-night-700">
             <thead className="sticky top-0 z-10 bg-night-900">
