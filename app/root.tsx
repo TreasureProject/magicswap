@@ -173,7 +173,7 @@ export default function App() {
           publicProvider(),
         ]
       ),
-    [ENV.ENABLE_TESTNETS, ENV.ALCHEMY_KEY]
+    [ENV.ENABLE_TESTNETS, ENV.ALCHEMY_KEY, ENV.TREASURE_RPC_API_KEY]
   );
 
   const { wallets } = React.useMemo(
@@ -366,6 +366,11 @@ export default function App() {
           )}
         </Toaster>
         <Scripts />
+        <script
+          src="https://efficient-bloc-party.treasure.lol/script.js"
+          data-site="XBZCEUKN"
+          defer
+        />
         {ENV.NODE_ENV === "development" ? <LiveReload /> : null}
         <script
           dangerouslySetInnerHTML={{
