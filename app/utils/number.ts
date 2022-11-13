@@ -21,13 +21,15 @@ export const formatNumber = (value: number) => {
   }
 
   const [wholeDigits, fractionDigits] = numString.split(".");
+  const formattedWholeDigits = parseFloat(wholeDigits).toLocaleString();
   if (!fractionDigits || wholeDigits.length >= 6) {
-    return parseFloat(wholeDigits).toLocaleString();
+    return formattedWholeDigits;
   }
 
-  return parseFloat(
-    `${wholeDigits}.${fractionDigits.substring(0, 6 - wholeDigits.length)}`
-  ).toLocaleString();
+  return `${formattedWholeDigits}.${fractionDigits.substring(
+    0,
+    6 - wholeDigits.length
+  )}`;
 };
 
 export const formatCurrency = (value: number) =>
