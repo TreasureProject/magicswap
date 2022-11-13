@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { formatNumber } from "~/utils/number";
 
 type Props = {
   value: number;
@@ -13,7 +12,7 @@ export const useNumberInput = ({ value, onChange }: Props) => {
     : parseFloat(inputValue);
 
   useEffect(() => {
-    setInputValue(value ? formatNumber(value).replace(/,/g, "") : "");
+    setInputValue(value ? value.toString().replace(/,/g, "") : "");
   }, [value]);
 
   const handleChange = useCallback(

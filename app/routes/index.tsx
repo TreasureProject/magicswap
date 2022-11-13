@@ -258,7 +258,7 @@ export default function Index() {
               label={`${inputPairToken.symbol} Amount`}
               token={inputPairToken}
               balance={inputTokenBalance}
-              value={amountIn}
+              value={isExactOut ? parseFloat(formatNumber(amountIn)) : amountIn}
               locked={inputPairToken.isMagic}
               onChange={handleInputChange}
               // showPriceGraph={showGraph}
@@ -283,7 +283,9 @@ export default function Index() {
               label={`${outputPairToken.symbol} Amount`}
               token={outputPairToken}
               balance={outputTokenBalance}
-              value={amountOut}
+              value={
+                isExactOut ? amountOut : parseFloat(formatNumber(amountOut))
+              }
               locked={outputPairToken.isMagic}
               onChange={handleOutputChange}
               // showPriceGraph={showGraph}
