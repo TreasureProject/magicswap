@@ -55,12 +55,13 @@ import {
 } from "@heroicons/react/outline";
 import { createMetaTags } from "./utils/meta";
 import { twMerge } from "tailwind-merge";
+import type { Optional } from "./types";
 
 type LoaderData = {
   nodeEnv: typeof process.env.NODE_ENV;
   enableTestnets: boolean;
-  alchemyKey: string;
-  treasureRpcKey: string;
+  alchemyKey: Optional<string>;
+  treasureRpcKey: Optional<string>;
 };
 
 export const links: LinksFunction = () => [
@@ -154,9 +155,12 @@ export default function App() {
           ...(treasureRpcKey
             ? [
                 jsonRpcProvider({
-                  rpc: () => ({
-                    http: `https://arbitrum-rpc.treasure.lol/?t=${treasureRpcKey}`,
-                  }),
+                  rpc: (currentChain) =>
+                    currentChain === chain.arbitrum
+                      ? {
+                          http: `https://arbitrum-rpc.treasure.lol/?t=${treasureRpcKey}`,
+                        }
+                      : null,
                 }),
               ]
             : []),
