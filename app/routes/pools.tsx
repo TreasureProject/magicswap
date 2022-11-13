@@ -1,9 +1,8 @@
 import { useState, useEffect, Fragment } from "react";
 import type { ChangeEvent } from "react";
 import { ChevronDownIcon, SearchIcon, XIcon } from "@heroicons/react/solid";
-import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
-import { redirect } from "@remix-run/cloudflare";
-import { json } from "@remix-run/cloudflare";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { redirect, json } from "@remix-run/node";
 import type { ShouldReloadFunction } from "@remix-run/react";
 import { useFetcher } from "@remix-run/react";
 import { Link } from "@remix-run/react";
@@ -16,7 +15,6 @@ import { formatPercent } from "~/utils/number";
 import type { Pair } from "~/types";
 import { getPairs } from "~/utils/pair.server";
 import { TokenLogo } from "~/components/TokenLogo";
-import { getEnvVariable } from "~/utils/env";
 import { createMetaTags } from "~/utils/meta";
 import { twMerge } from "tailwind-merge";
 
@@ -31,13 +29,11 @@ const tabs = [
   { name: "Analytics", href: "analytics" },
 ];
 
-export const loader: LoaderFunction = async ({ request, context, params }) => {
-  const exchangeUrl = getEnvVariable("EXCHANGE_ENDPOINT", context);
-
+export const loader: LoaderFunction = async ({ request, params }) => {
   const url = new URL(request.url);
   const name = url.searchParams.get("name")?.toUpperCase();
 
-  const pairs = await getPairs(exchangeUrl, {
+  const pairs = await getPairs(process.env.EXCHANGE_ENDPOINT, {
     name_contains: name,
   });
 

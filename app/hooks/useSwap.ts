@@ -80,9 +80,9 @@ export const useSwap = () => {
     if (isExactOut) {
       if (isEth) {
         if (isOutputEth) {
-          writeSwapTokensForExactEth(
+          writeSwapTokensForExactEth?.(
             {
-              args: [
+              recklesslySetUnpreparedArgs: [
                 amountOut, // amountOut
                 amountIn, // amountInMax
                 path,
@@ -93,12 +93,12 @@ export const useSwap = () => {
             // statusHeader
           );
         } else {
-          writeSwapEthForExactTokens(
+          writeSwapEthForExactTokens?.(
             {
-              overrides: {
+              recklesslySetUnpreparedOverrides: {
                 value: amountIn,
               },
-              args: [
+              recklesslySetUnpreparedArgs: [
                 amountOut, // amountOut
                 path,
                 address,
@@ -109,9 +109,9 @@ export const useSwap = () => {
           );
         }
       } else {
-        writeSwapTokensForExactTokens(
+        writeSwapTokensForExactTokens?.(
           {
-            args: [
+            recklesslySetUnpreparedArgs: [
               amountOut, // amountOut
               amountIn, // amountInMax
               path,
@@ -125,9 +125,9 @@ export const useSwap = () => {
     } else {
       if (isEth) {
         if (isOutputEth) {
-          writeSwapExactTokensForEth(
+          writeSwapExactTokensForEth?.(
             {
-              args: [
+              recklesslySetUnpreparedArgs: [
                 amountIn, // amountIn
                 amountOut, // amountOutMin
                 path,
@@ -138,12 +138,12 @@ export const useSwap = () => {
             // statusHeader
           );
         } else {
-          writeSwapExactEthForTokens(
+          writeSwapExactEthForTokens?.(
             {
-              overrides: {
+              recklesslySetUnpreparedOverrides: {
                 value: amountIn,
               },
-              args: [
+              recklesslySetUnpreparedArgs: [
                 amountOut, // amountOutMin
                 path,
                 address,
@@ -154,9 +154,9 @@ export const useSwap = () => {
           );
         }
       } else {
-        writeSwapExactTokensForTokens(
+        writeSwapExactTokensForTokens?.(
           {
-            args: [
+            recklesslySetUnpreparedArgs: [
               amountIn, // amountIn
               amountOut, // amountOutMin
               path,

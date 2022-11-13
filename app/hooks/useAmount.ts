@@ -1,22 +1,20 @@
 import { formatEther } from "ethers/lib/utils";
+import { AppContract, REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
 import type { PairToken } from "~/types";
-import { getEnvVariable } from "~/utils/env";
 import { formatTokenAmountInWei } from "~/utils/number";
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
+import { useContractAddress } from "./useContractAddress";
 import { useContractRead } from "./useContractRead";
-
-const contractConfig = {
-  addressOrName: getEnvVariable("UNISWAP_V2_ROUTER_ADDRESS"),
-  contractInterface: UniswapV2Router02Abi,
-};
 
 export const useAmountIn = (
   tokenIn: PairToken,
   tokenOut: PairToken,
   amountOut: number
 ) => {
+  const contractAddress = useContractAddress(AppContract.Router);
   const { data = "0" } = useContractRead({
-    ...contractConfig,
+    addressOrName: contractAddress,
+    contractInterface: UniswapV2Router02Abi,
     functionName: "getAmountIn",
     enabled: amountOut > 0,
     args: [
@@ -24,7 +22,7 @@ export const useAmountIn = (
       formatTokenAmountInWei(tokenIn, tokenIn.reserve),
       formatTokenAmountInWei(tokenOut, tokenOut.reserve),
     ],
-    refetchInterval: 2_500,
+    refetchInterval: REFETCH_INTERVAL_HIGH_PRIORITY,
   });
   return parseFloat(formatEther(data));
 };
@@ -34,8 +32,10 @@ export const useAmountOut = (
   tokenOut: PairToken,
   amountIn: number
 ) => {
+  const contractAddress = useContractAddress(AppContract.Router);
   const { data = 0 } = useContractRead({
-    ...contractConfig,
+    addressOrName: contractAddress,
+    contractInterface: UniswapV2Router02Abi,
     functionName: "getAmountOut",
     enabled: amountIn > 0,
     args: [
@@ -43,7 +43,7 @@ export const useAmountOut = (
       formatTokenAmountInWei(tokenIn, tokenIn.reserve),
       formatTokenAmountInWei(tokenOut, tokenOut.reserve),
     ],
-    refetchInterval: 2_500,
+    refetchInterval: REFETCH_INTERVAL_HIGH_PRIORITY,
   });
   return parseFloat(formatEther(data));
 };

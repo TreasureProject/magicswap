@@ -2,8 +2,8 @@ import type {
   LinksFunction,
   LoaderFunction,
   MetaFunction,
-} from "@remix-run/cloudflare";
-import { json } from "@remix-run/cloudflare";
+} from "@remix-run/node";
+import { json } from "@remix-run/node";
 import type { ShouldReloadFunction } from "@remix-run/react";
 import {
   Links,
@@ -21,11 +21,9 @@ import { chain, createClient, configureChains, WagmiConfig } from "wagmi";
 import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
 import {
   ConnectButton,
-  connectorsForWallets,
   darkTheme,
   getDefaultWallets,
   RainbowKitProvider,
-  wallet,
 } from "@rainbow-me/rainbowkit";
 import { publicProvider } from "wagmi/providers/public";
 import { alchemyProvider } from "wagmi/providers/alchemy";
@@ -46,9 +44,7 @@ import {
 import NProgress from "nprogress";
 import nProgressStyles from "./styles/nprogress.css";
 import fontStyles from "./styles/font.css";
-import { getEnvVariable } from "./utils/env";
 
-import type { CloudFlareEnv, CloudFlareEnvVar } from "./types";
 import { UserProvider } from "./context/userContext";
 import { PriceProvider } from "./context/priceContext";
 import { SettingsProvider } from "./context/settingsContext";
@@ -59,9 +55,13 @@ import {
 } from "@heroicons/react/outline";
 import { createMetaTags } from "./utils/meta";
 import { twMerge } from "tailwind-merge";
+import type { Optional } from "./types";
 
-export type RootLoaderData = {
-  ENV: Partial<CloudFlareEnv>;
+type LoaderData = {
+  nodeEnv: typeof process.env.NODE_ENV;
+  enableTestnets: boolean;
+  alchemyKey: Optional<string>;
+  treasureRpcKey: Optional<string>;
 };
 
 export const links: LinksFunction = () => [
@@ -103,16 +103,12 @@ export const meta: MetaFunction = () => ({
   "theme-color": "#DC2626",
 });
 
-export const loader: LoaderFunction = async ({ context }) => {
-  const env = context as CloudFlareEnv;
-  return json<RootLoaderData>({
-    ENV: Object.keys(env).reduce(
-      (envVars, key) => ({
-        ...envVars,
-        [key]: getEnvVariable(key as CloudFlareEnvVar, context),
-      }),
-      {}
-    ),
+export const loader: LoaderFunction = async () => {
+  return json<LoaderData>({
+    nodeEnv: process.env.NODE_ENV,
+    enableTestnets: process.env.ENABLE_TESTNETS === "true",
+    alchemyKey: process.env.ALCHEMY_KEY,
+    treasureRpcKey: process.env.TREASURE_RPC_API_KEY,
   });
 };
 
@@ -148,53 +144,40 @@ const NavLink = ({
 
 export default function App() {
   const transition = useTransition();
-  const { ENV } = useLoaderData<RootLoaderData>();
+  const { nodeEnv, enableTestnets, alchemyKey, treasureRpcKey } =
+    useLoaderData<LoaderData>();
 
   const { chains, provider } = React.useMemo(
     () =>
       configureChains(
+        [...(enableTestnets ? [chain.arbitrumGoerli] : []), chain.arbitrum],
         [
-          ...(ENV.ENABLE_TESTNETS === "true" ? [chain.arbitrumRinkeby] : []),
-          chain.arbitrum,
-        ],
-        [
-          ...(ENV.TREASURE_RPC_API_KEY
+          ...(treasureRpcKey
             ? [
                 jsonRpcProvider({
-                  rpc: () => ({
-                    http: `https://arbitrum-rpc.treasure.lol/?t=${ENV.TREASURE_RPC_API_KEY}`,
-                  }),
+                  rpc: (currentChain) =>
+                    currentChain === chain.arbitrum
+                      ? {
+                          http: `https://arbitrum-rpc.treasure.lol/?t=${treasureRpcKey}`,
+                        }
+                      : null,
                 }),
               ]
             : []),
-          ...(ENV.ALCHEMY_KEY
-            ? [alchemyProvider({ alchemyId: ENV.ALCHEMY_KEY })]
-            : []),
+          ...(alchemyKey ? [alchemyProvider({ apiKey: alchemyKey })] : []),
           publicProvider(),
         ]
       ),
-    [ENV.ENABLE_TESTNETS, ENV.ALCHEMY_KEY, ENV.TREASURE_RPC_API_KEY]
+    [enableTestnets, alchemyKey, treasureRpcKey]
   );
 
-  const { wallets } = React.useMemo(
+  const { connectors } = React.useMemo(
     () =>
       getDefaultWallets({
         appName: "MagicSwap",
         chains,
       }),
     [chains]
-  );
-
-  const connectors = React.useMemo(
-    () =>
-      connectorsForWallets([
-        ...wallets,
-        {
-          groupName: "Others",
-          wallets: [wallet.trust({ chains }), wallet.ledger({ chains })],
-        },
-      ]),
-    [chains, wallets]
   );
 
   const client = React.useMemo(
@@ -366,16 +349,11 @@ export default function App() {
           )}
         </Toaster>
         <Scripts />
+        {nodeEnv === "development" ? <LiveReload /> : null}
         <script
           src="https://efficient-bloc-party.treasure.lol/script.js"
           data-site="XBZCEUKN"
           defer
-        />
-        {ENV.NODE_ENV === "development" ? <LiveReload /> : null}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.env = ${JSON.stringify(ENV)};`,
-          }}
         />
       </body>
     </html>

@@ -14,8 +14,21 @@ export const getFormatOptions = (value: number, isUsd = false) => {
   return formatOptions;
 };
 
-export const formatNumber = (value: number) =>
-  value.toLocaleString("en-US", getFormatOptions(value));
+export const formatNumber = (value: number) => {
+  const numString = value.toString();
+  if (value < 1) {
+    return numString.substring(0, 8);
+  }
+
+  const [wholeDigits, fractionDigits] = numString.split(".");
+  if (!fractionDigits || wholeDigits.length >= 6) {
+    return parseFloat(wholeDigits).toLocaleString();
+  }
+
+  return parseFloat(
+    `${wholeDigits}.${fractionDigits.substring(0, 6 - wholeDigits.length)}`
+  ).toLocaleString();
+};
 
 export const formatCurrency = (value: number) =>
   value.toLocaleString("en-US", {

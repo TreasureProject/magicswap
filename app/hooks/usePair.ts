@@ -1,4 +1,5 @@
 import { formatUnits } from "ethers/lib/utils";
+import { REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
 import type { Pair } from "~/types";
 import UniswapV2PairAbi from "../../artifacts/UniswapV2Pair.json";
 import { useContractRead } from "./useContractRead";
@@ -13,7 +14,7 @@ const usePairReserves = (
     addressOrName: id,
     contractInterface: UniswapV2PairAbi,
     functionName: "getReserves",
-    refetchInterval: 2_500,
+    refetchInterval: REFETCH_INTERVAL_HIGH_PRIORITY,
   });
 
   const reserves = {

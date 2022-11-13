@@ -6,8 +6,8 @@ import {
 import { Button } from "~/components/Button";
 import { useCallback, useEffect } from "react";
 import { Link, useCatch, useLoaderData, useLocation } from "@remix-run/react";
-import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
-import { json } from "@remix-run/cloudflare";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Dialog, Switch } from "@headlessui/react";
 import { getTokenBySymbol, getUniqueTokens } from "~/utils/tokens.server";
 import type { Pair, PairToken, Token } from "~/types";
@@ -20,7 +20,6 @@ import { TokenLogo } from "~/components/TokenLogo";
 import { CogIcon } from "@heroicons/react/outline";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
 import { useTokenApproval } from "~/hooks/useApproval";
-import { getEnvVariable } from "~/utils/env";
 import useLocalStorageState from "use-local-storage-state";
 
 import { usePair } from "~/hooks/usePair";
@@ -57,11 +56,10 @@ export const meta: MetaFunction = ({ data }) => {
   );
 };
 
-export const loader: LoaderFunction = async ({ request, context }) => {
-  const exchangeUrl = getEnvVariable("EXCHANGE_ENDPOINT", context);
+export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
 
-  const pairs = await getPairs(exchangeUrl);
+  const pairs = await getPairs(process.env.EXCHANGE_ENDPOINT);
   const tokens = getUniqueTokens(pairs).sort((a, b) =>
     a.symbol.localeCompare(b.symbol)
   );
@@ -121,9 +119,9 @@ export default function Index() {
     exactIn: 0,
     exactOut: 0,
   });
-  const { value: inputTokenBalance, refetch: refetchInputToken } =
+  const { value: inputTokenBalance, refetch: refetchInputTokenBalance } =
     useTokenBalance(data.inputToken);
-  const { value: outputTokenBalance, refetch: refetchOutputToken } =
+  const { value: outputTokenBalance, refetch: refetchOutputTokenBalance } =
     useTokenBalance(data.outputToken);
   const pair = usePair(data.pair);
   const [showGraph, setShowGraph] = useLocalStorageState("ms:showGraph", {
@@ -170,7 +168,9 @@ export default function Index() {
   const handleSwapSuccess = useCallback(() => {
     setIsOpenConfirmSwapModal(false);
     setAmounts({ exactIn: 0, exactOut: 0 });
-  }, []);
+    refetchInputTokenBalance();
+    refetchOutputTokenBalance();
+  }, [refetchInputTokenBalance, refetchOutputTokenBalance]);
 
   const amountIn =
     useAmountIn(inputPairToken, outputPairToken, amounts.exactOut) ||
@@ -258,7 +258,7 @@ export default function Index() {
               label={`${inputPairToken.symbol} Amount`}
               token={inputPairToken}
               balance={inputTokenBalance}
-              value={amountIn}
+              value={isExactOut ? parseFloat(formatNumber(amountIn)) : amountIn}
               locked={inputPairToken.isMagic}
               onChange={handleInputChange}
               // showPriceGraph={showGraph}
@@ -283,7 +283,9 @@ export default function Index() {
               label={`${outputPairToken.symbol} Amount`}
               token={outputPairToken}
               balance={outputTokenBalance}
-              value={amountOut}
+              value={
+                isExactOut ? amountOut : parseFloat(formatNumber(amountOut))
+              }
               locked={outputPairToken.isMagic}
               onChange={handleOutputChange}
               // showPriceGraph={showGraph}

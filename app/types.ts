@@ -58,15 +58,3 @@ export type Swap = {
   inAmount: number;
   outAmount: number;
 };
-
-export type CloudFlareEnvVar =
-  | "NODE_ENV"
-  | "ENABLE_TESTNETS"
-  | "EXCHANGE_ENDPOINT"
-  | "ALCHEMY_KEY"
-  | "TREASURE_RPC_API_KEY"
-  | "UNISWAP_V2_ROUTER_ADDRESS";
-
-export type CloudFlareEnv = {
-  [key in CloudFlareEnvVar]: string;
-};

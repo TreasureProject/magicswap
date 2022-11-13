@@ -49,8 +49,8 @@ export const useRemoveLiquidity = () => {
     statusRef.current = `Remove ${pair.name} Liquidity`;
 
     if (pair.hasEth) {
-      writeRemoveLiquidityEth({
-        args: [
+      writeRemoveLiquidityEth?.({
+        recklesslySetUnpreparedArgs: [
           isToken1Eth ? pair.token0.id : pair.token1.id,
           lpAmount,
           isToken1Eth ? token0AmountMin : token1AmountMin,
@@ -60,8 +60,8 @@ export const useRemoveLiquidity = () => {
         ],
       });
     } else {
-      writeRemoveLiquidity({
-        args: [
+      writeRemoveLiquidity?.({
+        recklesslySetUnpreparedArgs: [
           pair.token0.id,
           pair.token1.id,
           lpAmount,
@@ -128,11 +128,11 @@ export const useAddLiquidity = () => {
     statusRef.current = `Add ${pair.name} Liquidity`;
 
     if (pair.hasEth) {
-      writeAddLiquidityEth({
-        overrides: {
+      writeAddLiquidityEth?.({
+        recklesslySetUnpreparedOverrides: {
           value: isToken1Eth ? token1Amount : token0Amount,
         },
-        args: [
+        recklesslySetUnpreparedArgs: [
           isToken1Eth ? pair.token0.id : pair.token1.id,
           isToken1Eth ? token0Amount : token1Amount,
           isToken1Eth ? token0AmountMin : token1AmountMin,
@@ -142,8 +142,8 @@ export const useAddLiquidity = () => {
         ],
       });
     } else {
-      writeAddLiquidity({
-        args: [
+      writeAddLiquidity?.({
+        recklesslySetUnpreparedArgs: [
           pair.token0.id,
           pair.token1.id,
           token0Amount,
