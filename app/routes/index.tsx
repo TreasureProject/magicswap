@@ -119,8 +119,10 @@ export default function Index() {
     exactIn: 0,
     exactOut: 0,
   });
-  const { value: inputTokenBalance } = useTokenBalance(data.inputToken);
-  const { value: outputTokenBalance } = useTokenBalance(data.outputToken);
+  const { value: inputTokenBalance, refetch: refetchInputTokenBalance } =
+    useTokenBalance(data.inputToken);
+  const { value: outputTokenBalance, refetch: refetchOutputTokenBalance } =
+    useTokenBalance(data.outputToken);
   const pair = usePair(data.pair);
   const [showGraph, setShowGraph] = useLocalStorageState("ms:showGraph", {
     ssr: true,
@@ -166,7 +168,9 @@ export default function Index() {
   const handleSwapSuccess = useCallback(() => {
     setIsOpenConfirmSwapModal(false);
     setAmounts({ exactIn: 0, exactOut: 0 });
-  }, []);
+    refetchInputTokenBalance();
+    refetchOutputTokenBalance();
+  }, [refetchInputTokenBalance, refetchOutputTokenBalance]);
 
   const amountIn =
     useAmountIn(inputPairToken, outputPairToken, amounts.exactOut) ||
