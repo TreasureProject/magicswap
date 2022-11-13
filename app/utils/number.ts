@@ -22,13 +22,12 @@ export const formatNumber = (value: number) => {
 
   const [wholeDigits, fractionDigits] = numString.split(".");
   if (!fractionDigits || wholeDigits.length >= 6) {
-    return wholeDigits;
+    return parseFloat(wholeDigits).toLocaleString();
   }
 
-  return `${wholeDigits}.${fractionDigits.substring(
-    0,
-    6 - wholeDigits.length
-  )}`;
+  return parseFloat(
+    `${wholeDigits}.${fractionDigits.substring(0, 6 - wholeDigits.length)}`
+  ).toLocaleString();
 };
 
 export const formatCurrency = (value: number) =>
