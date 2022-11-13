@@ -27,6 +27,7 @@ import {
 } from "@rainbow-me/rainbowkit";
 import { publicProvider } from "wagmi/providers/public";
 import { alchemyProvider } from "wagmi/providers/alchemy";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 
 import styles from "./styles/tailwind.css";
 import React from "react";
@@ -59,6 +60,7 @@ type LoaderData = {
   nodeEnv: typeof process.env.NODE_ENV;
   enableTestnets: boolean;
   alchemyKey: string;
+  treasureRpcKey: string;
 };
 
 export const links: LinksFunction = () => [
@@ -105,6 +107,7 @@ export const loader: LoaderFunction = async () => {
     nodeEnv: process.env.NODE_ENV,
     enableTestnets: process.env.ENABLE_TESTNETS === "true",
     alchemyKey: process.env.ALCHEMY_KEY,
+    treasureRpcKey: process.env.TREASURE_RPC_API_KEY,
   });
 };
 
@@ -140,15 +143,28 @@ const NavLink = ({
 
 export default function App() {
   const transition = useTransition();
-  const { nodeEnv, enableTestnets, alchemyKey } = useLoaderData<LoaderData>();
+  const { nodeEnv, enableTestnets, alchemyKey, treasureRpcKey } =
+    useLoaderData<LoaderData>();
 
   const { chains, provider } = React.useMemo(
     () =>
       configureChains(
         [...(enableTestnets ? [chain.arbitrumGoerli] : []), chain.arbitrum],
-        [alchemyProvider({ apiKey: alchemyKey }), publicProvider()]
+        [
+          ...(treasureRpcKey
+            ? [
+                jsonRpcProvider({
+                  rpc: () => ({
+                    http: `https://arbitrum-rpc.treasure.lol/?t=${treasureRpcKey}`,
+                  }),
+                }),
+              ]
+            : []),
+          ...(alchemyKey ? [alchemyProvider({ apiKey: alchemyKey })] : []),
+          publicProvider(),
+        ]
       ),
-    [enableTestnets, alchemyKey]
+    [enableTestnets, alchemyKey, treasureRpcKey]
   );
 
   const { connectors } = React.useMemo(
@@ -330,6 +346,11 @@ export default function App() {
         </Toaster>
         <Scripts />
         {nodeEnv === "development" ? <LiveReload /> : null}
+        <script
+          src="https://efficient-bloc-party.treasure.lol/script.js"
+          data-site="XBZCEUKN"
+          defer
+        />
       </body>
     </html>
   );
