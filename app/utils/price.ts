@@ -1,5 +1,4 @@
 import type { AdvancedToken } from "~/types";
-import { getFormatOptions } from "./number";
 
 export const LIQUIDITY_PROVIDER_FEE = 0.0225;
 export const COMMUNITY_GAME_FUND = 0.00375;
@@ -38,9 +37,6 @@ export const getPrice24hChange = ({
     ((priceUsd - priceYesterdayUsd) / priceYesterdayUsd).toFixed(4)
   );
 };
-
-export const formatUsd = (value: number) =>
-  `$${value.toLocaleString("en-US", getFormatOptions(value, true))}`;
 
 export const fetchMagicPrice = async (): Promise<{
   magicUsd: number;

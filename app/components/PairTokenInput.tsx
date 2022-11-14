@@ -10,12 +10,10 @@ import { useNumberInput } from "~/hooks/useNumberInput";
 import type { PairToken } from "~/types";
 import {
   formatNumber,
+  formatUsd,
   // formatPercent
 } from "~/utils/number";
-import {
-  formatUsd,
-  // getPrice24hChange
-} from "~/utils/price";
+// import { getPrice24hChange } from "~/utils/price";
 // import { TimeIntervalLineGraph } from "./Graph";
 import { TokenLogo } from "./TokenLogo";
 

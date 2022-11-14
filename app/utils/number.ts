@@ -1,19 +1,6 @@
 import { parseUnits } from "ethers/lib/utils";
 import type { Token } from "~/types";
 
-export const getFormatOptions = (value: number, isUsd = false) => {
-  const formatOptions: Intl.NumberFormatOptions = {};
-
-  if (isUsd) {
-    formatOptions.minimumFractionDigits = 2;
-    formatOptions.maximumFractionDigits = 2;
-  } else {
-    formatOptions.maximumSignificantDigits = value < 1 ? 8 : 6;
-  }
-
-  return formatOptions;
-};
-
 export const formatNumber = (value: number) => {
   const numString = value.toString();
   if (value < 1) {
@@ -32,11 +19,20 @@ export const formatNumber = (value: number) => {
   )}`;
 };
 
+export const formatAndParseNumber = (value: number) =>
+  parseFloat(formatNumber(value).replace(/,/g, ""));
+
 export const formatCurrency = (value: number) =>
   value.toLocaleString("en-US", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
+
+export const formatUsd = (value: number) =>
+  `$${value.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 
 export const formatPercent = (
   value: number,

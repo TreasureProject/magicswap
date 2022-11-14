@@ -1,6 +1,5 @@
 import type { PairToken } from "~/types";
-import { formatNumber } from "~/utils/number";
-import { formatUsd } from "~/utils/price";
+import { formatNumber, formatUsd } from "~/utils/number";
 import { useNumberInput } from "~/hooks/useNumberInput";
 import { TokenLogo } from "~/components/TokenLogo";
 import { usePrice } from "~/context/priceContext";

@@ -26,7 +26,11 @@ import { usePair } from "~/hooks/usePair";
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
 import { Modal } from "~/components/Modal";
 import { useSettings } from "~/context/settingsContext";
-import { formatNumber, formatPercent } from "~/utils/number";
+import {
+  formatAndParseNumber,
+  formatNumber,
+  formatPercent,
+} from "~/utils/number";
 import {
   COMMUNITY_ECO_FUND,
   COMMUNITY_GAME_FUND,
@@ -258,7 +262,7 @@ export default function Index() {
               label={`${inputPairToken.symbol} Amount`}
               token={inputPairToken}
               balance={inputTokenBalance}
-              value={isExactOut ? parseFloat(formatNumber(amountIn)) : amountIn}
+              value={isExactOut ? formatAndParseNumber(amountIn) : amountIn}
               locked={inputPairToken.isMagic}
               onChange={handleInputChange}
               // showPriceGraph={showGraph}
@@ -283,9 +287,7 @@ export default function Index() {
               label={`${outputPairToken.symbol} Amount`}
               token={outputPairToken}
               balance={outputTokenBalance}
-              value={
-                isExactOut ? amountOut : parseFloat(formatNumber(amountOut))
-              }
+              value={isExactOut ? amountOut : formatAndParseNumber(amountOut)}
               locked={outputPairToken.isMagic}
               onChange={handleOutputChange}
               // showPriceGraph={showGraph}

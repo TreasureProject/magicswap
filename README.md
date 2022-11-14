@@ -3,6 +3,7 @@
 [MagicSwap](https://magicswap.lol) is the automated market maker of the [Treasure ecosystem](https://treasure.lol).
 
 Supporting code:
+
 - [Solidity Contracts](https://github.com/TreasureProject/magicswap-contracts)
 - [Exchange Subgraph](https://github.com/TreasureProject/treasure-subgraphs/tree/master/subgraphs/magicswap-exchange)
 

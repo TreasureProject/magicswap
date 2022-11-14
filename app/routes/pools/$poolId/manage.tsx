@@ -8,8 +8,8 @@ import { Link, useParams, useSearchParams } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { Button } from "~/components/Button";
 import { Switch } from "@headlessui/react";
-import { formatUsd, getLpTokenCount, getTokenCount } from "~/utils/price";
-import { formatNumber } from "~/utils/number";
+import { getLpTokenCount, getTokenCount } from "~/utils/price";
+import { formatAndParseNumber, formatNumber, formatUsd } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
 import type { Pair } from "~/types";
 import { useAddressBalance, useTokenBalance } from "~/hooks/useTokenBalance";
@@ -104,8 +104,8 @@ const Liquidity = () => {
   const [isAddLiquidity, setIsAddLiquidity] = useState(true);
   const [removeInputValue, setRemoveInputValue] = useState(0);
   const [addAmounts, setAddAmounts] = useState({
-    token0: 0,
-    token1: 0,
+    exactToken0: 0,
+    exactToken1: 0,
   });
   const data = useLoaderData<LoaderData>();
   const { isConnected } = useUser();
@@ -152,9 +152,12 @@ const Liquidity = () => {
   } = useRemoveLiquidity();
 
   const amountToken0 =
-    useQuote(pair.token1, pair.token0, addAmounts.token1) || addAmounts.token0;
+    useQuote(pair.token1, pair.token0, addAmounts.exactToken1) ||
+    addAmounts.exactToken0;
   const amountToken1 =
-    useQuote(pair.token0, pair.token1, addAmounts.token0) || addAmounts.token1;
+    useQuote(pair.token0, pair.token1, addAmounts.exactToken0) ||
+    addAmounts.exactToken1;
+  const isExactToken0 = addAmounts.exactToken0 > 0;
 
   const token0BalanceInsufficient = amountToken0 > token0Balance;
   const token1BalanceInsufficient = amountToken1 > token1Balance;
@@ -191,7 +194,7 @@ const Liquidity = () => {
 
   useEffect(() => {
     if (isAddSuccess || isRemoveSuccess) {
-      setAddAmounts({ token0: 0, token1: 0 });
+      setAddAmounts({ exactToken0: 0, exactToken1: 0 });
       refetchAll();
     }
   }, [isAddSuccess, isRemoveSuccess, refetchAll]);
@@ -205,12 +208,12 @@ const Liquidity = () => {
       ? getTokenCount(removeInputValue, pair.token1.reserve, pair.totalSupply)
       : 0;
 
-  const handleAdd0InputChanged = (value: number) => {
-    setAddAmounts({ token0: value, token1: 0 });
+  const handleAdd0InputChanged = (exactToken0: number) => {
+    setAddAmounts({ exactToken0, exactToken1: 0 });
   };
 
-  const handleAdd1InputChanged = (value: number) => {
-    setAddAmounts({ token0: 0, token1: value });
+  const handleAdd1InputChanged = (exactToken1: number) => {
+    setAddAmounts({ exactToken0: 0, exactToken1 });
   };
 
   const handleAddLiquidity = () => {
@@ -227,7 +230,7 @@ const Liquidity = () => {
   };
 
   useEffect(() => {
-    setAddAmounts({ token0: 0, token1: 0 });
+    setAddAmounts({ exactToken0: 0, exactToken1: 0 });
     setRemoveInputValue(0);
   }, [pair.id]);
 
@@ -300,7 +303,11 @@ const Liquidity = () => {
               label={`${pair.token0.symbol} Amount`}
               token={pair.token0}
               balance={token0Balance}
-              value={amountToken0}
+              value={
+                isExactToken0
+                  ? amountToken0
+                  : formatAndParseNumber(amountToken0)
+              }
               onChange={handleAdd0InputChanged}
             />
             <div className="flex justify-center">
@@ -311,7 +318,11 @@ const Liquidity = () => {
               label={`${pair.token1.symbol} Amount`}
               token={pair.token1}
               balance={token1Balance}
-              value={amountToken1}
+              value={
+                isExactToken0
+                  ? formatAndParseNumber(amountToken1)
+                  : amountToken1
+              }
               onChange={handleAdd1InputChanged}
             />
             <div className="space-y-2 rounded-md bg-night-900 p-4">
