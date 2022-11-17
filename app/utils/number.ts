@@ -8,7 +8,7 @@ export const formatNumber = (value: number) => {
   }
 
   const [wholeDigits, fractionDigits] = numString.split(".");
-  const formattedWholeDigits = parseFloat(wholeDigits).toLocaleString();
+  const formattedWholeDigits = parseFloat(wholeDigits).toLocaleString("en-US");
   if (!fractionDigits || wholeDigits.length >= 6) {
     return formattedWholeDigits;
   }
