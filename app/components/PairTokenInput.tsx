@@ -4,13 +4,14 @@ import {
   // ArrowSmUpIcon,
   ChevronDownIcon,
 } from "@heroicons/react/solid";
+import type { BigNumber } from "ethers";
 import { usePrice } from "~/context/priceContext";
 import { useBlockExplorer } from "~/hooks/useBlockExplorer";
-import { useNumberInput } from "~/hooks/useNumberInput";
 import type { PairToken } from "~/types";
 import {
-  formatNumber,
+  formatBigNumber,
   formatUsd,
+  parseBigNumber,
   // formatPercent
 } from "~/utils/number";
 // import { getPrice24hChange } from "~/utils/price";
@@ -31,21 +32,28 @@ export default function PairTokenInput({
   id: string;
   label: string;
   token: PairToken;
-  balance: number;
-  value: number;
+  balance: BigNumber;
+  value: string;
   locked?: boolean;
-  onChange: (value: number) => void;
+  onChange: (value: string) => void;
   onTokenClick: () => void;
   // showPriceGraph: boolean;
 }) {
-  const { inputValue, parsedValue, handleChange } = useNumberInput({
-    value,
-    onChange,
-  });
   const { magicUsd } = usePrice();
   const blockExplorer = useBlockExplorer();
   // const price24hChange = getPrice24hChange(token);
   // const positive = price24hChange >= 0;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let periodMatches = 0;
+    const nextValue = e.target.value
+      .replace(/,/g, ".") // Replace commas with periods
+      .replace(/[^0-9.]/g, "") // Replace all non-numeric and non-period characters
+      .replace(/\./g, (match) => (++periodMatches > 1 ? "" : match)); // Replace all periods after the first one
+    onChange(nextValue);
+  };
+
+  const parsedValue = parseFloat(value);
 
   return (
     <div className="group flex-1">
@@ -60,7 +68,7 @@ export default function PairTokenInput({
               type="text"
               className="block w-full border-0 border-transparent bg-transparent pr-12 pb-6 focus:ring-0 sm:text-lg lg:text-2xl"
               placeholder="0.00"
-              value={inputValue}
+              value={value === "0" ? "" : value}
               onChange={handleChange}
             />
             <div className="pointer-events-none absolute left-0 bottom-2 flex flex-col items-end pl-3">
@@ -69,7 +77,9 @@ export default function PairTokenInput({
                 {formatUsd(
                   token.priceMagic *
                     magicUsd *
-                    (parsedValue > 0 ? parsedValue : 1)
+                    (!parsedValue || Number.isNaN(parsedValue)
+                      ? 1
+                      : parsedValue)
                 )}
               </span>
             </div>
@@ -90,9 +100,11 @@ export default function PairTokenInput({
               </div>
               <span
                 className="cursor-pointer text-xs text-night-500"
-                onClick={() => onChange(balance)}
+                onClick={() =>
+                  onChange(parseBigNumber(balance, token.decimals).toString())
+                }
               >
-                Balance: {formatNumber(balance)}
+                Balance: {formatBigNumber(balance, token.decimals)}
               </span>
             </div>
           </div>

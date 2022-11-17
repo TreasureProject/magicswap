@@ -1,5 +1,23 @@
-import { parseUnits } from "ethers/lib/utils";
+import type { BigNumber } from "ethers";
+import { formatUnits, parseUnits } from "ethers/lib/utils";
 import type { Token } from "~/types";
+import { Decimal } from "decimal.js-light";
+
+const toDecimal = (value: BigNumber, decimals = 18) => {
+  Decimal.set({ precision: decimals });
+  return new Decimal(formatUnits(value, decimals));
+};
+
+export const parseBigNumber = (value: BigNumber, decimals = 18) =>
+  toDecimal(value, decimals);
+
+export const formatBigNumber = (value: BigNumber, decimals = 18) =>
+  toDecimal(value, decimals)
+    .toSignificantDigits(6, Decimal.ROUND_FLOOR)
+    .toString();
+
+export const toBigNumber = (value: string | number, decimals = 18) =>
+  parseUnits(value.toString(), decimals);
 
 export const formatNumber = (value: number) => {
   const numString = value.toString();

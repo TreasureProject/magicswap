@@ -1,9 +1,11 @@
+import type { BigNumber } from "ethers";
 import { useRef } from "react";
 import { useSettings } from "~/context/settingsContext";
 import { useUser } from "~/context/userContext";
 
 import type { Optional, Token } from "~/types";
-import { formatNumber, formatTokenAmountInWei } from "~/utils/number";
+import { formatBigNumber } from "~/utils/number";
+import { calculateWorstAmountIn, calculateWorstAmountOut } from "~/utils/swap";
 
 import { useV2RouterWrite } from "./useV2RouterWrite";
 
@@ -52,20 +54,19 @@ export const useSwap = () => {
   const swap = (
     inputToken: Token,
     outputToken: Token,
-    rawAmountIn: number,
-    rawAmountOut: number,
+    rawAmountIn: BigNumber,
+    rawAmountOut: BigNumber,
     isExactOut = false
   ) => {
     const isOutputEth = outputToken.isEth;
     const isEth = inputToken.isEth || isOutputEth;
 
-    const worstAmountIn =
-      rawAmountIn * (isExactOut ? (100 + slippage) / 100 : 1);
-    const worstAmountOut =
-      rawAmountOut * (isExactOut ? 1 : (100 - slippage) / 100);
-
-    const amountIn = formatTokenAmountInWei(inputToken, worstAmountIn);
-    const amountOut = formatTokenAmountInWei(outputToken, worstAmountOut);
+    const amountIn = isExactOut
+      ? calculateWorstAmountIn(rawAmountIn, slippage)
+      : rawAmountIn;
+    const amountOut = isExactOut
+      ? rawAmountOut
+      : calculateWorstAmountOut(rawAmountOut, slippage);
     const path = [inputToken.id, outputToken.id];
 
     const transactionDeadline = (
@@ -73,9 +74,9 @@ export const useSwap = () => {
       60 * deadline
     ).toString();
 
-    statusRef.current = `Swap ${formatNumber(rawAmountIn)} ${
+    statusRef.current = `Swap ${formatBigNumber(amountIn)} ${
       inputToken.symbol
-    } to ${formatNumber(rawAmountOut)} ${outputToken.symbol}`;
+    } to ${formatBigNumber(amountOut)} ${outputToken.symbol}`;
 
     if (isExactOut) {
       if (isEth) {

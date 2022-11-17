@@ -8,7 +8,7 @@ import { useCallback, useEffect } from "react";
 import { Link, useCatch, useLoaderData, useLocation } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Dialog, Switch } from "@headlessui/react";
+import { Dialog } from "@headlessui/react";
 import { getTokenBySymbol, getUniqueTokens } from "~/utils/tokens.server";
 import type { Pair, PairToken, Token } from "~/types";
 import { useTokenBalance } from "~/hooks/useTokenBalance";
@@ -27,18 +27,22 @@ import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPop
 import { Modal } from "~/components/Modal";
 import { useSettings } from "~/context/settingsContext";
 import {
-  formatAndParseNumber,
-  formatNumber,
+  formatBigNumber,
   formatPercent,
+  parseBigNumber,
+  toBigNumber,
 } from "~/utils/number";
 import {
   COMMUNITY_ECO_FUND,
   COMMUNITY_GAME_FUND,
   LIQUIDITY_PROVIDER_FEE,
 } from "~/utils/price";
-import { useAmountIn, useAmountOut } from "~/hooks/useAmount";
+import { useAmount } from "~/hooks/useAmount";
 import { createMetaTags } from "~/utils/meta";
 import { twMerge } from "tailwind-merge";
+import { Zero } from "@ethersproject/constants";
+import type { BigNumber } from "ethers";
+import { calculatePriceImpact } from "~/utils/swap";
 
 type LoaderData = {
   pairs: Pair[];
@@ -119,9 +123,9 @@ export default function Index() {
     open: false,
     type: "input",
   });
-  const [amounts, setAmounts] = useState({
-    exactIn: 0,
-    exactOut: 0,
+  const [swapInput, setSwapInput] = useState({
+    value: "",
+    isExactOut: false,
   });
   const { value: inputTokenBalance, refetch: refetchInputTokenBalance } =
     useTokenBalance(data.inputToken);
@@ -141,9 +145,9 @@ export default function Index() {
 
   // Reset inputs if swap changes
   useEffect(() => {
-    setAmounts((currentAmounts) => ({
-      exactIn: currentAmounts.exactOut,
-      exactOut: currentAmounts.exactIn,
+    setSwapInput((curr) => ({
+      ...curr,
+      isExactOut: !curr.isExactOut,
     }));
   }, [inputPairToken.id, outputPairToken.id]);
 
@@ -156,14 +160,6 @@ export default function Index() {
     []
   );
 
-  const handleInputChange = (value: number) => {
-    setAmounts({ exactIn: value, exactOut: 0 });
-  };
-
-  const handleOutputChange = (value: number) => {
-    setAmounts({ exactIn: 0, exactOut: value });
-  };
-
   const handleCloseConfirmModal = useCallback(
     () => setIsOpenConfirmSwapModal(false),
     []
@@ -171,22 +167,25 @@ export default function Index() {
 
   const handleSwapSuccess = useCallback(() => {
     setIsOpenConfirmSwapModal(false);
-    setAmounts({ exactIn: 0, exactOut: 0 });
+    setSwapInput({ value: "", isExactOut: false });
     refetchInputTokenBalance();
     refetchOutputTokenBalance();
   }, [refetchInputTokenBalance, refetchOutputTokenBalance]);
 
-  const amountIn =
-    useAmountIn(inputPairToken, outputPairToken, amounts.exactOut) ||
-    amounts.exactIn;
-  const amountOut =
-    useAmountOut(inputPairToken, outputPairToken, amounts.exactIn) ||
-    amounts.exactOut;
-  const isExactOut = amounts.exactOut > 0;
-  const priceImpact = isExactOut
-    ? 1 - (amountOut * inputPairToken.price) / amountIn
-    : 1 - amountOut / (amountIn * outputPairToken.price);
-  const insufficientBalance = inputTokenBalance < amountIn;
+  const swapAmount = useAmount(
+    inputPairToken,
+    outputPairToken,
+    toBigNumber(swapInput.value ? swapInput.value : "0"),
+    swapInput.isExactOut
+  );
+  const priceImpact = calculatePriceImpact(
+    inputPairToken,
+    outputPairToken,
+    swapAmount.in,
+    swapAmount.out,
+    swapInput.isExactOut
+  );
+  const insufficientBalance = inputTokenBalance.lt(swapAmount.in);
 
   return (
     <>
@@ -262,9 +261,13 @@ export default function Index() {
               label={`${inputPairToken.symbol} Amount`}
               token={inputPairToken}
               balance={inputTokenBalance}
-              value={isExactOut ? formatAndParseNumber(amountIn) : amountIn}
+              value={
+                swapInput.isExactOut
+                  ? formatBigNumber(swapAmount.in)
+                  : swapInput.value
+              }
               locked={inputPairToken.isMagic}
-              onChange={handleInputChange}
+              onChange={(value) => setSwapInput({ value, isExactOut: false })}
               // showPriceGraph={showGraph}
               onTokenClick={() =>
                 setOpenTokenListModalProps({
@@ -287,9 +290,13 @@ export default function Index() {
               label={`${outputPairToken.symbol} Amount`}
               token={outputPairToken}
               balance={outputTokenBalance}
-              value={isExactOut ? amountOut : formatAndParseNumber(amountOut)}
+              value={
+                swapInput.isExactOut
+                  ? swapInput.value
+                  : formatBigNumber(swapAmount.out)
+              }
               locked={outputPairToken.isMagic}
-              onChange={handleOutputChange}
+              onChange={(value) => setSwapInput({ value, isExactOut: true })}
               // showPriceGraph={showGraph}
               onTokenClick={() =>
                 setOpenTokenListModalProps({
@@ -302,13 +309,17 @@ export default function Index() {
         </div>
         <div className="mt-4 w-full space-y-4 px-0 sm:mt-8 xl:px-72 2xl:mt-12">
           <Button
-            disabled={!amountIn || !amountOut || insufficientBalance}
+            disabled={
+              swapAmount.in.eq(Zero) ||
+              swapAmount.out.eq(Zero) ||
+              insufficientBalance
+            }
             onClick={() => setIsOpenConfirmSwapModal(true)}
             requiresConnect
           >
             {insufficientBalance
               ? "Insufficient Balance"
-              : amountIn && amountOut
+              : swapAmount.in.gt(Zero) && swapAmount.out.gt(Zero)
               ? "Swap"
               : "Enter an Amount"}
           </Button>
@@ -323,8 +334,8 @@ export default function Index() {
         onClose={handleCloseConfirmModal}
         inputPairToken={inputPairToken}
         outputPairToken={outputPairToken}
-        inputValues={[amountIn, amountOut]}
-        isExactOut={isExactOut}
+        inputValues={[swapAmount.in, swapAmount.out]}
+        isExactOut={swapInput.isExactOut}
         priceImpact={priceImpact}
         onSuccess={handleSwapSuccess}
       />
@@ -346,7 +357,7 @@ const ConfirmSwapModal = ({
   onClose: () => void;
   inputPairToken: Token;
   outputPairToken: Token;
-  inputValues: number[];
+  inputValues: BigNumber[];
   isExactOut: boolean;
   priceImpact: number;
   onSuccess: () => void;
@@ -362,10 +373,11 @@ const ConfirmSwapModal = ({
   } = useTokenApproval(inputPairToken);
 
   const worstAmountIn =
-    inputValues[0] * (isExactOut ? (100 + slippage) / 100 : 1);
-
+    parseBigNumber(inputValues[0], inputPairToken.decimals).toNumber() *
+    (isExactOut ? (100 + slippage) / 100 : 1);
   const worstAmountOut =
-    inputValues[1] * (isExactOut ? 1 : (100 - slippage) / 100);
+    parseBigNumber(inputValues[1], outputPairToken.decimals).toNumber() *
+    (isExactOut ? 1 : (100 - slippage) / 100);
 
   useEffect(() => {
     if (isApproveSuccess) {
@@ -391,7 +403,9 @@ const ConfirmSwapModal = ({
         <div className="mt-4 mb-4 flex flex-col items-center">
           <div className="flex w-full justify-between rounded-md bg-night-900 p-4">
             <span className="truncate text-lg font-medium tracking-wide">
-              {formatNumber(inputValues[0])}
+              {isExactOut
+                ? formatBigNumber(inputValues[0])
+                : parseBigNumber(inputValues[0]).toString()}
             </span>
             <div className="flex flex-shrink-0 items-center space-x-2 pl-2">
               <TokenLogo
@@ -408,7 +422,9 @@ const ConfirmSwapModal = ({
           </div>
           <div className="flex w-full justify-between rounded-md bg-night-900 p-4">
             <span className="text-lg font-medium tracking-wide">
-              {formatNumber(inputValues[1])}
+              {isExactOut
+                ? parseBigNumber(inputValues[1]).toString()
+                : formatBigNumber(inputValues[1])}
             </span>
             <div className="flex items-center space-x-2 pl-2">
               <TokenLogo
@@ -466,7 +482,7 @@ const ConfirmSwapModal = ({
                   Input is estimated. You will sell at most:
                 </p>
                 <p className="text-sm">
-                  {formatNumber(worstAmountIn)}{" "}
+                  {worstAmountIn}{" "}
                   <span className="text-night-300">
                     {inputPairToken.symbol}
                   </span>
@@ -481,7 +497,7 @@ const ConfirmSwapModal = ({
                   Output is estimated. You will receieve at least:
                 </p>
                 <p className="text-sm">
-                  {formatNumber(worstAmountOut)}{" "}
+                  {worstAmountOut}{" "}
                   <span className="text-night-300">
                     {outputPairToken.symbol}
                   </span>

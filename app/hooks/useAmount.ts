@@ -1,49 +1,34 @@
-import { formatEther } from "ethers/lib/utils";
+import { Zero } from "@ethersproject/constants";
+import type { BigNumber } from "ethers";
 import { AppContract, REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
 import type { PairToken } from "~/types";
-import { formatTokenAmountInWei } from "~/utils/number";
+import { toBigNumber } from "~/utils/number";
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
 import { useContractAddress } from "./useContractAddress";
 import { useContractRead } from "./useContractRead";
 
-export const useAmountIn = (
+export const useAmount = (
   tokenIn: PairToken,
   tokenOut: PairToken,
-  amountOut: number
+  value: BigNumber,
+  isExactOut: boolean
 ) => {
   const contractAddress = useContractAddress(AppContract.Router);
-  const { data = "0" } = useContractRead({
+  const { data = Zero } = useContractRead({
     addressOrName: contractAddress,
     contractInterface: UniswapV2Router02Abi,
-    functionName: "getAmountIn",
-    enabled: amountOut > 0,
+    functionName: isExactOut ? "getAmountIn" : "getAmountOut",
+    enabled: value.gt(Zero),
     args: [
-      formatTokenAmountInWei(tokenOut, amountOut),
-      formatTokenAmountInWei(tokenIn, tokenIn.reserve),
-      formatTokenAmountInWei(tokenOut, tokenOut.reserve),
+      value,
+      toBigNumber(tokenIn.reserve, tokenIn.decimals),
+      toBigNumber(tokenOut.reserve, tokenOut.decimals),
     ],
     refetchInterval: REFETCH_INTERVAL_HIGH_PRIORITY,
   });
-  return parseFloat(formatEther(data));
-};
-
-export const useAmountOut = (
-  tokenIn: PairToken,
-  tokenOut: PairToken,
-  amountIn: number
-) => {
-  const contractAddress = useContractAddress(AppContract.Router);
-  const { data = 0 } = useContractRead({
-    addressOrName: contractAddress,
-    contractInterface: UniswapV2Router02Abi,
-    functionName: "getAmountOut",
-    enabled: amountIn > 0,
-    args: [
-      formatTokenAmountInWei(tokenIn, amountIn),
-      formatTokenAmountInWei(tokenIn, tokenIn.reserve),
-      formatTokenAmountInWei(tokenOut, tokenOut.reserve),
-    ],
-    refetchInterval: REFETCH_INTERVAL_HIGH_PRIORITY,
-  });
-  return parseFloat(formatEther(data));
+  const result = data as BigNumber;
+  return {
+    in: isExactOut ? result : value,
+    out: isExactOut ? value : result,
+  };
 };
