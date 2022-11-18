@@ -187,7 +187,7 @@ const Liquidity = () => {
   const token1BalanceInsufficient = token1Balance.lt(addAmount.token1);
   const insufficientBalance =
     token0BalanceInsufficient || token1BalanceInsufficient;
-  const lpBalanceInsufficient = false; //TODO: removeInputValue > lpBalance;
+  const lpBalanceInsufficient = lpBalance.lt(removeAmount);
 
   const refetchAll = useCallback(async () => {
     Promise.all([refetchPair0(), refetchPair1(), refetchLp()]);
