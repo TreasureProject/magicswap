@@ -109,11 +109,11 @@ export default function Manage() {
 
 const Liquidity = () => {
   const [isAddLiquidity, setIsAddLiquidity] = useState(true);
-  const [removeInputValue, setRemoveInputValue] = useState(0);
   const [addInput, setAddInput] = useState({
     value: "",
     isExactToken0: false,
   });
+  const [removeInput, setRemoveInput] = useState("");
   const data = useLoaderData<LoaderData>();
   const { isConnected } = useUser();
   const pair = usePair(data.pair);
@@ -165,6 +165,24 @@ const Liquidity = () => {
     addInput.isExactToken0
   );
 
+  const removeAmount = removeInput ? toBigNumber(removeInput) : Zero;
+  const removeEstimate = {
+    token0: removeAmount.gt(Zero)
+      ? getTokenCount(
+          parseBigNumber(removeAmount).toNumber(),
+          pair.token0.reserve,
+          pair.totalSupply
+        )
+      : 0,
+    token1: removeAmount.gt(Zero)
+      ? getTokenCount(
+          parseBigNumber(removeAmount).toNumber(),
+          pair.token1.reserve,
+          pair.totalSupply
+        )
+      : 0,
+  };
+
   const token0BalanceInsufficient = token0Balance.lt(addAmount.token0);
   const token1BalanceInsufficient = token1Balance.lt(addAmount.token1);
   const insufficientBalance =
@@ -200,7 +218,7 @@ const Liquidity = () => {
 
   const resetInputs = useCallback(() => {
     setAddInput({ value: "", isExactToken0: false });
-    setRemoveInputValue(0);
+    setRemoveInput("");
     refetchAll();
   }, [refetchAll]);
 
@@ -214,15 +232,6 @@ const Liquidity = () => {
     resetInputs();
   }, [pair.id, resetInputs]);
 
-  const removeLiquidityToken0Estimate =
-    removeInputValue > 0
-      ? getTokenCount(removeInputValue, pair.token0.reserve, pair.totalSupply)
-      : 0;
-  const removeLiquidityToken1Estimate =
-    removeInputValue > 0
-      ? getTokenCount(removeInputValue, pair.token1.reserve, pair.totalSupply)
-      : 0;
-
   const handleAddLiquidity = () => {
     addLiquidity(pair, addAmount.token0, addAmount.token1);
   };
@@ -230,9 +239,9 @@ const Liquidity = () => {
   const handleRemoveLiquidity = () => {
     removeLiquidity(
       pair,
-      removeInputValue,
-      removeLiquidityToken0Estimate,
-      removeLiquidityToken1Estimate
+      removeAmount,
+      removeEstimate.token0,
+      removeEstimate.token1
     );
   };
 
@@ -335,10 +344,7 @@ const Liquidity = () => {
                 ≈{" "}
                 {formatNumber(
                   getLpTokenCount(
-                    parseBigNumber(
-                      addAmount.token0,
-                      pair.token0.decimals
-                    ).toNumber(),
+                    parseBigNumber(addAmount.token0).toNumber(),
                     pair.token0.reserve,
                     pair.totalSupply
                   )
@@ -355,8 +361,8 @@ const Liquidity = () => {
               tokenSymbol={`${pair.name} LP`}
               price={pair.lpPriceMagic * magicUsd}
               balance={lpBalance}
-              value={removeInputValue.toString()}
-              onChange={(value) => setRemoveInputValue(parseFloat(value))}
+              value={removeInput}
+              onChange={setRemoveInput}
             />
             <div className="space-y-2 rounded-md bg-night-900 p-4">
               <p className="text-xs text-night-600 sm:text-base">
@@ -364,29 +370,23 @@ const Liquidity = () => {
               </p>
               <div className="flex items-center justify-between">
                 <span className="font-medium">
-                  {formatNumber(removeLiquidityToken0Estimate)}{" "}
-                  {pair.token0.symbol}
+                  {formatNumber(removeEstimate.token0)} {pair.token0.symbol}
                 </span>
                 <span className="text-night-200">
                   ≈{" "}
                   {formatUsd(
-                    removeLiquidityToken0Estimate *
-                      pair.token0.priceMagic *
-                      magicUsd
+                    removeEstimate.token0 * pair.token0.priceMagic * magicUsd
                   )}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-medium">
-                  {formatNumber(removeLiquidityToken1Estimate)}{" "}
-                  {pair.token1.symbol}
+                  {formatNumber(removeEstimate.token1)} {pair.token1.symbol}
                 </span>
                 <span className="text-night-200">
                   ={" "}
                   {formatUsd(
-                    removeLiquidityToken1Estimate *
-                      pair.token1.priceMagic *
-                      magicUsd
+                    removeEstimate.token1 * pair.token1.priceMagic * magicUsd
                   )}
                 </span>
               </div>
@@ -449,7 +449,7 @@ const Liquidity = () => {
           </>
         ) : (
           <>
-            {removeInputValue > 0 &&
+            {removeAmount.gt(Zero) &&
               !isLpApproved &&
               !lpBalanceInsufficient &&
               isConnected && (
@@ -462,7 +462,7 @@ const Liquidity = () => {
             <Button
               disabled={
                 (isConnected &&
-                  (!removeInputValue ||
+                  (removeAmount.eq(Zero) ||
                     lpBalanceInsufficient ||
                     !isLpApproved)) ||
                 isRemoveLoading
@@ -474,7 +474,7 @@ const Liquidity = () => {
                 ? "Removing Liquidity..."
                 : lpBalanceInsufficient
                 ? "Insufficient LP Token Balance"
-                : removeInputValue > 0
+                : removeAmount.gt(Zero)
                 ? "Remove Liquidity"
                 : "Enter an Amount"}
             </Button>

@@ -74,16 +74,18 @@ export default function TokenInput({
             Balance: {formatBigNumber(balance, token?.decimals)}
           </span>
         </div>
-        <div className="pointer-events-none absolute bottom-2 right-0 flex flex-col items-end pr-3">
-          <span className="text-xs text-night-500">
-            ~{" "}
-            {formatUsd(
-              (token?.priceMagic ?? 0) *
-                magicUsd *
-                (parsedValue > 0 ? parsedValue : 1)
-            )}
-          </span>
-        </div>
+        {!!token && (
+          <div className="pointer-events-none absolute bottom-2 right-0 flex flex-col items-end pr-3">
+            <span className="text-xs text-night-500">
+              ~{" "}
+              {formatUsd(
+                token.priceMagic *
+                  magicUsd *
+                  (parsedValue > 0 ? parsedValue : 1)
+              )}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
