@@ -25,7 +25,6 @@ import useLocalStorageState from "use-local-storage-state";
 import { usePair } from "~/hooks/usePair";
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
 import { Modal } from "~/components/Modal";
-import { useSettings } from "~/context/settingsContext";
 import {
   formatBigNumber,
   formatPercent,
@@ -263,7 +262,11 @@ export default function Index() {
               balance={inputTokenBalance}
               value={
                 swapInput.isExactOut
-                  ? formatBigNumber(swapAmount.in)
+                  ? formatBigNumber(
+                      swapAmount.in,
+                      inputPairToken.decimals,
+                      false
+                    )
                   : swapInput.value
               }
               locked={inputPairToken.isMagic}
@@ -293,7 +296,11 @@ export default function Index() {
               value={
                 swapInput.isExactOut
                   ? swapInput.value
-                  : formatBigNumber(swapAmount.out)
+                  : formatBigNumber(
+                      swapAmount.out,
+                      outputPairToken.decimals,
+                      false
+                    )
               }
               locked={outputPairToken.isMagic}
               onChange={(value) => setSwapInput({ value, isExactOut: true })}
@@ -362,7 +369,6 @@ const ConfirmSwapModal = ({
   priceImpact: number;
   onSuccess: () => void;
 }) => {
-  const { slippage } = useSettings();
   const {
     isApproved,
     approve,
@@ -371,14 +377,14 @@ const ConfirmSwapModal = ({
     refetch: refetchTokenApprovalStatus,
   } = useTokenApproval(inputPairToken);
 
-  const worstAmountIn =
-    parseBigNumber(inputValues[0], inputPairToken.decimals).toNumber() *
-    (isExactOut ? (100 + slippage) / 100 : 1);
-  const worstAmountOut =
-    parseBigNumber(inputValues[1], outputPairToken.decimals).toNumber() *
-    (isExactOut ? 1 : (100 - slippage) / 100);
-
-  const { swap, isLoading, isSuccess } = useSwap({
+  const {
+    amountIn: worstAmountIn,
+    amountOut: worstAmountOut,
+    slippage,
+    swap,
+    isLoading,
+    isSuccess,
+  } = useSwap({
     inputToken: inputPairToken,
     outputToken: outputPairToken,
     amountIn: inputValues[0],
@@ -411,7 +417,7 @@ const ConfirmSwapModal = ({
           <div className="flex w-full justify-between rounded-md bg-night-900 p-4">
             <span className="truncate text-lg font-medium tracking-wide">
               {isExactOut
-                ? formatBigNumber(inputValues[0])
+                ? formatBigNumber(inputValues[0], inputPairToken.decimals)
                 : parseBigNumber(inputValues[0]).toString()}
             </span>
             <div className="flex flex-shrink-0 items-center space-x-2 pl-2">
@@ -431,7 +437,7 @@ const ConfirmSwapModal = ({
             <span className="text-lg font-medium tracking-wide">
               {isExactOut
                 ? parseBigNumber(inputValues[1]).toString()
-                : formatBigNumber(inputValues[1])}
+                : formatBigNumber(inputValues[1], outputPairToken.decimals)}
             </span>
             <div className="flex items-center space-x-2 pl-2">
               <TokenLogo
@@ -489,7 +495,7 @@ const ConfirmSwapModal = ({
                   Input is estimated. You will sell at most:
                 </p>
                 <p className="text-sm">
-                  {worstAmountIn}{" "}
+                  {formatBigNumber(worstAmountIn)}{" "}
                   <span className="text-night-300">
                     {inputPairToken.symbol}
                   </span>
@@ -504,7 +510,7 @@ const ConfirmSwapModal = ({
                   Output is estimated. You will receieve at least:
                 </p>
                 <p className="text-sm">
-                  {worstAmountOut}{" "}
+                  {formatBigNumber(worstAmountOut)}{" "}
                   <span className="text-night-300">
                     {outputPairToken.symbol}
                   </span>

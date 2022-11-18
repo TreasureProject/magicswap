@@ -5,7 +5,7 @@ import { useUser } from "~/context/userContext";
 
 import type { Optional, Pair } from "~/types";
 import { toBigNumber } from "~/utils/number";
-import { calculateWorstAmountOut } from "~/utils/swap";
+import { calculateAmountOutMin } from "~/utils/swap";
 
 import { useV2RouterWrite } from "./useV2RouterWrite";
 
@@ -35,11 +35,11 @@ export const useRemoveLiquidity = () => {
   ) => {
     const isToken1Eth = pair.token1.isEth;
 
-    const token0AmountMin = calculateWorstAmountOut(
+    const token0AmountMin = calculateAmountOutMin(
       toBigNumber(rawToken0Amount),
       slippage
     );
-    const token1AmountMin = calculateWorstAmountOut(
+    const token1AmountMin = calculateAmountOutMin(
       toBigNumber(rawToken1Amount),
       slippage
     );
@@ -108,8 +108,8 @@ export const useAddLiquidity = () => {
     token1Amount: BigNumber
   ) => {
     const isToken1Eth = pair.token1.isEth;
-    const token0AmountMin = calculateWorstAmountOut(token0Amount, slippage);
-    const token1AmountMin = calculateWorstAmountOut(token1Amount, slippage);
+    const token0AmountMin = calculateAmountOutMin(token0Amount, slippage);
+    const token1AmountMin = calculateAmountOutMin(token1Amount, slippage);
     const transactionDeadline = (
       Math.ceil(Date.now() / 1000) +
       60 * deadline

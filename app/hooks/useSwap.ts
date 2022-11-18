@@ -5,7 +5,7 @@ import { useUser } from "~/context/userContext";
 
 import type { Optional, Token } from "~/types";
 import { formatBigNumber } from "~/utils/number";
-import { calculateWorstAmountIn, calculateWorstAmountOut } from "~/utils/swap";
+import { calculateAmountInMin, calculateAmountOutMin } from "~/utils/swap";
 
 import type { RouterFunctionName } from "./useV2RouterWrite";
 import { useV2RouterWrite } from "./useV2RouterWrite";
@@ -37,20 +37,11 @@ export const useSwap = ({
   const isEth = inputToken.isEth || isOutputEth;
 
   const amountIn = isExactOut
-    ? calculateWorstAmountIn(rawAmountIn, slippage)
+    ? calculateAmountInMin(rawAmountIn, slippage)
     : rawAmountIn;
   const amountOut = isExactOut
     ? rawAmountOut
-    : calculateWorstAmountOut(rawAmountOut, slippage);
-
-  const transactionDeadline = (
-    Math.ceil(Date.now() / 1000) +
-    60 * deadline
-  ).toString();
-
-  statusRef.current = `Swap ${formatBigNumber(amountIn)} ${
-    inputToken.symbol
-  } to ${formatBigNumber(amountOut)} ${outputToken.symbol}`;
+    : calculateAmountOutMin(rawAmountOut, slippage);
 
   const [functionName, args, overrides] = useMemo<
     [RouterFunctionName, any, CallOverrides?]
@@ -63,9 +54,6 @@ export const useSwap = ({
             [
               amountOut, // amountOut
               amountIn, // amountInMax
-              path,
-              address,
-              transactionDeadline,
             ],
           ];
         }
@@ -74,9 +62,6 @@ export const useSwap = ({
           "swapETHForExactTokens",
           [
             amountOut, // amountOut
-            path,
-            address,
-            transactionDeadline,
           ],
           {
             value: amountIn,
@@ -89,9 +74,6 @@ export const useSwap = ({
         [
           amountOut, // amountOut
           amountIn, // amountInMax
-          path,
-          address,
-          transactionDeadline,
         ],
       ];
     }
@@ -103,9 +85,6 @@ export const useSwap = ({
           [
             amountIn, // amountIn
             amountOut, // amountOutMin
-            path,
-            address,
-            transactionDeadline,
           ],
         ];
       }
@@ -114,9 +93,6 @@ export const useSwap = ({
         "swapExactETHForTokens",
         [
           amountOut, // amountOutMin
-          path,
-          address,
-          transactionDeadline,
         ],
         {
           value: amountIn,
@@ -129,21 +105,9 @@ export const useSwap = ({
       [
         amountIn, // amountIn
         amountOut, // amountOutMin
-        path,
-        address,
-        transactionDeadline,
       ],
     ];
-  }, [
-    isExactOut,
-    isEth,
-    isOutputEth,
-    amountIn,
-    amountOut,
-    path,
-    address,
-    transactionDeadline,
-  ]);
+  }, [isExactOut, isEth, isOutputEth, amountIn, amountOut]);
 
   const { write, isError, isSuccess, isLoading } = useV2RouterWrite(
     functionName,
@@ -151,11 +115,27 @@ export const useSwap = ({
   );
 
   return {
-    swap: () =>
+    amountIn,
+    amountOut,
+    slippage,
+    swap: () => {
+      statusRef.current = `Swap ${formatBigNumber(
+        amountIn,
+        inputToken.decimals
+      )} ${inputToken.symbol} to ${formatBigNumber(
+        amountOut,
+        outputToken.decimals
+      )} ${outputToken.symbol}`;
       write?.({
         recklesslySetUnpreparedOverrides: overrides,
-        recklesslySetUnpreparedArgs: args,
-      }),
+        recklesslySetUnpreparedArgs: [
+          ...args,
+          path,
+          address,
+          Math.ceil(Date.now() / 1000) + 60 * deadline,
+        ],
+      });
+    },
     isLoading,
     isError,
     isSuccess,

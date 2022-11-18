@@ -1,4 +1,3 @@
-import { Zero } from "@ethersproject/constants";
 import type { BigNumber } from "ethers";
 import type { PairToken } from "~/types";
 import { parseBigNumber } from "./number";
@@ -23,17 +22,8 @@ export const calculatePriceImpact = (
     : 1 - parsedAmountOut / (parsedAmountIn * outputToken.price);
 };
 
-export const calculateWorstAmountIn = (amountIn: BigNumber, slippage: number) =>
-  amountIn.gt(Zero) ? amountIn.mul(1 + slippage / 100) : Zero;
+export const calculateAmountInMin = (amountIn: BigNumber, slippage: number) =>
+  amountIn.add(amountIn.mul(slippage * 1000).div(1000));
 
-export const calculateWorstAmountOut = (
-  amountOut: BigNumber,
-  slippage: number
-) =>
-  amountOut.gt(Zero)
-    ? amountOut.sub(
-        slippage > 1
-          ? amountOut.mul(slippage).div(100)
-          : amountOut.div(1 / slippage).div(100)
-      )
-    : Zero;
+export const calculateAmountOutMin = (amountOut: BigNumber, slippage: number) =>
+  amountOut.sub(amountOut.mul(slippage * 1000).div(1000));

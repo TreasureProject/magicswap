@@ -317,7 +317,11 @@ const Liquidity = () => {
               value={
                 addInput.isExactToken0
                   ? addInput.value
-                  : formatBigNumber(addAmount.token0)
+                  : formatBigNumber(
+                      addAmount.token0,
+                      pair.token0.decimals,
+                      false
+                    )
               }
               onChange={(value) => setAddInput({ value, isExactToken0: true })}
             />
@@ -331,7 +335,11 @@ const Liquidity = () => {
               balance={token1Balance}
               value={
                 addInput.isExactToken0
-                  ? formatBigNumber(addAmount.token1)
+                  ? formatBigNumber(
+                      addAmount.token1,
+                      pair.token1.decimals,
+                      false
+                    )
                   : addInput.value
               }
               onChange={(value) => setAddInput({ value, isExactToken0: false })}
