@@ -7,7 +7,7 @@ import {
 import type { BigNumber } from "ethers";
 import { usePrice } from "~/context/priceContext";
 import { useBlockExplorer } from "~/hooks/useBlockExplorer";
-import type { PairToken } from "~/types";
+import type { Token } from "~/types";
 import {
   formatBigNumber,
   formatUsd,
@@ -18,6 +18,18 @@ import {
 // import { TimeIntervalLineGraph } from "./Graph";
 import { TokenLogo } from "./TokenLogo";
 
+type Props = {
+  id: string;
+  label: string;
+  token: Token;
+  balance: BigNumber;
+  value: string;
+  locked?: boolean;
+  onChange: (value: string) => void;
+  onTokenClick: () => void;
+  // showPriceGraph: boolean;
+};
+
 export default function PairTokenInput({
   id,
   label,
@@ -27,18 +39,7 @@ export default function PairTokenInput({
   locked = false,
   onChange,
   onTokenClick,
-}: // showPriceGraph,
-{
-  id: string;
-  label: string;
-  token: PairToken;
-  balance: BigNumber;
-  value: string;
-  locked?: boolean;
-  onChange: (value: string) => void;
-  onTokenClick: () => void;
-  // showPriceGraph: boolean;
-}) {
+}: Props) {
   const { magicUsd } = usePrice();
   const blockExplorer = useBlockExplorer();
   // const price24hChange = getPrice24hChange(token);

@@ -9,8 +9,14 @@ export const calculatePriceImpact = (
   amountOut: BigNumber,
   isExactOut = false
 ) => {
-  const parsedAmountIn = parseBigNumber(amountIn).toNumber();
-  const parsedAmountOut = parseBigNumber(amountOut).toNumber();
+  const parsedAmountIn = parseBigNumber(
+    amountIn,
+    inputToken.decimals
+  ).toNumber();
+  const parsedAmountOut = parseBigNumber(
+    amountOut,
+    outputToken.decimals
+  ).toNumber();
   return isExactOut
     ? 1 - (parsedAmountOut * inputToken.price) / parsedAmountIn
     : 1 - parsedAmountOut / (parsedAmountIn * outputToken.price);
@@ -22,4 +28,9 @@ export const calculateWorstAmountIn = (amountIn: BigNumber, slippage: number) =>
 export const calculateWorstAmountOut = (
   amountOut: BigNumber,
   slippage: number
-) => amountOut.mul(1 + slippage / 100);
+) =>
+  amountOut.sub(
+    slippage > 1
+      ? amountOut.mul(slippage).div(100)
+      : amountOut.div(1 / slippage).div(100)
+  );
