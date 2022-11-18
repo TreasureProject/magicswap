@@ -9,9 +9,9 @@ import { usePrice } from "~/context/priceContext";
 import { useBlockExplorer } from "~/hooks/useBlockExplorer";
 import type { Token } from "~/types";
 import {
-  formatBigNumber,
+  formatBigNumberDisplay,
+  formatBigNumberInput,
   formatUsd,
-  parseBigNumber,
   // formatPercent
 } from "~/utils/number";
 // import { getPrice24hChange } from "~/utils/price";
@@ -102,10 +102,10 @@ export default function PairTokenInput({
               <span
                 className="cursor-pointer text-xs text-night-500"
                 onClick={() =>
-                  onChange(parseBigNumber(balance, token.decimals).toString())
+                  onChange(formatBigNumberInput(balance, token.decimals))
                 }
               >
-                Balance: {formatBigNumber(balance, token.decimals)}
+                Balance: {formatBigNumberDisplay(balance, token.decimals)}
               </span>
             </div>
           </div>

@@ -2,48 +2,33 @@ import type { BigNumber } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 import { Decimal } from "decimal.js-light";
 
-const toDecimal = (value: BigNumber, decimals = 18) => {
-  Decimal.set({ precision: decimals });
-  return new Decimal(formatUnits(value, decimals));
-};
+// Avoid scientific notation until we get to 1B+
+Decimal.set({ toExpPos: 9 });
 
-export const parseBigNumber = (value: BigNumber, decimals = 18) =>
-  toDecimal(value, decimals);
+const toDecimal = (value: BigNumber, decimals = 18) =>
+  new Decimal(formatUnits(value, decimals));
 
-export const formatBigNumber = (
-  value: BigNumber,
-  decimals = 18,
-  toLocale = true
-) => {
-  const decimal = toDecimal(value, decimals).toSignificantDigits(
-    6,
-    Decimal.ROUND_FLOOR
-  );
-  return toLocale
-    ? decimal.toNumber().toLocaleString("en-US")
-    : decimal.toString();
-};
+export const toNumber = (value: BigNumber, decimals = 18) =>
+  parseFloat(formatUnits(value, decimals));
 
 export const toBigNumber = (value: string | number, decimals = 18) =>
   parseUnits(value.toString(), decimals);
 
-export const formatNumber = (value: number) => {
-  const numString = value.toString();
-  if (value < 1) {
-    return numString.substring(0, 8);
-  }
+export const formatBigNumberInput = (value: BigNumber, decimals = 18) =>
+  toDecimal(value, decimals)
+    .toSignificantDigits(decimals, Decimal.ROUND_FLOOR)
+    .toString();
 
-  const [wholeDigits, fractionDigits] = numString.split(".");
-  const formattedWholeDigits = parseFloat(wholeDigits).toLocaleString("en-US");
-  if (!fractionDigits || wholeDigits.length >= 6) {
-    return formattedWholeDigits;
-  }
+export const formatBigNumberOutput = (value: BigNumber, decimals = 18) =>
+  toDecimal(value, decimals)
+    .toSignificantDigits(6, Decimal.ROUND_FLOOR)
+    .toString();
 
-  return `${formattedWholeDigits}.${fractionDigits.substring(
-    0,
-    6 - wholeDigits.length
-  )}`;
-};
+export const formatBigNumberDisplay = (value: BigNumber, decimals = 18) =>
+  toDecimal(value, decimals)
+    .toSignificantDigits(6, Decimal.ROUND_FLOOR)
+    .toNumber()
+    .toLocaleString("en-US");
 
 export const formatCurrency = (value: number) =>
   value.toLocaleString("en-US", {

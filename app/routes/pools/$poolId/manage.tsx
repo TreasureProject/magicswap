@@ -10,11 +10,11 @@ import { Button } from "~/components/Button";
 import { Switch } from "@headlessui/react";
 import { getLpTokenCount, getTokenCount } from "~/utils/price";
 import {
-  formatBigNumber,
-  formatNumber,
+  formatBigNumberOutput,
+  formatCurrency,
   formatUsd,
-  parseBigNumber,
   toBigNumber,
+  toNumber,
 } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
 import type { Pair } from "~/types";
@@ -169,14 +169,14 @@ const Liquidity = () => {
   const removeEstimate = {
     token0: removeAmount.gt(Zero)
       ? getTokenCount(
-          parseBigNumber(removeAmount).toNumber(),
+          toNumber(removeAmount),
           pair.token0.reserve,
           pair.totalSupply
         )
       : 0,
     token1: removeAmount.gt(Zero)
       ? getTokenCount(
-          parseBigNumber(removeAmount).toNumber(),
+          toNumber(removeAmount),
           pair.token1.reserve,
           pair.totalSupply
         )
@@ -317,10 +317,9 @@ const Liquidity = () => {
               value={
                 addInput.isExactToken0
                   ? addInput.value
-                  : formatBigNumber(
+                  : formatBigNumberOutput(
                       addAmount.token0,
-                      pair.token0.decimals,
-                      false
+                      pair.token0.decimals
                     )
               }
               onChange={(value) => setAddInput({ value, isExactToken0: true })}
@@ -335,10 +334,9 @@ const Liquidity = () => {
               balance={token1Balance}
               value={
                 addInput.isExactToken0
-                  ? formatBigNumber(
+                  ? formatBigNumberOutput(
                       addAmount.token1,
-                      pair.token1.decimals,
-                      false
+                      pair.token1.decimals
                     )
                   : addInput.value
               }
@@ -350,9 +348,9 @@ const Liquidity = () => {
               </p>
               <p className="text-sm font-medium sm:text-lg">
                 ≈{" "}
-                {formatNumber(
+                {formatCurrency(
                   getLpTokenCount(
-                    parseBigNumber(addAmount.token0).toNumber(),
+                    toNumber(addAmount.token0),
                     pair.token0.reserve,
                     pair.totalSupply
                   )
@@ -378,7 +376,7 @@ const Liquidity = () => {
               </p>
               <div className="flex items-center justify-between">
                 <span className="font-medium">
-                  {formatNumber(removeEstimate.token0)} {pair.token0.symbol}
+                  {formatCurrency(removeEstimate.token0)} {pair.token0.symbol}
                 </span>
                 <span className="text-night-200">
                   ≈{" "}
@@ -389,7 +387,7 @@ const Liquidity = () => {
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-medium">
-                  {formatNumber(removeEstimate.token1)} {pair.token1.symbol}
+                  {formatCurrency(removeEstimate.token1)} {pair.token1.symbol}
                 </span>
                 <span className="text-night-200">
                   ={" "}

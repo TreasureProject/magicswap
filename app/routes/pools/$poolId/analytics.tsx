@@ -9,7 +9,7 @@ import {
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { TimeIntervalLineGraph } from "~/components/Graph";
-import { formatCurrency, formatNumber, formatUsd } from "~/utils/number";
+import { formatCurrency, formatUsd } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
 import type { Pair, Swap } from "~/types";
 import { getSwaps } from "~/utils/swap.server";
@@ -159,7 +159,7 @@ export default function Analytics() {
                     <span className="font-medium">{pair.token0.symbol}</span>
                   </div>
                 </td>
-                <td className="p-4">{formatNumber(pair.token0.reserve)}</td>
+                <td className="p-4">{formatCurrency(pair.token0.reserve)}</td>
               </tr>
               <tr>
                 <td className="p-4">
@@ -171,7 +171,7 @@ export default function Analytics() {
                     <span className="font-medium">{pair.token1.symbol}</span>
                   </div>
                 </td>
-                <td className="p-4">{formatNumber(pair.token1.reserve)}</td>
+                <td className="p-4">{formatCurrency(pair.token1.reserve)}</td>
               </tr>
             </tbody>
           </table>

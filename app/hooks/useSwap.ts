@@ -4,7 +4,7 @@ import { useSettings } from "~/context/settingsContext";
 import { useUser } from "~/context/userContext";
 
 import type { Optional, Token } from "~/types";
-import { formatBigNumber } from "~/utils/number";
+import { formatBigNumberDisplay } from "~/utils/number";
 import { calculateAmountInMin, calculateAmountOutMin } from "~/utils/swap";
 
 import type { RouterFunctionName } from "./useV2RouterWrite";
@@ -119,10 +119,10 @@ export const useSwap = ({
     amountOut,
     slippage,
     swap: () => {
-      statusRef.current = `Swap ${formatBigNumber(
+      statusRef.current = `Swap ${formatBigNumberDisplay(
         amountIn,
         inputToken.decimals
-      )} ${inputToken.symbol} to ${formatBigNumber(
+      )} ${inputToken.symbol} to ${formatBigNumberDisplay(
         amountOut,
         outputToken.decimals
       )} ${outputToken.symbol}`;

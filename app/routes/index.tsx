@@ -26,9 +26,9 @@ import { usePair } from "~/hooks/usePair";
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
 import { Modal } from "~/components/Modal";
 import {
-  formatBigNumber,
+  formatBigNumberInput,
+  formatBigNumberOutput,
   formatPercent,
-  parseBigNumber,
   toBigNumber,
 } from "~/utils/number";
 import {
@@ -262,10 +262,9 @@ export default function Index() {
               balance={inputTokenBalance}
               value={
                 swapInput.isExactOut
-                  ? formatBigNumber(
+                  ? formatBigNumberOutput(
                       swapAmount.in,
-                      inputPairToken.decimals,
-                      false
+                      inputPairToken.decimals
                     )
                   : swapInput.value
               }
@@ -296,10 +295,9 @@ export default function Index() {
               value={
                 swapInput.isExactOut
                   ? swapInput.value
-                  : formatBigNumber(
+                  : formatBigNumberOutput(
                       swapAmount.out,
-                      outputPairToken.decimals,
-                      false
+                      outputPairToken.decimals
                     )
               }
               locked={outputPairToken.isMagic}
@@ -417,8 +415,8 @@ const ConfirmSwapModal = ({
           <div className="flex w-full justify-between rounded-md bg-night-900 p-4">
             <span className="truncate text-lg font-medium tracking-wide">
               {isExactOut
-                ? formatBigNumber(inputValues[0], inputPairToken.decimals)
-                : parseBigNumber(inputValues[0]).toString()}
+                ? formatBigNumberOutput(inputValues[0], inputPairToken.decimals)
+                : formatBigNumberInput(inputValues[0])}
             </span>
             <div className="flex flex-shrink-0 items-center space-x-2 pl-2">
               <TokenLogo
@@ -436,8 +434,11 @@ const ConfirmSwapModal = ({
           <div className="flex w-full justify-between rounded-md bg-night-900 p-4">
             <span className="text-lg font-medium tracking-wide">
               {isExactOut
-                ? parseBigNumber(inputValues[1]).toString()
-                : formatBigNumber(inputValues[1], outputPairToken.decimals)}
+                ? formatBigNumberInput(inputValues[1])
+                : formatBigNumberOutput(
+                    inputValues[1],
+                    outputPairToken.decimals
+                  )}
             </span>
             <div className="flex items-center space-x-2 pl-2">
               <TokenLogo
@@ -495,7 +496,7 @@ const ConfirmSwapModal = ({
                   Input is estimated. You will sell at most:
                 </p>
                 <p className="text-sm">
-                  {formatBigNumber(worstAmountIn)}{" "}
+                  {formatBigNumberOutput(worstAmountIn)}{" "}
                   <span className="text-night-300">
                     {inputPairToken.symbol}
                   </span>
@@ -510,7 +511,7 @@ const ConfirmSwapModal = ({
                   Output is estimated. You will receieve at least:
                 </p>
                 <p className="text-sm">
-                  {formatBigNumber(worstAmountOut)}{" "}
+                  {formatBigNumberOutput(worstAmountOut)}{" "}
                   <span className="text-night-300">
                     {outputPairToken.symbol}
                   </span>
