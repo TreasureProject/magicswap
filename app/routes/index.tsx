@@ -362,7 +362,6 @@ const ConfirmSwapModal = ({
   priceImpact: number;
   onSuccess: () => void;
 }) => {
-  const { swap, isLoading, isSuccess } = useSwap();
   const { slippage } = useSettings();
   const {
     isApproved,
@@ -378,6 +377,14 @@ const ConfirmSwapModal = ({
   const worstAmountOut =
     parseBigNumber(inputValues[1], outputPairToken.decimals).toNumber() *
     (isExactOut ? 1 : (100 - slippage) / 100);
+
+  const { swap, isLoading, isSuccess } = useSwap({
+    inputToken: inputPairToken,
+    outputToken: outputPairToken,
+    amountIn: inputValues[0],
+    amountOut: inputValues[1],
+    isExactOut,
+  });
 
   useEffect(() => {
     if (isApproveSuccess) {
@@ -514,13 +521,7 @@ const ConfirmSwapModal = ({
               if (!isApproved) {
                 approve();
               } else {
-                swap(
-                  inputPairToken,
-                  outputPairToken,
-                  inputValues[0],
-                  inputValues[1],
-                  isExactOut
-                );
+                swap();
               }
             }}
           >
