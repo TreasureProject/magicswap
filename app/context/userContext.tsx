@@ -27,7 +27,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     <Context.Provider
       value={{
         isConnected: isMounted && isConnected && !!address,
-        unsupported: chain?.unsupported ?? true,
+        unsupported: !!chain?.unsupported,
         address,
       }}
     >
