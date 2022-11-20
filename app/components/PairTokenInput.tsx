@@ -12,6 +12,7 @@ import {
   formatBigNumberDisplay,
   formatBigNumberInput,
   formatUsd,
+  formatUsdLong,
   // formatPercent
 } from "~/utils/number";
 // import { getPrice24hChange } from "~/utils/price";
@@ -130,7 +131,7 @@ export default function PairTokenInput({
             </a>
             <div className="flex flex-col items-end sm:flex-row sm:items-baseline">
               <p className="whitespace-nowrap text-xs font-normal text-night-300 sm:text-lg">
-                {formatUsd(token.priceMagic * magicUsd)} USD
+                {formatUsdLong(token.priceMagic * magicUsd)} USD
               </p>
               {/* <p
                 className={twMerge(

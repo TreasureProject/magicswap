@@ -42,6 +42,14 @@ export const formatUsd = (value: number) =>
     maximumFractionDigits: 2,
   })}`;
 
+export const formatUsdLong = (value: number) =>
+  `$${new Decimal(value)
+    .toSignificantDigits(4)
+    .toNumber()
+    .toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+    })}`;
+
 export const formatPercent = (
   value: number,
   minimumFractionDigits = 0,
