@@ -178,7 +178,9 @@ export default function Index() {
   const swapAmount = useAmount(
     inputPairToken,
     outputPairToken,
-    toBigNumber(swapInput.value ? swapInput.value : "0"),
+    toBigNumber(
+      swapInput.value && swapInput.value !== "." ? swapInput.value : "0"
+    ),
     swapInput.isExactOut
   );
   const priceImpact = calculatePriceImpact(
