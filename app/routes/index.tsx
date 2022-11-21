@@ -82,10 +82,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     });
   }
 
-  const outputSymbol =
-    url.searchParams.get("output") ??
-    tokens.find((token) => !token.isMagic)?.symbol ??
-    "";
+  const outputSymbol = url.searchParams.get("output") ?? "GFLY";
   const outputToken = getTokenBySymbol(tokens, outputSymbol);
   if (!outputToken) {
     throw new Response(`${outputSymbol} token not found`, {
