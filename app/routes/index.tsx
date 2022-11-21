@@ -51,16 +51,20 @@ type LoaderData = {
   outputToken: PairToken;
 };
 
-export const meta: MetaFunction = ({ data }) => {
+export const meta: MetaFunction = ({ data, location }) => {
   const { inputToken, outputToken } = (data || {}) as LoaderData;
 
   if (!inputToken || !outputToken) {
     return createMetaTags("404 | MagicSwap");
   }
 
-  return createMetaTags(
-    `Swap ${inputToken.symbol} to ${outputToken.symbol} | MagicSwap`
-  );
+  if (location.search) {
+    return createMetaTags(
+      `Swap ${inputToken.symbol} to ${outputToken.symbol} | MagicSwap`
+    );
+  }
+
+  return createMetaTags();
 };
 
 export const loader: LoaderFunction = async ({ request }) => {

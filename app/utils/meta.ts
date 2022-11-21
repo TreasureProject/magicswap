@@ -1,6 +1,6 @@
 export const createMetaTags = (
-  title = "Swap | MagicSwap",
-  description = "The gateway to the cross-game economy",
+  title = "MagicSwap | Powered by Treasure",
+  description = "The gateway to the cross-game economy. Swap, pool, and earn tokens in the decentralized exchanged powered by Treasure and MAGIC.",
   image = "/img/banner.jpg"
 ) => ({
   title,
