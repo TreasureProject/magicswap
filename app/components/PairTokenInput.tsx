@@ -4,18 +4,32 @@ import {
   // ArrowSmUpIcon,
   ChevronDownIcon,
 } from "@heroicons/react/solid";
+import type { BigNumber } from "ethers";
 import { usePrice } from "~/context/priceContext";
 import { useBlockExplorer } from "~/hooks/useBlockExplorer";
-import { useNumberInput } from "~/hooks/useNumberInput";
-import type { PairToken } from "~/types";
+import type { Token } from "~/types";
 import {
-  formatNumber,
+  formatBigNumberDisplay,
+  formatBigNumberInput,
   formatUsd,
+  formatUsdLong,
   // formatPercent
 } from "~/utils/number";
 // import { getPrice24hChange } from "~/utils/price";
 // import { TimeIntervalLineGraph } from "./Graph";
 import { TokenLogo } from "./TokenLogo";
+
+type Props = {
+  id: string;
+  label: string;
+  token: Token;
+  balance: BigNumber;
+  value: string;
+  locked?: boolean;
+  onChange: (value: string) => void;
+  onTokenClick: () => void;
+  // showPriceGraph: boolean;
+};
 
 export default function PairTokenInput({
   id,
@@ -26,26 +40,22 @@ export default function PairTokenInput({
   locked = false,
   onChange,
   onTokenClick,
-}: // showPriceGraph,
-{
-  id: string;
-  label: string;
-  token: PairToken;
-  balance: number;
-  value: number;
-  locked?: boolean;
-  onChange: (value: number) => void;
-  onTokenClick: () => void;
-  // showPriceGraph: boolean;
-}) {
-  const { inputValue, parsedValue, handleChange } = useNumberInput({
-    value,
-    onChange,
-  });
+}: Props) {
   const { magicUsd } = usePrice();
   const blockExplorer = useBlockExplorer();
   // const price24hChange = getPrice24hChange(token);
   // const positive = price24hChange >= 0;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let periodMatches = 0;
+    const nextValue = e.target.value
+      .replace(/,/g, ".") // Replace commas with periods
+      .replace(/[^0-9.]/g, "") // Replace all non-numeric and non-period characters
+      .replace(/\./g, (match) => (++periodMatches > 1 ? "" : match)); // Replace all periods after the first one
+    onChange(nextValue);
+  };
+
+  const parsedValue = parseFloat(value);
 
   return (
     <div className="group flex-1">
@@ -60,7 +70,7 @@ export default function PairTokenInput({
               type="text"
               className="block w-full border-0 border-transparent bg-transparent pr-12 pb-6 focus:ring-0 sm:text-lg lg:text-2xl"
               placeholder="0.00"
-              value={inputValue}
+              value={value === "0" ? "" : value}
               onChange={handleChange}
             />
             <div className="pointer-events-none absolute left-0 bottom-2 flex flex-col items-end pl-3">
@@ -69,7 +79,9 @@ export default function PairTokenInput({
                 {formatUsd(
                   token.priceMagic *
                     magicUsd *
-                    (parsedValue > 0 ? parsedValue : 1)
+                    (!parsedValue || Number.isNaN(parsedValue)
+                      ? 1
+                      : parsedValue)
                 )}
               </span>
             </div>
@@ -90,9 +102,11 @@ export default function PairTokenInput({
               </div>
               <span
                 className="cursor-pointer text-xs text-night-500"
-                onClick={() => onChange(balance)}
+                onClick={() =>
+                  onChange(formatBigNumberInput(balance, token.decimals))
+                }
               >
-                Balance: {formatNumber(balance)}
+                Balance: {formatBigNumberDisplay(balance, token.decimals)}
               </span>
             </div>
           </div>
@@ -117,7 +131,7 @@ export default function PairTokenInput({
             </a>
             <div className="flex flex-col items-end sm:flex-row sm:items-baseline">
               <p className="whitespace-nowrap text-xs font-normal text-night-300 sm:text-lg">
-                {formatUsd(token.priceMagic * magicUsd)} USD
+                {formatUsdLong(token.priceMagic * magicUsd)} USD
               </p>
               {/* <p
                 className={twMerge(

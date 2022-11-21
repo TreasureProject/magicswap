@@ -1,192 +1,143 @@
-import { useRef } from "react";
+import type { BigNumber, CallOverrides } from "ethers";
+import { useMemo, useRef } from "react";
 import { useSettings } from "~/context/settingsContext";
 import { useUser } from "~/context/userContext";
 
 import type { Optional, Token } from "~/types";
-import { formatNumber, formatTokenAmountInWei } from "~/utils/number";
+import { formatBigNumberDisplay } from "~/utils/number";
+import { calculateAmountInMin, calculateAmountOutMin } from "~/utils/swap";
 
+import type { RouterFunctionName } from "./useV2RouterWrite";
 import { useV2RouterWrite } from "./useV2RouterWrite";
 
-export const useSwap = () => {
+type Props = {
+  inputToken: Token;
+  outputToken: Token;
+  amountIn: BigNumber;
+  amountOut: BigNumber;
+  isExactOut?: boolean;
+};
+
+export const useSwap = ({
+  inputToken,
+  outputToken,
+  amountIn: rawAmountIn,
+  amountOut: rawAmountOut,
+  isExactOut,
+}: Props) => {
   const { address } = useUser();
   const { slippage, deadline } = useSettings();
   const statusRef = useRef<Optional<string>>(undefined);
 
-  const {
-    write: writeSwapEthForExactTokens,
-    isError: isError1,
-    isSuccess: isSuccess1,
-    isLoading: isLoading1,
-  } = useV2RouterWrite("swapETHForExactTokens", statusRef.current);
-  const {
-    write: writeSwapExactEthForTokens,
-    isError: isError2,
-    isSuccess: isSuccess2,
-    isLoading: isLoading2,
-  } = useV2RouterWrite("swapExactETHForTokens", statusRef.current);
-  const {
-    write: writeSwapExactTokensForEth,
-    isError: isError3,
-    isSuccess: isSuccess3,
-    isLoading: isLoading3,
-  } = useV2RouterWrite("swapExactTokensForETH", statusRef.current);
-  const {
-    write: writeSwapTokensForExactEth,
-    isError: isError4,
-    isSuccess: isSuccess4,
-    isLoading: isLoading4,
-  } = useV2RouterWrite("swapTokensForExactETH", statusRef.current);
-  const {
-    write: writeSwapExactTokensForTokens,
-    isError: isError5,
-    isSuccess: isSuccess5,
-    isLoading: isLoading5,
-  } = useV2RouterWrite("swapExactTokensForTokens", statusRef.current);
-  const {
-    write: writeSwapTokensForExactTokens,
-    isError: isError6,
-    isSuccess: isSuccess6,
-    isLoading: isLoading6,
-  } = useV2RouterWrite("swapTokensForExactTokens", statusRef.current);
+  const path = useMemo(
+    () => [inputToken.id, outputToken.id],
+    [inputToken.id, outputToken.id]
+  );
+  const isOutputEth = outputToken.isEth;
+  const isEth = inputToken.isEth || isOutputEth;
 
-  const swap = (
-    inputToken: Token,
-    outputToken: Token,
-    rawAmountIn: number,
-    rawAmountOut: number,
-    isExactOut = false
-  ) => {
-    const isOutputEth = outputToken.isEth;
-    const isEth = inputToken.isEth || isOutputEth;
+  const amountIn = isExactOut
+    ? calculateAmountInMin(rawAmountIn, slippage)
+    : rawAmountIn;
+  const amountOut = isExactOut
+    ? rawAmountOut
+    : calculateAmountOutMin(rawAmountOut, slippage);
 
-    const worstAmountIn =
-      rawAmountIn * (isExactOut ? (100 + slippage) / 100 : 1);
-    const worstAmountOut =
-      rawAmountOut * (isExactOut ? 1 : (100 - slippage) / 100);
-
-    const amountIn = formatTokenAmountInWei(inputToken, worstAmountIn);
-    const amountOut = formatTokenAmountInWei(outputToken, worstAmountOut);
-    const path = [inputToken.id, outputToken.id];
-
-    const transactionDeadline = (
-      Math.ceil(Date.now() / 1000) +
-      60 * deadline
-    ).toString();
-
-    statusRef.current = `Swap ${formatNumber(rawAmountIn)} ${
-      inputToken.symbol
-    } to ${formatNumber(rawAmountOut)} ${outputToken.symbol}`;
-
+  const [functionName, args, overrides] = useMemo<
+    [RouterFunctionName, any, CallOverrides?]
+  >(() => {
     if (isExactOut) {
       if (isEth) {
         if (isOutputEth) {
-          writeSwapTokensForExactEth?.(
-            {
-              recklesslySetUnpreparedArgs: [
-                amountOut, // amountOut
-                amountIn, // amountInMax
-                path,
-                address,
-                transactionDeadline,
-              ],
-            }
-            // statusHeader
-          );
-        } else {
-          writeSwapEthForExactTokens?.(
-            {
-              recklesslySetUnpreparedOverrides: {
-                value: amountIn,
-              },
-              recklesslySetUnpreparedArgs: [
-                amountOut, // amountOut
-                path,
-                address,
-                transactionDeadline,
-              ],
-            }
-            // statusHeader
-          );
-        }
-      } else {
-        writeSwapTokensForExactTokens?.(
-          {
-            recklesslySetUnpreparedArgs: [
+          return [
+            "swapTokensForExactETH",
+            [
               amountOut, // amountOut
               amountIn, // amountInMax
-              path,
-              address,
-              transactionDeadline,
             ],
-          }
-          // statusHeader
-        );
-      }
-    } else {
-      if (isEth) {
-        if (isOutputEth) {
-          writeSwapExactTokensForEth?.(
-            {
-              recklesslySetUnpreparedArgs: [
-                amountIn, // amountIn
-                amountOut, // amountOutMin
-                path,
-                address,
-                transactionDeadline,
-              ],
-            }
-            // statusHeader
-          );
-        } else {
-          writeSwapExactEthForTokens?.(
-            {
-              recklesslySetUnpreparedOverrides: {
-                value: amountIn,
-              },
-              recklesslySetUnpreparedArgs: [
-                amountOut, // amountOutMin
-                path,
-                address,
-                transactionDeadline,
-              ],
-            }
-            // statusHeader
-          );
+          ];
         }
-      } else {
-        writeSwapExactTokensForTokens?.(
+
+        return [
+          "swapETHForExactTokens",
+          [
+            amountOut, // amountOut
+          ],
           {
-            recklesslySetUnpreparedArgs: [
-              amountIn, // amountIn
-              amountOut, // amountOutMin
-              path,
-              address,
-              transactionDeadline,
-            ],
-          }
-          // statusHeader
-        );
+            value: amountIn,
+          },
+        ];
       }
+
+      return [
+        "swapTokensForExactTokens",
+        [
+          amountOut, // amountOut
+          amountIn, // amountInMax
+        ],
+      ];
     }
-  };
+
+    if (isEth) {
+      if (isOutputEth) {
+        return [
+          "swapExactTokensForETH",
+          [
+            amountIn, // amountIn
+            amountOut, // amountOutMin
+          ],
+        ];
+      }
+
+      return [
+        "swapExactETHForTokens",
+        [
+          amountOut, // amountOutMin
+        ],
+        {
+          value: amountIn,
+        },
+      ];
+    }
+
+    return [
+      "swapExactTokensForTokens",
+      [
+        amountIn, // amountIn
+        amountOut, // amountOutMin
+      ],
+    ];
+  }, [isExactOut, isEth, isOutputEth, amountIn, amountOut]);
+
+  const { write, isError, isSuccess, isLoading } = useV2RouterWrite(
+    functionName,
+    statusRef.current
+  );
 
   return {
-    swap,
-    isLoading:
-      isLoading1 ||
-      isLoading2 ||
-      isLoading3 ||
-      isLoading4 ||
-      isLoading5 ||
-      isLoading6,
-    isError:
-      isError1 || isError2 || isError3 || isError4 || isError5 || isError6,
-    isSuccess:
-      isSuccess1 ||
-      isSuccess2 ||
-      isSuccess3 ||
-      isSuccess4 ||
-      isSuccess5 ||
-      isSuccess6,
+    amountIn,
+    amountOut,
+    slippage,
+    swap: () => {
+      statusRef.current = `Swap ${formatBigNumberDisplay(
+        amountIn,
+        inputToken.decimals
+      )} ${inputToken.symbol} to ${formatBigNumberDisplay(
+        amountOut,
+        outputToken.decimals
+      )} ${outputToken.symbol}`;
+      write?.({
+        recklesslySetUnpreparedOverrides: overrides,
+        recklesslySetUnpreparedArgs: [
+          ...args,
+          path,
+          address,
+          Math.ceil(Date.now() / 1000) + 60 * deadline,
+        ],
+      });
+    },
+    isLoading,
+    isError,
+    isSuccess,
   };
 };

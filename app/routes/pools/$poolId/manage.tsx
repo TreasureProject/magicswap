@@ -9,7 +9,13 @@ import invariant from "tiny-invariant";
 import { Button } from "~/components/Button";
 import { Switch } from "@headlessui/react";
 import { getLpTokenCount, getTokenCount } from "~/utils/price";
-import { formatAndParseNumber, formatNumber, formatUsd } from "~/utils/number";
+import {
+  formatBigNumberOutput,
+  formatCurrency,
+  formatUsd,
+  toBigNumber,
+  toNumber,
+} from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
 import type { Pair } from "~/types";
 import { useAddressBalance, useTokenBalance } from "~/hooks/useTokenBalance";
@@ -25,6 +31,7 @@ import { usePrice } from "~/context/priceContext";
 import { createMetaTags } from "~/utils/meta";
 import { useQuote } from "~/hooks/useQuote";
 import { twMerge } from "tailwind-merge";
+import { Zero } from "@ethersproject/constants";
 
 type LoaderData = {
   pair: Pair;
@@ -102,11 +109,11 @@ export default function Manage() {
 
 const Liquidity = () => {
   const [isAddLiquidity, setIsAddLiquidity] = useState(true);
-  const [removeInputValue, setRemoveInputValue] = useState(0);
-  const [addAmounts, setAddAmounts] = useState({
-    exactToken0: 0,
-    exactToken1: 0,
+  const [addInput, setAddInput] = useState({
+    value: "",
+    isExactToken0: false,
   });
+  const [removeInput, setRemoveInput] = useState("");
   const data = useLoaderData<LoaderData>();
   const { isConnected } = useUser();
   const pair = usePair(data.pair);
@@ -151,19 +158,36 @@ const Liquidity = () => {
     isLoading: isRemoveLoading,
   } = useRemoveLiquidity();
 
-  const amountToken0 =
-    useQuote(pair.token1, pair.token0, addAmounts.exactToken1) ||
-    addAmounts.exactToken0;
-  const amountToken1 =
-    useQuote(pair.token0, pair.token1, addAmounts.exactToken0) ||
-    addAmounts.exactToken1;
-  const isExactToken0 = addAmounts.exactToken0 > 0;
+  const addAmount = useQuote(
+    pair.token0,
+    pair.token1,
+    toBigNumber(addInput.value ? addInput.value : "0"),
+    addInput.isExactToken0
+  );
 
-  const token0BalanceInsufficient = amountToken0 > token0Balance;
-  const token1BalanceInsufficient = amountToken1 > token1Balance;
+  const removeAmount = removeInput ? toBigNumber(removeInput) : Zero;
+  const removeEstimate = {
+    token0: removeAmount.gt(Zero)
+      ? getTokenCount(
+          toNumber(removeAmount),
+          pair.token0.reserve,
+          pair.totalSupply
+        )
+      : 0,
+    token1: removeAmount.gt(Zero)
+      ? getTokenCount(
+          toNumber(removeAmount),
+          pair.token1.reserve,
+          pair.totalSupply
+        )
+      : 0,
+  };
+
+  const token0BalanceInsufficient = token0Balance.lt(addAmount.token0);
+  const token1BalanceInsufficient = token1Balance.lt(addAmount.token1);
   const insufficientBalance =
     token0BalanceInsufficient || token1BalanceInsufficient;
-  const lpBalanceInsufficient = removeInputValue > lpBalance;
+  const lpBalanceInsufficient = lpBalance.lt(removeAmount);
 
   const refetchAll = useCallback(async () => {
     Promise.all([refetchPair0(), refetchPair1(), refetchLp()]);
@@ -192,47 +216,34 @@ const Liquidity = () => {
     refetchTokensApprovalStatus,
   ]);
 
+  const resetInputs = useCallback(() => {
+    setAddInput({ value: "", isExactToken0: false });
+    setRemoveInput("");
+    refetchAll();
+  }, [refetchAll]);
+
   useEffect(() => {
     if (isAddSuccess || isRemoveSuccess) {
-      setAddAmounts({ exactToken0: 0, exactToken1: 0 });
-      refetchAll();
+      resetInputs();
     }
-  }, [isAddSuccess, isRemoveSuccess, refetchAll]);
+  }, [isAddSuccess, isRemoveSuccess, resetInputs]);
 
-  const removeLiquidityToken0Estimate =
-    removeInputValue > 0
-      ? getTokenCount(removeInputValue, pair.token0.reserve, pair.totalSupply)
-      : 0;
-  const removeLiquidityToken1Estimate =
-    removeInputValue > 0
-      ? getTokenCount(removeInputValue, pair.token1.reserve, pair.totalSupply)
-      : 0;
-
-  const handleAdd0InputChanged = (exactToken0: number) => {
-    setAddAmounts({ exactToken0, exactToken1: 0 });
-  };
-
-  const handleAdd1InputChanged = (exactToken1: number) => {
-    setAddAmounts({ exactToken0: 0, exactToken1 });
-  };
+  useEffect(() => {
+    resetInputs();
+  }, [pair.id, resetInputs]);
 
   const handleAddLiquidity = () => {
-    addLiquidity(pair, amountToken0, amountToken1);
+    addLiquidity(pair, addAmount.token0, addAmount.token1);
   };
 
   const handleRemoveLiquidity = () => {
     removeLiquidity(
       pair,
-      removeInputValue,
-      removeLiquidityToken0Estimate,
-      removeLiquidityToken1Estimate
+      removeAmount,
+      removeEstimate.token0,
+      removeEstimate.token1
     );
   };
-
-  useEffect(() => {
-    setAddAmounts({ exactToken0: 0, exactToken1: 0 });
-    setRemoveInputValue(0);
-  }, [pair.id]);
 
   return (
     <div className="flex flex-1 items-center justify-center p-6 lg:p-8">
@@ -304,11 +315,14 @@ const Liquidity = () => {
               token={pair.token0}
               balance={token0Balance}
               value={
-                isExactToken0
-                  ? amountToken0
-                  : formatAndParseNumber(amountToken0)
+                addInput.isExactToken0
+                  ? addInput.value
+                  : formatBigNumberOutput(
+                      addAmount.token0,
+                      pair.token0.decimals
+                    )
               }
-              onChange={handleAdd0InputChanged}
+              onChange={(value) => setAddInput({ value, isExactToken0: true })}
             />
             <div className="flex justify-center">
               <PlusIcon className="h-4 w-4 text-night-400" />
@@ -319,11 +333,14 @@ const Liquidity = () => {
               token={pair.token1}
               balance={token1Balance}
               value={
-                isExactToken0
-                  ? formatAndParseNumber(amountToken1)
-                  : amountToken1
+                addInput.isExactToken0
+                  ? formatBigNumberOutput(
+                      addAmount.token1,
+                      pair.token1.decimals
+                    )
+                  : addInput.value
               }
-              onChange={handleAdd1InputChanged}
+              onChange={(value) => setAddInput({ value, isExactToken0: false })}
             />
             <div className="space-y-2 rounded-md bg-night-900 p-4">
               <p className="text-xs text-night-600 sm:text-base">
@@ -331,9 +348,9 @@ const Liquidity = () => {
               </p>
               <p className="text-sm font-medium sm:text-lg">
                 ≈{" "}
-                {formatNumber(
+                {formatCurrency(
                   getLpTokenCount(
-                    amountToken0,
+                    toNumber(addAmount.token0),
                     pair.token0.reserve,
                     pair.totalSupply
                   )
@@ -350,8 +367,8 @@ const Liquidity = () => {
               tokenSymbol={`${pair.name} LP`}
               price={pair.lpPriceMagic * magicUsd}
               balance={lpBalance}
-              value={removeInputValue}
-              onChange={(value) => setRemoveInputValue(value)}
+              value={removeInput}
+              onChange={setRemoveInput}
             />
             <div className="space-y-2 rounded-md bg-night-900 p-4">
               <p className="text-xs text-night-600 sm:text-base">
@@ -359,29 +376,23 @@ const Liquidity = () => {
               </p>
               <div className="flex items-center justify-between">
                 <span className="font-medium">
-                  {formatNumber(removeLiquidityToken0Estimate)}{" "}
-                  {pair.token0.symbol}
+                  {formatCurrency(removeEstimate.token0)} {pair.token0.symbol}
                 </span>
                 <span className="text-night-200">
                   ≈{" "}
                   {formatUsd(
-                    removeLiquidityToken0Estimate *
-                      pair.token0.priceMagic *
-                      magicUsd
+                    removeEstimate.token0 * pair.token0.priceMagic * magicUsd
                   )}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-medium">
-                  {formatNumber(removeLiquidityToken1Estimate)}{" "}
-                  {pair.token1.symbol}
+                  {formatCurrency(removeEstimate.token1)} {pair.token1.symbol}
                 </span>
                 <span className="text-night-200">
                   ={" "}
                   {formatUsd(
-                    removeLiquidityToken1Estimate *
-                      pair.token1.priceMagic *
-                      magicUsd
+                    removeEstimate.token1 * pair.token1.priceMagic * magicUsd
                   )}
                 </span>
               </div>
@@ -391,8 +402,8 @@ const Liquidity = () => {
 
         {isAddLiquidity ? (
           <>
-            {amountToken0 > 0 &&
-              amountToken1 > 0 &&
+            {addAmount.token0.gt(Zero) &&
+              addAmount.token1.gt(Zero) &&
               (!isToken0Approved || !isToken1Approved) &&
               !insufficientBalance &&
               isConnected && (
@@ -413,8 +424,8 @@ const Liquidity = () => {
               )}
             <Button
               disabled={
-                !amountToken0 ||
-                !amountToken1 ||
+                addAmount.token0.eq(Zero) ||
+                addAmount.token1.eq(Zero) ||
                 insufficientBalance ||
                 !isToken0Approved ||
                 !isToken1Approved ||
@@ -435,7 +446,7 @@ const Liquidity = () => {
                 </>
               ) : (
                 <>
-                  {amountToken0 && amountToken1
+                  {addAmount.token0.gt(Zero) && addAmount.token1.gt(Zero)
                     ? "Add Liquidity"
                     : "Enter an Amount"}
                 </>
@@ -444,7 +455,7 @@ const Liquidity = () => {
           </>
         ) : (
           <>
-            {removeInputValue > 0 &&
+            {removeAmount.gt(Zero) &&
               !isLpApproved &&
               !lpBalanceInsufficient &&
               isConnected && (
@@ -457,7 +468,7 @@ const Liquidity = () => {
             <Button
               disabled={
                 (isConnected &&
-                  (!removeInputValue ||
+                  (removeAmount.eq(Zero) ||
                     lpBalanceInsufficient ||
                     !isLpApproved)) ||
                 isRemoveLoading
@@ -469,7 +480,7 @@ const Liquidity = () => {
                 ? "Removing Liquidity..."
                 : lpBalanceInsufficient
                 ? "Insufficient LP Token Balance"
-                : removeInputValue > 0
+                : removeAmount.gt(Zero)
                 ? "Remove Liquidity"
                 : "Enter an Amount"}
             </Button>
@@ -480,87 +491,87 @@ const Liquidity = () => {
   );
 };
 
-const Stake = () => {
-  const [isStake, setIsStake] = useState(true);
+// const Stake = () => {
+//   const [isStake, setIsStake] = useState(true);
 
-  return (
-    <div className="flex flex-1 items-center justify-center p-6 lg:p-8">
-      <div className="flex max-w-xl flex-1 flex-col space-y-4">
-        <div className="flex items-center space-x-2">
-          <span
-            className={twMerge(
-              isStake && "text-night-500",
-              "text-[0.6rem] font-bold uppercase sm:text-base"
-            )}
-          >
-            Unstake
-          </span>
-          <Switch
-            checked={isStake}
-            onChange={setIsStake}
-            className="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full ring-offset-night-800 focus:outline-none focus:ring-2 focus:ring-ruby-500 focus:ring-offset-2"
-          >
-            <span className="sr-only">
-              {isStake ? "Remove Liquidity" : "Add Liquidity"}
-            </span>
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute h-full w-full rounded-md bg-night-800"
-            />
-            <span
-              aria-hidden="true"
-              className={twMerge(
-                isStake ? "bg-ruby-900" : "bg-night-200",
-                "pointer-events-none absolute mx-auto h-2.5 w-8 rounded-full transition-colors duration-200 ease-in-out"
-              )}
-            />
-            <span
-              aria-hidden="true"
-              className={twMerge(
-                isStake ? "translate-x-5" : "translate-x-0",
-                "pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full border border-[#FF4E7E] bg-[#FF4E7E] shadow ring-0 transition-transform duration-200 ease-in-out"
-              )}
-            />
-          </Switch>
-          <span
-            className={twMerge(
-              !isStake && "text-night-500",
-              "text-[0.6rem] font-bold uppercase sm:text-base"
-            )}
-          >
-            Stake
-          </span>
-        </div>
-        <div className="flex justify-around space-x-3 sm:block">
-          <button className="rounded-md bg-night-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-night-800 focus:outline-none focus:ring-2 focus:ring-night-500 focus:ring-offset-2 sm:text-xs">
-            25%
-          </button>
-          <button className="rounded-md bg-night-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-night-800 focus:outline-none focus:ring-2 focus:ring-night-500 focus:ring-offset-2 sm:text-xs">
-            50%
-          </button>
-          <button className="rounded-md bg-night-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-night-800 focus:outline-none focus:ring-2 focus:ring-night-500 focus:ring-offset-2 sm:text-xs">
-            75%
-          </button>
-          <button className="rounded-md bg-night-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-night-800 focus:outline-none focus:ring-2 focus:ring-night-500 focus:ring-offset-2 sm:text-xs">
-            100%
-          </button>
-        </div>
-        <TokenInput
-          id="stakeLp"
-          label="LP Amount"
-          tokenSymbol="SLP"
-          price={0}
-          balance={0}
-          value={0}
-          onChange={() => {
-            console.warn("Not implemented");
-          }}
-        />
-        <Button>{isStake ? "Stake" : "Unstake"}</Button>
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div className="flex flex-1 items-center justify-center p-6 lg:p-8">
+//       <div className="flex max-w-xl flex-1 flex-col space-y-4">
+//         <div className="flex items-center space-x-2">
+//           <span
+//             className={twMerge(
+//               isStake && "text-night-500",
+//               "text-[0.6rem] font-bold uppercase sm:text-base"
+//             )}
+//           >
+//             Unstake
+//           </span>
+//           <Switch
+//             checked={isStake}
+//             onChange={setIsStake}
+//             className="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full ring-offset-night-800 focus:outline-none focus:ring-2 focus:ring-ruby-500 focus:ring-offset-2"
+//           >
+//             <span className="sr-only">
+//               {isStake ? "Remove Liquidity" : "Add Liquidity"}
+//             </span>
+//             <span
+//               aria-hidden="true"
+//               className="pointer-events-none absolute h-full w-full rounded-md bg-night-800"
+//             />
+//             <span
+//               aria-hidden="true"
+//               className={twMerge(
+//                 isStake ? "bg-ruby-900" : "bg-night-200",
+//                 "pointer-events-none absolute mx-auto h-2.5 w-8 rounded-full transition-colors duration-200 ease-in-out"
+//               )}
+//             />
+//             <span
+//               aria-hidden="true"
+//               className={twMerge(
+//                 isStake ? "translate-x-5" : "translate-x-0",
+//                 "pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full border border-[#FF4E7E] bg-[#FF4E7E] shadow ring-0 transition-transform duration-200 ease-in-out"
+//               )}
+//             />
+//           </Switch>
+//           <span
+//             className={twMerge(
+//               !isStake && "text-night-500",
+//               "text-[0.6rem] font-bold uppercase sm:text-base"
+//             )}
+//           >
+//             Stake
+//           </span>
+//         </div>
+//         <div className="flex justify-around space-x-3 sm:block">
+//           <button className="rounded-md bg-night-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-night-800 focus:outline-none focus:ring-2 focus:ring-night-500 focus:ring-offset-2 sm:text-xs">
+//             25%
+//           </button>
+//           <button className="rounded-md bg-night-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-night-800 focus:outline-none focus:ring-2 focus:ring-night-500 focus:ring-offset-2 sm:text-xs">
+//             50%
+//           </button>
+//           <button className="rounded-md bg-night-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-night-800 focus:outline-none focus:ring-2 focus:ring-night-500 focus:ring-offset-2 sm:text-xs">
+//             75%
+//           </button>
+//           <button className="rounded-md bg-night-900 py-2.5 px-3.5 text-[0.6rem] font-medium text-white ring-offset-night-800 focus:outline-none focus:ring-2 focus:ring-night-500 focus:ring-offset-2 sm:text-xs">
+//             100%
+//           </button>
+//         </div>
+//         <TokenInput
+//           id="stakeLp"
+//           label="LP Amount"
+//           tokenSymbol="SLP"
+//           price={0}
+//           balance={Zero}
+//           value={"0"}
+//           onChange={() => {
+//             console.warn("Not implemented");
+//           }}
+//         />
+//         <Button>{isStake ? "Stake" : "Unstake"}</Button>
+//       </div>
+//     </div>
+//   );
+// };
 
 export function CatchBoundary() {
   const caught = useCatch();

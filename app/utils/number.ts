@@ -1,26 +1,34 @@
-import { parseUnits } from "ethers/lib/utils";
-import type { Token } from "~/types";
+import type { BigNumber } from "ethers";
+import { formatUnits, parseUnits } from "ethers/lib/utils";
+import { Decimal } from "decimal.js-light";
 
-export const formatNumber = (value: number) => {
-  const numString = value.toString();
-  if (value < 1) {
-    return numString.substring(0, 8);
-  }
+// Avoid scientific notation
+Decimal.set({ toExpPos: 18, toExpNeg: -18 });
 
-  const [wholeDigits, fractionDigits] = numString.split(".");
-  const formattedWholeDigits = parseFloat(wholeDigits).toLocaleString("en-US");
-  if (!fractionDigits || wholeDigits.length >= 6) {
-    return formattedWholeDigits;
-  }
+const toDecimal = (value: BigNumber, decimals = 18) =>
+  new Decimal(formatUnits(value, decimals));
 
-  return `${formattedWholeDigits}.${fractionDigits.substring(
-    0,
-    6 - wholeDigits.length
-  )}`;
-};
+export const toNumber = (value: BigNumber, decimals = 18) =>
+  parseFloat(formatUnits(value, decimals));
 
-export const formatAndParseNumber = (value: number) =>
-  parseFloat(formatNumber(value).replace(/,/g, ""));
+export const toBigNumber = (value: string | number, decimals = 18) =>
+  parseUnits(new Decimal(value).toString(), decimals);
+
+export const formatBigNumberInput = (value: BigNumber, decimals = 18) =>
+  toDecimal(value, decimals)
+    .toSignificantDigits(decimals, Decimal.ROUND_FLOOR)
+    .toString();
+
+export const formatBigNumberOutput = (value: BigNumber, decimals = 18) =>
+  toDecimal(value, decimals)
+    .toSignificantDigits(6, Decimal.ROUND_FLOOR)
+    .toString();
+
+export const formatBigNumberDisplay = (value: BigNumber, decimals = 18) =>
+  toDecimal(value, decimals)
+    .toSignificantDigits(6, Decimal.ROUND_FLOOR)
+    .toNumber()
+    .toLocaleString("en-US");
 
 export const formatCurrency = (value: number) =>
   value.toLocaleString("en-US", {
@@ -34,6 +42,14 @@ export const formatUsd = (value: number) =>
     maximumFractionDigits: 2,
   })}`;
 
+export const formatUsdLong = (value: number) =>
+  `$${new Decimal(value)
+    .toSignificantDigits(4)
+    .toNumber()
+    .toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+    })}`;
+
 export const formatPercent = (
   value: number,
   minimumFractionDigits = 0,
@@ -43,6 +59,3 @@ export const formatPercent = (
     minimumFractionDigits,
     maximumFractionDigits,
   })}%`;
-
-export const formatTokenAmountInWei = (token: Token, amount: number) =>
-  parseUnits(amount.toFixed(token.decimals));

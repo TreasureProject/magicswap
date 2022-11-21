@@ -1,9 +1,11 @@
-import { parseUnits } from "ethers/lib/utils";
+import type { BigNumber } from "ethers";
 import { useRef } from "react";
 import { useSettings } from "~/context/settingsContext";
 import { useUser } from "~/context/userContext";
 
 import type { Optional, Pair } from "~/types";
+import { toBigNumber } from "~/utils/number";
+import { calculateAmountOutMin } from "~/utils/swap";
 
 import { useV2RouterWrite } from "./useV2RouterWrite";
 
@@ -27,19 +29,19 @@ export const useRemoveLiquidity = () => {
 
   const removeLiquidity = (
     pair: Pair,
-    rawLpAmount: number,
+    lpAmount: BigNumber,
     rawToken0Amount: number,
     rawToken1Amount: number
   ) => {
-    const slippageMultiplier = (100 - slippage) / 100;
     const isToken1Eth = pair.token1.isEth;
 
-    const lpAmount = parseUnits(rawLpAmount.toFixed(18));
-    const token0AmountMin = parseUnits(
-      (rawToken0Amount * slippageMultiplier).toFixed(pair.token0.decimals)
+    const token0AmountMin = calculateAmountOutMin(
+      toBigNumber(rawToken0Amount),
+      slippage
     );
-    const token1AmountMin = parseUnits(
-      (rawToken1Amount * slippageMultiplier).toFixed(pair.token1.decimals)
+    const token1AmountMin = calculateAmountOutMin(
+      toBigNumber(rawToken1Amount),
+      slippage
     );
     const transactionDeadline = (
       Math.ceil(Date.now() / 1000) +
@@ -102,24 +104,12 @@ export const useAddLiquidity = () => {
 
   const addLiquidity = (
     pair: Pair,
-    rawToken0Amount: number,
-    rawToken1Amount: number
+    token0Amount: BigNumber,
+    token1Amount: BigNumber
   ) => {
-    const slippageMultiplier = (100 - slippage) / 100;
     const isToken1Eth = pair.token1.isEth;
-
-    const token0Amount = parseUnits(
-      rawToken0Amount.toFixed(pair.token0.decimals)
-    );
-    const token1Amount = parseUnits(
-      rawToken1Amount.toFixed(pair.token1.decimals)
-    );
-    const token0AmountMin = parseUnits(
-      (rawToken0Amount * slippageMultiplier).toFixed(pair.token0.decimals)
-    );
-    const token1AmountMin = parseUnits(
-      (rawToken1Amount * slippageMultiplier).toFixed(pair.token1.decimals)
-    );
+    const token0AmountMin = calculateAmountOutMin(token0Amount, slippage);
+    const token1AmountMin = calculateAmountOutMin(token1Amount, slippage);
     const transactionDeadline = (
       Math.ceil(Date.now() / 1000) +
       60 * deadline

@@ -3,7 +3,7 @@ import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
 import { useContractAddress } from "./useContractAddress";
 import { useContractWrite } from "./useContractWrite";
 
-type FunctionName =
+export type RouterFunctionName =
   | "addLiquidity"
   | "addLiquidityETH"
   | "removeLiquidity"
@@ -16,7 +16,7 @@ type FunctionName =
   | "swapTokensForExactTokens";
 
 export const useV2RouterWrite = (
-  functionName: FunctionName,
+  functionName: RouterFunctionName,
   statusHeader?: string
 ) => {
   const contractAddress = useContractAddress(AppContract.Router);

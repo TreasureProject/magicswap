@@ -1,7 +1,7 @@
 import { useBalance } from "wagmi";
 import type { Token } from "~/types";
 import { useUser } from "~/context/userContext";
-import { formatEther } from "ethers/lib/utils";
+import { Zero } from "@ethersproject/constants";
 
 export const useAddressBalance = (address?: string) => {
   const { address: userAddress, isConnected } = useUser();
@@ -13,7 +13,7 @@ export const useAddressBalance = (address?: string) => {
   });
 
   return {
-    value: parseFloat(formatEther(balanceData?.value ?? 0)),
+    value: balanceData?.value ?? Zero,
     refetch,
   };
 };
