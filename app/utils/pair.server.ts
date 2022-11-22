@@ -37,7 +37,7 @@ const normalizePair = ({
   const totalSupply = parseFloat(rawTotalSupply);
   const volume1wMagic = dayData.reduce(
     (total, { volumeToken0, volumeToken1 }) =>
-      total + parseFloat(token0.isMagic ? volumeToken0 : volumeToken1) * 2,
+      total + parseFloat(token0.isMagic ? volumeToken0 : volumeToken1),
     0
   );
   return {
@@ -61,18 +61,18 @@ const normalizePair = ({
     volume1dMagicIntervals: hourData.map(
       ({ date, volumeToken0, volumeToken1 }) => ({
         date,
-        value: parseFloat(token0.isMagic ? volumeToken0 : volumeToken1) * 2,
+        value: parseFloat(token0.isMagic ? volumeToken0 : volumeToken1),
       })
     ),
     volume1wMagicIntervals: dayData.map(
       ({ date, volumeToken0, volumeToken1 }) => ({
         date,
-        value: parseFloat(token0.isMagic ? volumeToken0 : volumeToken1) * 2,
+        value: parseFloat(token0.isMagic ? volumeToken0 : volumeToken1),
       })
     ),
     volume1dMagic: hourData.reduce(
       (total, { volumeToken0, volumeToken1 }) =>
-        total + parseFloat(token0.isMagic ? volumeToken0 : volumeToken1) * 2,
+        total + parseFloat(token0.isMagic ? volumeToken0 : volumeToken1),
       0
     ),
     volume1wMagic,
