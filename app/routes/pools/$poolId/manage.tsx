@@ -122,7 +122,9 @@ const Liquidity = () => {
   const addAmount = useQuote(
     pair.token0,
     pair.token1,
-    toBigNumber(addInput.value ? addInput.value : "0"),
+    toBigNumber(
+      addInput.value && addInput.value !== "." ? addInput.value : "0"
+    ),
     addInput.isExactToken0
   );
 
@@ -165,7 +167,8 @@ const Liquidity = () => {
     isLoading: isRemoveLoading,
   } = useRemoveLiquidity();
 
-  const removeAmount = removeInput ? toBigNumber(removeInput) : Zero;
+  const removeAmount =
+    removeInput && removeInput !== "." ? toBigNumber(removeInput) : Zero;
   const removeEstimate = {
     token0: removeAmount.gt(Zero)
       ? getTokenCount(
