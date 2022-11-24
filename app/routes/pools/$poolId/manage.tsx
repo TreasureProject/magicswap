@@ -119,6 +119,13 @@ const Liquidity = () => {
   const pair = usePair(data.pair);
   const { magicUsd } = usePrice();
 
+  const addAmount = useQuote(
+    pair.token0,
+    pair.token1,
+    toBigNumber(addInput.value ? addInput.value : "0"),
+    addInput.isExactToken0
+  );
+
   const { value: token0Balance, refetch: refetchPair0 } = useTokenBalance(
     pair.token0
   );
@@ -132,14 +139,14 @@ const Liquidity = () => {
     isLoading: isLoadingToken0,
     isSuccess: isSuccessToken0,
     refetch: refetchToken0ApprovalStatus,
-  } = useTokenApproval(pair.token0);
+  } = useTokenApproval(pair.token0, addAmount.token0);
   const {
     isApproved: isToken1Approved,
     approve: approveToken1,
     isLoading: isLoadingToken1,
     isSuccess: isSuccessToken1,
     refetch: refetchToken1ApprovalStatus,
-  } = useTokenApproval(pair.token1);
+  } = useTokenApproval(pair.token1, addAmount.token1);
   const {
     isApproved: isLpApproved,
     approve: approveLp,
@@ -157,13 +164,6 @@ const Liquidity = () => {
     isSuccess: isRemoveSuccess,
     isLoading: isRemoveLoading,
   } = useRemoveLiquidity();
-
-  const addAmount = useQuote(
-    pair.token0,
-    pair.token1,
-    toBigNumber(addInput.value ? addInput.value : "0"),
-    addInput.isExactToken0
-  );
 
   const removeAmount = removeInput ? toBigNumber(removeInput) : Zero;
   const removeEstimate = {

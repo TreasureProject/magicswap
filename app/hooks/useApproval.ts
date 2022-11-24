@@ -5,11 +5,13 @@ import { useContractWrite } from "./useContractWrite";
 import { useUser } from "~/context/userContext";
 import { useContractAddress } from "./useContractAddress";
 import { AppContract } from "~/const";
-import { useEffect, useState } from "react";
+import type { BigNumber } from "ethers";
 
-const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
-  const [isApproved, setIsApproved] = useState(false);
-
+const useErc20Approval = (
+  tokenId: string,
+  tokenSymbol: string,
+  minAmount?: BigNumber
+) => {
   const contractAddress = useContractAddress(AppContract.Router);
   const { address } = useUser();
   const { data = Zero, refetch } = useContractRead({
@@ -17,14 +19,8 @@ const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
     contractInterface: erc20ABI,
     functionName: "allowance",
     args: [address, contractAddress],
-    enabled: !!address && !isApproved,
+    enabled: !!address,
   });
-
-  useEffect(() => {
-    if (data.gt(Zero)) {
-      setIsApproved(true);
-    }
-  }, [data]);
 
   const {
     write: writeApprove,
@@ -41,7 +37,7 @@ const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
     refetch,
     isLoading,
     isSuccess,
-    isApproved,
+    isApproved: minAmount ? data.gte(minAmount) : data.gt(Zero),
     approve: () =>
       writeApprove?.({
         recklesslySetUnpreparedArgs: [contractAddress, MaxUint256.toString()],
@@ -52,5 +48,5 @@ const useErc20Approval = (tokenId: string, tokenSymbol: string) => {
 export const usePairApproval = (pair: Pair) =>
   useErc20Approval(pair.id, `${pair.name} LP Token`);
 
-export const useTokenApproval = (token: Token) =>
-  useErc20Approval(token.id, token.symbol);
+export const useTokenApproval = (token: Token, minAmount?: BigNumber) =>
+  useErc20Approval(token.id, token.symbol, minAmount);
