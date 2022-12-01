@@ -42,7 +42,7 @@ import { twMerge } from "tailwind-merge";
 import { Zero } from "@ethersproject/constants";
 import type { BigNumber } from "ethers";
 import { calculatePriceImpact } from "~/utils/swap";
-import { getCookie, saveCookie } from "~/utils/cookie.server";
+import { getLastPairCookie, saveLastPairCookie } from "~/utils/cookie.server";
 
 type LoaderData = {
   pairs: Pair[];
@@ -70,13 +70,14 @@ export const meta: MetaFunction = ({ data, location }) => {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
-  const cookie = await getCookie(request);
+  const { input: inputCookie, output: outputCookie } =
+    (await getLastPairCookie(request)) ?? {};
 
   const pairs = await getPairs(process.env.EXCHANGE_ENDPOINT);
   const tokens = getUniqueTokens(pairs).sort((a, b) =>
     a.symbol.localeCompare(b.symbol)
   );
-  const inputSymbol = url.searchParams.get("input") ?? cookie.input ?? "MAGIC";
+  const inputSymbol = url.searchParams.get("input") ?? inputCookie ?? "MAGIC";
   const inputToken = getTokenBySymbol(tokens, inputSymbol);
   if (!inputToken) {
     throw new Response(`${inputSymbol} token not found`, {
@@ -84,8 +85,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     });
   }
 
-  const outputSymbol =
-    url.searchParams.get("output") ?? cookie.output ?? "GFLY";
+  const outputSymbol = url.searchParams.get("output") ?? outputCookie ?? "GFLY";
   const outputToken = getTokenBySymbol(tokens, outputSymbol);
   if (!outputToken) {
     throw new Response(`${outputSymbol} token not found`, {
@@ -108,9 +108,6 @@ export const loader: LoaderFunction = async ({ request }) => {
     );
   }
 
-  cookie.input = inputSymbol;
-  cookie.output = outputSymbol;
-
   return json<LoaderData>(
     {
       pairs,
@@ -120,7 +117,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       outputToken:
         pair.token0.id === outputToken.id ? pair.token0 : pair.token1,
     },
-    await saveCookie(cookie)
+    await saveLastPairCookie({ input: inputSymbol, output: outputSymbol })
   );
 };
 
