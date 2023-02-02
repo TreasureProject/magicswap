@@ -182,11 +182,11 @@ export default function Analytics() {
           <h2 className="text-xl font-medium">Transactions</h2>
           <a
             className="flex items-center gap-1 text-right text-xs text-night-400 hover:underline"
-            href={`https://dexscreener.com/arbitrum/${pair.id}`}
+            href={`https://www.geckoterminal.com/arbitrum/pools/${pair.id}`}
             target="_blank"
             rel="noopener noreferrer"
           >
-            More on DEX Screener
+            More on GeckoTerminal
             <ExternalLinkIcon className="h-3 w-3" />
           </a>
         </div>
