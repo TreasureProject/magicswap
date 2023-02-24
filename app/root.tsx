@@ -35,11 +35,11 @@ import {
   PieIcon,
   SpinnerIcon,
   SplitIcon,
-  AMMIcon,
   TwitterIcon,
   DiscordIcon,
   GitHubIcon,
 } from "./components/Icons";
+import MagicSwapLogo from "../public/img/logo-magicswap.svg";
 
 import NProgress from "nprogress";
 import nProgressStyles from "./styles/nprogress.css";
@@ -264,9 +264,9 @@ export default function App() {
                           <GitHubIcon className="h-6 w-6" />
                         </a>
                       </div>
-                      <div className="flex flex-1 items-center sm:justify-center">
+                      <div className="flex flex-1 items-center justify-start sm:justify-center">
                         <Link to="/">
-                          <AMMIcon className="h-10 w-10 sm:h-14 sm:w-14" />
+                          <img src={MagicSwapLogo} className="h-8" />
                         </Link>
                       </div>
                       <div className="ml-auto flex flex-1 items-center justify-end">
