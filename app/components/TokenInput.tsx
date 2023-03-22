@@ -6,7 +6,7 @@ import {
 } from "~/utils/number";
 import { TokenLogo } from "~/components/TokenLogo";
 import { usePrice } from "~/context/priceContext";
-import type { BigNumber } from "ethers";
+import type { BigNumber } from "@ethersproject/bignumber";
 
 type Props = {
   id: string;

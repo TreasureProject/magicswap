@@ -3,7 +3,7 @@ import type {
   GetSwapPairQuery,
   Pair_Filter,
 } from "~/graphql/exchange.generated";
-import type { Optional, Pair } from "~/types";
+import type { AddressString, Optional, Pair } from "~/types";
 import { exchangeSdk } from "./api";
 import { getApy } from "./price";
 import { normalizeAdvancedToken } from "./tokens.server";
@@ -41,7 +41,7 @@ const normalizePair = ({
     0
   );
   return {
-    id,
+    id: id as AddressString,
     name: `${token0.symbol}-${token1.symbol}`,
     token0,
     token1,
@@ -82,14 +82,12 @@ const normalizePair = ({
 
 export const getPair = async (
   tokenA: string,
-  tokenB: string,
-  url: string
+  tokenB: string
 ): Promise<Optional<Pair>> => {
-  const sdk = exchangeSdk(url);
   const [token0, token1] = [tokenA, tokenB].sort();
   const {
     pairs: [pair],
-  } = await sdk.getSwapPair({
+  } = await exchangeSdk.getSwapPair({
     token0,
     token1,
   });
@@ -101,12 +99,8 @@ export const getPair = async (
   return normalizePair(pair);
 };
 
-export const getPairById = async (
-  id: string,
-  url: string
-): Promise<Optional<Pair>> => {
-  const sdk = exchangeSdk(url);
-  const { pair } = await sdk.getPair({ id });
+export const getPairById = async (id: string): Promise<Optional<Pair>> => {
+  const { pair } = await exchangeSdk.getPair({ id });
 
   if (!pair) {
     return undefined;
@@ -115,13 +109,8 @@ export const getPairById = async (
   return normalizePair(pair);
 };
 
-export const getPairs = async (
-  url: string,
-  where?: Pair_Filter
-): Promise<Pair[]> => {
-  const sdk = exchangeSdk(url);
-
-  const { pairs } = await sdk.getPairs({
+export const getPairs = async (where?: Pair_Filter): Promise<Pair[]> => {
+  const { pairs } = await exchangeSdk.getPairs({
     where: {
       ...where,
       id_in: SUPPORTED_CONTRACT_ADDRESSES,

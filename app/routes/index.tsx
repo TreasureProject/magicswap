@@ -1,8 +1,4 @@
-import {
-  ArrowRightIcon,
-  ArrowDownIcon,
-  SearchIcon,
-} from "@heroicons/react/solid";
+import { ArrowRightIcon, ArrowDownIcon } from "@heroicons/react/24/solid";
 import { Button } from "~/components/Button";
 import { useCallback, useEffect } from "react";
 import { Link, useCatch, useLoaderData, useLocation } from "@remix-run/react";
@@ -17,7 +13,7 @@ import PairTokenInput from "~/components/PairTokenInput";
 import { useState } from "react";
 import { useSwap } from "~/hooks/useSwap";
 import { TokenLogo } from "~/components/TokenLogo";
-import { CogIcon } from "@heroicons/react/outline";
+import { CogIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
 import { useTokenApproval } from "~/hooks/useApproval";
 import useLocalStorageState from "use-local-storage-state";
@@ -40,9 +36,9 @@ import { useAmount } from "~/hooks/useAmount";
 import { createMetaTags } from "~/utils/meta";
 import { twMerge } from "tailwind-merge";
 import { Zero } from "@ethersproject/constants";
-import type { BigNumber } from "ethers";
 import { calculatePriceImpact } from "~/utils/swap";
 import { getLastPairCookie, saveLastPairCookie } from "~/utils/cookie.server";
+import type { BigNumber } from "@ethersproject/bignumber";
 
 type LoaderData = {
   pairs: Pair[];
@@ -73,7 +69,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const { input: inputCookie, output: outputCookie } =
     (await getLastPairCookie(request)) ?? {};
 
-  const pairs = await getPairs(process.env.EXCHANGE_ENDPOINT);
+  const pairs = await getPairs();
   const tokens = getUniqueTokens(pairs).sort((a, b) =>
     a.symbol.localeCompare(b.symbol)
   );
@@ -140,7 +136,6 @@ export default function Index() {
     useTokenBalance(data.outputToken);
   const pair = usePair(data.pair);
   const [showGraph, setShowGraph] = useLocalStorageState("ms:showGraph", {
-    ssr: true,
     defaultValue: false,
   });
   const [isOpenConfirmSwapModal, setIsOpenConfirmSwapModal] = useState(false);
@@ -616,7 +611,7 @@ const TokenSelectionModal = ({
               placeholder="Search token"
             />
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-              <SearchIcon
+              <MagnifyingGlassIcon
                 className="h-5 w-5 text-night-700"
                 aria-hidden="true"
               />

@@ -1,4 +1,4 @@
-import type { BigNumber } from "ethers";
+import type { BigNumber } from "@ethersproject/bignumber";
 import { useRef } from "react";
 import { useSettings } from "~/context/settingsContext";
 import { useUser } from "~/context/userContext";

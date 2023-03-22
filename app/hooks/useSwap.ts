@@ -1,4 +1,4 @@
-import type { BigNumber, CallOverrides } from "ethers";
+import type { BigNumber } from "@ethersproject/bignumber";
 import { useMemo, useRef } from "react";
 import { useSettings } from "~/context/settingsContext";
 import { useUser } from "~/context/userContext";
@@ -44,7 +44,7 @@ export const useSwap = ({
     : calculateAmountOutMin(rawAmountOut, slippage);
 
   const [functionName, args, overrides] = useMemo<
-    [RouterFunctionName, any, CallOverrides?]
+    [RouterFunctionName, any, any?]
   >(() => {
     if (isExactOut) {
       if (isEth) {

@@ -21,8 +21,8 @@ export const useV2RouterWrite = (
 ) => {
   const contractAddress = useContractAddress(AppContract.Router);
   return useContractWrite(statusHeader, {
-    addressOrName: contractAddress,
-    contractInterface: UniswapV2Router02Abi,
+    address: contractAddress,
+    abi: UniswapV2Router02Abi,
     mode: "recklesslyUnprepared",
     functionName,
   });

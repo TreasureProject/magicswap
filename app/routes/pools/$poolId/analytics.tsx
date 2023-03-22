@@ -13,12 +13,12 @@ import { formatCurrency, formatUsd } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
 import type { Pair, Swap } from "~/types";
 import { getSwaps } from "~/utils/swap.server";
-import { ExternalLinkIcon } from "@heroicons/react/outline";
-import { chain, useNetwork } from "wagmi";
 import { usePrice } from "~/context/priceContext";
 import { createMetaTags } from "~/utils/meta";
 import { TokenLogo } from "~/components/TokenLogo";
 import { truncateEthAddress } from "~/utils/address";
+import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
+import { useBlockExplorer } from "~/hooks/useBlockExplorer";
 
 type LoaderData = {
   pair: Pair;
@@ -32,8 +32,8 @@ export const loader: LoaderFunction = async ({ params: { poolId } }) => {
   invariant(poolId, `poolId is required`);
 
   const [pair, swaps] = await Promise.all([
-    getPairById(poolId, process.env.EXCHANGE_ENDPOINT),
-    getSwaps(poolId, process.env.EXCHANGE_ENDPOINT),
+    getPairById(poolId),
+    getSwaps(poolId),
   ]);
 
   if (!pair) {
@@ -54,8 +54,8 @@ export default function Analytics() {
   const { poolId } = useParams();
 
   const { load, data: fetchedData } = useFetcher<LoaderData>();
-  const { chain: activeChain } = useNetwork();
   const { magicUsd } = usePrice();
+  const blockExplorer = useBlockExplorer();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -187,7 +187,7 @@ export default function Analytics() {
             rel="noopener noreferrer"
           >
             More on GeckoTerminal
-            <ExternalLinkIcon className="h-3 w-3" />
+            <ArrowUpRightIcon className="h-3 w-3" />
           </a>
         </div>
         <div className="max-h-96 flex-1 overflow-auto rounded-md border border-night-700 bg-[#131D2E]">
@@ -259,10 +259,7 @@ export default function Analytics() {
                       title={swap.userAddress}
                     >
                       <a
-                        href={`${
-                          (activeChain ?? chain.arbitrum).blockExplorers
-                            ?.default.url ?? "https://arbiscan.io"
-                        }/address/${swap.userAddress}`}
+                        href={`${blockExplorer}/address/${swap.userAddress}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="group flex items-center gap-1"
@@ -270,7 +267,7 @@ export default function Analytics() {
                         <span className="group-hover:underline">
                           {truncateEthAddress(swap.userAddress)}
                         </span>
-                        <ExternalLinkIcon className="h-3 w-3 md:h-4 md:w-4" />
+                        <ArrowUpRightIcon className="h-3 w-3 md:h-4 md:w-4" />
                       </a>
                     </td>
                     <td
@@ -278,10 +275,7 @@ export default function Analytics() {
                       title={new Date(swap.date * 1000).toLocaleString()}
                     >
                       <a
-                        href={`${
-                          (activeChain ?? chain.arbitrum).blockExplorers
-                            ?.default.url ?? "https://arbiscan.io"
-                        }/tx/${swap.transactionId}`}
+                        href={`${blockExplorer}/tx/${swap.transactionId}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="group flex items-center gap-1"
@@ -289,7 +283,7 @@ export default function Analytics() {
                         <span className="group-hover:underline">
                           {swap.formattedDate}
                         </span>
-                        <ExternalLinkIcon className="h-3 w-3 md:h-4 md:w-4" />
+                        <ArrowUpRightIcon className="h-3 w-3 md:h-4 md:w-4" />
                       </a>
                     </td>
                   </tr>

@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, ArrowUpIcon } from "@heroicons/react/outline";
+import { ArrowLeftIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
 
 export default function Index() {
   return (

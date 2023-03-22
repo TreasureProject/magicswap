@@ -3,7 +3,7 @@ import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldReloadFunction } from "@remix-run/react";
 import { useCatch, useLoaderData } from "@remix-run/react";
-import { PlusIcon } from "@heroicons/react/solid";
+import { PlusIcon } from "@heroicons/react/24/solid";
 import { Link, useParams, useSearchParams } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { Button } from "~/components/Button";
@@ -23,7 +23,7 @@ import { useAddLiquidity, useRemoveLiquidity } from "~/hooks/useLiquidity";
 import TokenInput from "~/components/TokenInput";
 import { usePairApproval, useTokenApproval } from "~/hooks/useApproval";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
-import { CogIcon } from "@heroicons/react/outline";
+import { CogIcon } from "@heroicons/react/24/outline";
 import { useUser } from "~/context/userContext";
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
 import { usePair } from "~/hooks/usePair";
@@ -49,7 +49,7 @@ export const meta: MetaFunction = ({ data }: { data: LoaderData }) =>
 export const loader: LoaderFunction = async ({ params: { poolId } }) => {
   invariant(poolId, `poolId is required`);
 
-  const pair = await getPairById(poolId, process.env.EXCHANGE_ENDPOINT);
+  const pair = await getPairById(poolId);
 
   if (!pair) {
     throw new Response("Pool not found", {

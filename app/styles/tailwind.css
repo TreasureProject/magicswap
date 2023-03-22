@@ -1,0 +1,8 @@
+/* app/tailwind.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[data-rk] {
+  @apply h-full;
+}

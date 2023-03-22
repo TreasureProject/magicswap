@@ -1,6 +1,5 @@
 import { useState, useEffect, Fragment } from "react";
 import type { ChangeEvent } from "react";
-import { ChevronDownIcon, SearchIcon, XIcon } from "@heroicons/react/solid";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { redirect, json } from "@remix-run/node";
 import type { ShouldReloadFunction } from "@remix-run/react";
@@ -17,6 +16,11 @@ import { getPairs } from "~/utils/pair.server";
 import { TokenLogo } from "~/components/TokenLogo";
 import { createMetaTags } from "~/utils/meta";
 import { twMerge } from "tailwind-merge";
+import {
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 
 type LoaderData = {
   pairs: Pair[];
@@ -33,7 +37,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const url = new URL(request.url);
   const name = url.searchParams.get("name")?.toUpperCase();
 
-  const pairs = await getPairs(process.env.EXCHANGE_ENDPOINT, {
+  const pairs = await getPairs({
     name_contains: name,
   });
 
@@ -113,7 +117,7 @@ export default function Pools() {
                   onClick={() => setMobileFiltersOpen(false)}
                 >
                   <span className="sr-only">Close menu</span>
-                  <XIcon className="h-6 w-6" aria-hidden="true" />
+                  <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                 </button>
               </div>
               <div className="p-2">
@@ -134,7 +138,7 @@ export default function Pools() {
                       {isLoading ? (
                         <SpinnerIcon className="h-5 w-5 animate-spin fill-night-900 text-night-700" />
                       ) : (
-                        <SearchIcon
+                        <MagnifyingGlassIcon
                           className="h-5 w-5 text-night-700"
                           aria-hidden="true"
                         />
@@ -259,7 +263,7 @@ export default function Pools() {
                   {isLoading ? (
                     <SpinnerIcon className="h-5 w-5 animate-spin fill-night-900 text-night-700" />
                   ) : (
-                    <SearchIcon
+                    <MagnifyingGlassIcon
                       className="h-5 w-5 text-night-700"
                       aria-hidden="true"
                     />

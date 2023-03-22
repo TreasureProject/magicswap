@@ -1,18 +1,19 @@
+import type { BigNumber } from "@ethersproject/bignumber";
 import { formatUnits } from "ethers/lib/utils";
 import { REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
-import type { Pair } from "~/types";
+import type { AddressString, Pair } from "~/types";
 import UniswapV2PairAbi from "../../artifacts/UniswapV2Pair.json";
 import { useContractRead } from "./useContractRead";
 
 // Fetches pair reserve values directly from contract
 const usePairReserves = (
-  id: string,
+  id: AddressString,
   token0Decimals = 18,
   token1Decimals = 18
 ) => {
   const { data: pairData } = useContractRead({
-    addressOrName: id,
-    contractInterface: UniswapV2PairAbi,
+    address: id,
+    abi: UniswapV2PairAbi,
     functionName: "getReserves",
     refetchInterval: REFETCH_INTERVAL_HIGH_PRIORITY,
   });
@@ -24,7 +25,7 @@ const usePairReserves = (
   };
 
   if (pairData) {
-    const [rawReserve0, rawReserve1] = pairData;
+    const [rawReserve0, rawReserve1] = pairData as [BigNumber, BigNumber];
     reserves.reserve0 = parseFloat(formatUnits(rawReserve0, token0Decimals));
     reserves.reserve1 = parseFloat(formatUnits(rawReserve1, token1Decimals));
   }

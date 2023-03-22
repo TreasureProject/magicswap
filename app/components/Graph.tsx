@@ -2,8 +2,7 @@ import { curveBasis } from "@visx/curve";
 import { LinearGradient } from "@visx/gradient";
 import { scaleLinear } from "@visx/scale";
 import { LinePath } from "@visx/shape";
-import { useMemo } from "react";
-import { useId } from "@reach/auto-id";
+import { useId, useMemo } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
 import type { TimeInterval } from "~/types";
 

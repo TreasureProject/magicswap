@@ -17,20 +17,22 @@ import {
   useLoaderData,
 } from "@remix-run/react";
 import { resolveValue, Toaster } from "react-hot-toast";
-import { chain, createClient, configureChains, WagmiConfig } from "wagmi";
+import { createClient, configureChains, WagmiConfig } from "wagmi";
+import { arbitrum, arbitrumGoerli } from "wagmi/chains";
 import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
+import { trustWallet, ledgerWallet } from "@rainbow-me/rainbowkit/wallets";
 import {
   ConnectButton,
+  connectorsForWallets,
   darkTheme,
   getDefaultWallets,
   RainbowKitProvider,
 } from "@rainbow-me/rainbowkit";
 import { publicProvider } from "wagmi/providers/public";
 import { alchemyProvider } from "wagmi/providers/alchemy";
-import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 
 import styles from "./styles/tailwind.css";
-import React from "react";
+import React, { useState } from "react";
 import {
   PieIcon,
   SpinnerIcon,
@@ -52,16 +54,14 @@ import { Transition } from "@headlessui/react";
 import {
   CheckCircleIcon,
   ExclamationCircleIcon,
-} from "@heroicons/react/outline";
+} from "@heroicons/react/24/outline";
 import { createMetaTags } from "./utils/meta";
 import { twMerge } from "tailwind-merge";
-import type { Optional } from "./types";
 
 type LoaderData = {
   nodeEnv: typeof process.env.NODE_ENV;
   enableTestnets: boolean;
-  alchemyKey: Optional<string>;
-  treasureRpcKey: Optional<string>;
+  alchemyKey: string;
 };
 
 export const links: LinksFunction = () => [
@@ -107,8 +107,7 @@ export const loader: LoaderFunction = async () => {
   return json<LoaderData>({
     nodeEnv: process.env.NODE_ENV,
     enableTestnets: process.env.ENABLE_TESTNETS === "true",
-    alchemyKey: process.env.ALCHEMY_KEY,
-    treasureRpcKey: process.env.TREASURE_RPC_API_KEY,
+    alchemyKey: process.env.ALCHEMY_KEY || "",
   });
 };
 
@@ -144,51 +143,35 @@ const NavLink = ({
 
 export default function App() {
   const transition = useTransition();
-  const { nodeEnv, enableTestnets, alchemyKey, treasureRpcKey } =
-    useLoaderData<LoaderData>();
+  const { nodeEnv, enableTestnets, alchemyKey } = useLoaderData<LoaderData>();
 
-  const { chains, provider } = React.useMemo(
-    () =>
-      configureChains(
-        [...(enableTestnets ? [chain.arbitrumGoerli] : []), chain.arbitrum],
-        [
-          ...(treasureRpcKey
-            ? [
-                jsonRpcProvider({
-                  rpc: (currentChain) =>
-                    currentChain === chain.arbitrum
-                      ? {
-                          http: `https://arbitrum-rpc.treasure.lol/?t=${treasureRpcKey}`,
-                        }
-                      : null,
-                }),
-              ]
-            : []),
-          ...(alchemyKey ? [alchemyProvider({ apiKey: alchemyKey })] : []),
-          publicProvider(),
-        ]
-      ),
-    [enableTestnets, alchemyKey, treasureRpcKey]
-  );
+  const [{ client, chains }] = useState(() => {
+    const { chains, provider } = configureChains(
+      [arbitrum, ...(enableTestnets ? [arbitrumGoerli] : [])],
+      [alchemyProvider({ apiKey: alchemyKey }), publicProvider()]
+    );
 
-  const { connectors } = React.useMemo(
-    () =>
-      getDefaultWallets({
-        appName: "MagicSwap",
-        chains,
-      }),
-    [chains]
-  );
+    const { wallets } = getDefaultWallets({
+      appName: "MagicSwap",
+      chains,
+    });
 
-  const client = React.useMemo(
-    () =>
-      createClient({
-        autoConnect: true,
-        connectors,
-        provider,
-      }),
-    [connectors, provider]
-  );
+    const connectors = connectorsForWallets([
+      ...wallets,
+      {
+        groupName: "Others",
+        wallets: [trustWallet({ chains }), ledgerWallet({ chains })],
+      },
+    ]);
+
+    const client = createClient({
+      autoConnect: true,
+      connectors,
+      provider,
+    });
+
+    return { client, chains };
+  });
 
   const fetchers = useFetchers();
 

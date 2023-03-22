@@ -1,4 +1,4 @@
-import type { BigNumber } from "ethers";
+import type { BigNumber } from "@ethersproject/bignumber";
 import type { PairToken } from "~/types";
 import { toNumber } from "./number";
 

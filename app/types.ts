@@ -1,12 +1,14 @@
 export type Optional<T> = T | undefined;
 
+export type AddressString = `0x${string}`;
+
 export type TimeInterval = {
   date: number;
   value: number;
 };
 
 export type Token = {
-  id: string;
+  id: AddressString;
   symbol: string;
   isEth: boolean;
   isMagic: boolean;
@@ -29,7 +31,7 @@ export type PairToken = AdvancedToken & {
 };
 
 export type Pair = {
-  id: string;
+  id: `0x${string}`;
   name: string;
   token0: PairToken;
   token1: PairToken;

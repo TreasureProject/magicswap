@@ -10,7 +10,7 @@ declare global {
       PORT: string;
       ENABLE_TESTNETS: string;
       ALCHEMY_KEY: string;
-      EXCHANGE_ENDPOINT: string;
+      MAGICSWAP_API_URL: string;
     }
   }
 }

@@ -1,10 +1,10 @@
-import { ExternalLinkIcon } from "@heroicons/react/outline";
+import type { BigNumber } from "@ethersproject/bignumber";
+import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import {
   // ArrowSmDownIcon,
   // ArrowSmUpIcon,
   ChevronDownIcon,
-} from "@heroicons/react/solid";
-import type { BigNumber } from "ethers";
+} from "@heroicons/react/24/solid";
 import { usePrice } from "~/context/priceContext";
 import { useBlockExplorer } from "~/hooks/useBlockExplorer";
 import type { Token } from "~/types";
@@ -127,7 +127,7 @@ export default function PairTokenInput({
                   <>({token.name})</>
                 )}
               </span>
-              <ExternalLinkIcon className="h-3 w-3" />
+              <ArrowUpRightIcon className="h-3 w-3" />
             </a>
             <div className="flex flex-col items-end sm:flex-row sm:items-baseline">
               <p className="whitespace-nowrap text-xs font-normal text-night-300 sm:text-lg">
