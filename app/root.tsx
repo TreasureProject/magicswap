@@ -1,10 +1,5 @@
-import type {
-  LinksFunction,
-  LoaderFunction,
-  MetaFunction,
-} from "@remix-run/node";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import type { ShouldReloadFunction } from "@remix-run/react";
 import {
   Links,
   LiveReload,
@@ -31,6 +26,7 @@ import {
 import { publicProvider } from "wagmi/providers/public";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 
+import type { Env } from "./types";
 import styles from "./styles/tailwind.css";
 import React, { useState } from "react";
 import {
@@ -57,12 +53,6 @@ import {
 } from "@heroicons/react/24/outline";
 import { createMetaTags } from "./utils/meta";
 import { twMerge } from "tailwind-merge";
-
-type LoaderData = {
-  nodeEnv: typeof process.env.NODE_ENV;
-  enableTestnets: boolean;
-  alchemyKey: string;
-};
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -103,15 +93,27 @@ export const meta: MetaFunction = () => ({
   "theme-color": "#DC2626",
 });
 
-export const loader: LoaderFunction = async () => {
-  return json<LoaderData>({
-    nodeEnv: process.env.NODE_ENV,
-    enableTestnets: process.env.ENABLE_TESTNETS === "true",
-    alchemyKey: process.env.ALCHEMY_KEY || "",
-  });
+const strictEntries = <T extends Record<string, any>>(
+  object: T
+): [keyof T, T[keyof T]][] => {
+  return Object.entries(object);
 };
 
-export const unstable_shouldReload: ShouldReloadFunction = () => false;
+function getPublicKeys(env: Env): Env {
+  const publicKeys = {} as Env;
+  for (const [key, value] of strictEntries(env)) {
+    if (key.startsWith("PUBLIC_")) {
+      publicKeys[key] = value;
+    }
+  }
+  return publicKeys;
+}
+
+export const loader = async () => {
+  return json({
+    ENV: getPublicKeys(process.env),
+  });
+};
 
 const NavLink = ({
   to,
@@ -143,12 +145,12 @@ const NavLink = ({
 
 export default function App() {
   const transition = useTransition();
-  const { nodeEnv, enableTestnets, alchemyKey } = useLoaderData<LoaderData>();
+  const { ENV } = useLoaderData<typeof loader>();
 
   const [{ client, chains }] = useState(() => {
     const { chains, provider } = configureChains(
-      [arbitrum, ...(enableTestnets ? [arbitrumGoerli] : [])],
-      [alchemyProvider({ apiKey: alchemyKey }), publicProvider()]
+      [arbitrum, ...(ENV.PUBLIC_ENABLE_TESTNETS ? [arbitrumGoerli] : [])],
+      [alchemyProvider({ apiKey: ENV.PUBLIC_ALCHEMY_KEY }), publicProvider()]
     );
 
     const { wallets } = getDefaultWallets({
@@ -249,7 +251,11 @@ export default function App() {
                       </div>
                       <div className="flex flex-1 items-center justify-start sm:justify-center">
                         <Link to="/">
-                          <img src={MagicSwapLogo} className="h-8" />
+                          <img
+                            src={MagicSwapLogo}
+                            className="h-8"
+                            alt="MagicSwap"
+                          />
                         </Link>
                       </div>
                       <div className="ml-auto flex flex-1 items-center justify-end">
@@ -332,7 +338,7 @@ export default function App() {
           )}
         </Toaster>
         <Scripts />
-        {nodeEnv === "development" ? <LiveReload /> : null}
+        {ENV.PUBLIC_NODE_ENV === "development" ? <LiveReload /> : null}
         <script
           src="https://efficient-bloc-party.treasure.lol/script.js"
           data-site="XBZCEUKN"

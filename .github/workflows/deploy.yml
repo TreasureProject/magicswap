@@ -1,0 +1,117 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+jobs:
+  typecheck:
+    name: Check Types
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel previous runs
+        uses: styfle/cancel-workflow-action@0.11.0
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm ci
+      - name: Generate code
+        run: npm run codegen
+        env:
+          MAGICSWAP_API_URL: ${{ secrets.MAGICSWAP_API_URL }}
+      - name: Check types
+        run: npm run typecheck --if-present
+  build:
+    name: Build
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel previous runs
+        uses: styfle/cancel-workflow-action@0.11.0
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Read app name
+        uses: SebRollen/toml-action@v1.0.0
+        id: app_name
+        with:
+          file: "fly.toml"
+          field: "app"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      # Setup cache
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      - name: Fly Registry Auth
+        uses: docker/login-action@v1
+        with:
+          registry: registry.fly.io
+          username: x
+          password: ${{ secrets.FLY_API_TOKEN }}
+      - name: Docker build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: registry.fly.io/${{ steps.app_name.outputs.value }}:${{ github.ref_name }}-${{ github.sha }}
+          build-args: |
+            MAGICSWAP_API_URL=${{ secrets.MAGICSWAP_API_URL }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
+      # This ugly bit is necessary if you don't want your cache to grow forever
+      # till it hits GitHub's limit of 5GB.
+      # Temp fix
+      # https://github.com/docker/build-push-action/issues/252
+      # https://github.com/moby/buildkit/issues/1896
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: [typecheck, build]
+    if: ${{ github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Cancel previous runs
+        uses: styfle/cancel-workflow-action@0.11.0
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Read app name
+        uses: SebRollen/toml-action@v1.0.0
+        id: app_name
+        with:
+          file: "fly.toml"
+          field: "app"
+      # - name: Deploy staging
+      #   if: ${{ github.ref == 'refs/heads/develop' }}
+      #   uses: superfly/flyctl-actions@1.3
+      #   with:
+      #     args: "deploy --app $APP_NAME-staging --image registry.fly.io/$APP_NAME:${{ github.ref_name }}-${{ github.sha }}"
+      #   env:
+      #     FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - name: 🚀 Deploy production
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: superfly/flyctl-actions@1.3
+        with:
+          args: "deploy --image registry.fly.io/${{ steps.app_name.outputs.value }}:${{ github.ref_name }}-${{ github.sha }}"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+  post_deploy:
+    name: Post-Deployment Tasks
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Purge Cloudflare Cache
+        uses: jakejarvis/cloudflare-purge-action@master
+        env:
+          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
+          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}

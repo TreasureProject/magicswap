@@ -51,7 +51,6 @@
     "remix-utils": "^6.0.0",
     "tailwind-merge": "^1.6.0",
     "tiny-invariant": "^1.2.0",
-    "use-local-storage-state": "^18.2.1",
     "wagmi": "^0.12.6"
   },
   "devDependencies": {

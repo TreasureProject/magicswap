@@ -16,7 +16,6 @@ import { TokenLogo } from "~/components/TokenLogo";
 import { CogIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
 import { useTokenApproval } from "~/hooks/useApproval";
-import useLocalStorageState from "use-local-storage-state";
 
 import { usePair } from "~/hooks/usePair";
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
@@ -135,9 +134,6 @@ export default function Index() {
   const { value: outputTokenBalance, refetch: refetchOutputTokenBalance } =
     useTokenBalance(data.outputToken);
   const pair = usePair(data.pair);
-  const [showGraph, setShowGraph] = useLocalStorageState("ms:showGraph", {
-    defaultValue: false,
-  });
   const [isOpenConfirmSwapModal, setIsOpenConfirmSwapModal] = useState(false);
 
   const inputPairToken =
