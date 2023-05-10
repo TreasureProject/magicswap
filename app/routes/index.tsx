@@ -383,7 +383,7 @@ const ConfirmSwapModal = ({
     isLoading: isApproveLoading,
     isSuccess: isApproveSuccess,
     refetch: refetchTokenApprovalStatus,
-  } = useTokenApproval(inputPairToken);
+  } = useTokenApproval(inputPairToken, inputValues[0]);
 
   const {
     amountIn: worstAmountIn,
