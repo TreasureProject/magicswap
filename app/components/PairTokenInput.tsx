@@ -11,7 +11,6 @@ import type { Token } from "~/types";
 import {
   formatBigNumberDisplay,
   formatBigNumberInput,
-  formatUsd,
   formatUsdLong,
   // formatPercent
 } from "~/utils/number";
