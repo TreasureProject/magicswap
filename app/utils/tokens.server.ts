@@ -26,7 +26,7 @@ const TOKEN_LIST = [
   {
     symbol: "VEE",
     name: "VEE",
-    image: "img/tokens/vee.png",
+    image: "/img/tokens/vee.png",
   },
 ];
 
