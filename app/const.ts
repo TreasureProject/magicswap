@@ -20,7 +20,7 @@ export const CONTRACT_ADDRESSES: Record<
     [AppContract.Router]: "0xe6ef3dac2ba5b785a36c2200da2c087735c3b426",
     // [AppContract.MagicElmPair]: "0x82b79579f07a3539f10d0b2c35316b0e8333b2cc",
     [AppContract.MagicGflyPair]: "0x7e8ce14d9d541b3494e20fba97ddd010f29b0250",
-    [AppContract.MagicAnimaPair]: "0xa8e16376fec06f7f921c0ef9253902494631ae7e",
+    [AppContract.MagicAnimaPair]: "0x7cfc374cfe753c9b77b6dac1d5d8c97ed84adc36",
   },
 };
 
