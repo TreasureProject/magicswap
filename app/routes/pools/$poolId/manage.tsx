@@ -12,7 +12,7 @@ import { getLpTokenCount, getTokenCount } from "~/utils/price";
 import {
   formatBigNumberOutput,
   formatCurrency,
-  formatUsd,
+  formatUsdLong,
   toBigNumber,
   toNumber,
 } from "~/utils/number";
@@ -383,7 +383,7 @@ const Liquidity = () => {
                 </span>
                 <span className="text-night-200">
                   ≈{" "}
-                  {formatUsd(
+                  {formatUsdLong(
                     removeEstimate.token0 * pair.token0.priceMagic * magicUsd
                   )}
                 </span>
@@ -394,7 +394,7 @@ const Liquidity = () => {
                 </span>
                 <span className="text-night-200">
                   ={" "}
-                  {formatUsd(
+                  {formatUsdLong(
                     removeEstimate.token1 * pair.token1.priceMagic * magicUsd
                   )}
                 </span>
