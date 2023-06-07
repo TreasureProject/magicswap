@@ -28,6 +28,11 @@ const TOKEN_LIST = [
     name: "VEE",
     image: "/img/tokens/vee.png",
   },
+  {
+    symbol: "ANIMA",
+    name: "ANIMA",
+    image: "/img/tokens/anima.png",
+  },
 ];
 
 const normalizeSymbol = (symbol: string) => symbol.replace("$", "");
