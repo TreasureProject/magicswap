@@ -17,6 +17,7 @@ export const CONTRACT_ADDRESSES: Record<
     // [AppContract.MagicElmPair]: "0xf904469497e6a179a9d47a7b468e4be42ec56e65",
     [AppContract.MagicGflyPair]: "0x088f2bd3667f385427d9289c28725d43d4b74ab4",
     [AppContract.MagicVeePair]: "0x6210775833732f144058713c9b36de09afd1ca3b",
+    [AppContract.MagicAnimaPair]: "0x7bc27907ac638dbceb74b1fb02fc154da3e15334",
   },
   [chainId.arbitrumGoerli]: {
     [AppContract.Router]: "0xe6ef3dac2ba5b785a36c2200da2c087735c3b426",
