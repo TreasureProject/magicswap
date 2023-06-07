@@ -39,7 +39,7 @@ import {
   DiscordIcon,
   GitHubIcon,
 } from "./components/Icons";
-import MagicSwapLogo from "../public/img/logo-magicswap.svg";
+import MagicswapLogo from "../public/img/logo-magicswap.svg";
 
 import NProgress from "nprogress";
 import nProgressStyles from "./styles/nprogress.css";
@@ -93,11 +93,11 @@ export const links: LinksFunction = () => [
 ];
 
 export const meta: MetaFunction = () => ({
-  ...createMetaTags("Swap | MagicSwap"),
+  ...createMetaTags("Swap | Magicswap"),
   charset: "utf-8",
   viewport: "width=device-width,initial-scale=1",
-  "apple-mobile-web-app-title": "MagicSwap",
-  "application-name": "MagicSwap",
+  "apple-mobile-web-app-title": "Magicswap",
+  "application-name": "Magicswap",
   "msapplication-TileColor": "#DC2626",
   "msapplication-config": "/browserconfig.xml",
   "theme-color": "#DC2626",
@@ -174,7 +174,7 @@ export default function App() {
   const { connectors } = React.useMemo(
     () =>
       getDefaultWallets({
-        appName: "MagicSwap",
+        appName: "Magicswap",
         chains,
       }),
     [chains]
@@ -221,7 +221,7 @@ export default function App() {
         <WagmiConfig client={client}>
           <RainbowKitProvider
             appInfo={{
-              appName: "MagicSwap",
+              appName: "Magicswap",
             }}
             chains={chains}
             theme={darkTheme({
@@ -238,7 +238,7 @@ export default function App() {
                       <div className="mr-auto hidden flex-1 items-center divide-x divide-night-800 sm:flex">
                         <a
                           className="px-3 text-night-500 transition-colors hover:text-white"
-                          href="https://twitter.com/MagicSwap_"
+                          href="https://twitter.com/Magicswap_"
                           target="_blank"
                           rel="noopener noreferrer"
                           title="Twitter"
@@ -266,7 +266,7 @@ export default function App() {
                       </div>
                       <div className="flex flex-1 items-center justify-start sm:justify-center">
                         <Link to="/">
-                          <img src={MagicSwapLogo} className="h-8" />
+                          <img src={MagicswapLogo} className="h-8" />
                         </Link>
                       </div>
                       <div className="ml-auto flex flex-1 items-center justify-end">
