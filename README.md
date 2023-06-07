@@ -1,6 +1,6 @@
-# MagicSwap UI
+# Magicswap UI
 
-[MagicSwap](https://magicswap.lol) is the automated market maker of the [Treasure ecosystem](https://treasure.lol).
+[Magicswap](https://magicswap.lol) is the automated market maker of the [Treasure ecosystem](https://treasure.lol).
 
 Supporting code:
 

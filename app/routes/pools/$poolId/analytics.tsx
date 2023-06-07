@@ -26,7 +26,7 @@ type LoaderData = {
 };
 
 export const meta: MetaFunction = ({ data }: { data: LoaderData }) =>
-  createMetaTags(`${data.pair.name} - Analytics | MagicSwap`);
+  createMetaTags(`${data.pair.name} - Analytics | Magicswap`);
 
 export const loader: LoaderFunction = async ({ params: { poolId } }) => {
   invariant(poolId, `poolId is required`);

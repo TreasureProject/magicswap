@@ -1,6 +1,6 @@
 import { createCookie } from "@remix-run/node";
 
-export enum MagicSwapCookie {
+export enum MagicswapCookie {
   LastPair = "ms:lastPair",
 }
 
@@ -9,13 +9,13 @@ type LastPairCookie = Partial<{
   output: string;
 }>;
 
-export const getCookie = async (request: Request, type: MagicSwapCookie) => {
+export const getCookie = async (request: Request, type: MagicswapCookie) => {
   const cookie = createCookie(type, { httpOnly: true, secure: true });
   return cookie.parse(request.headers.get("Cookie"));
 };
 
 export const saveCookie = async (
-  type: MagicSwapCookie,
+  type: MagicswapCookie,
   value: string | object
 ) => {
   const cookie = createCookie(type, { httpOnly: true, secure: true });
@@ -29,7 +29,7 @@ export const saveCookie = async (
 export const getLastPairCookie = async (
   request: Request
 ): Promise<LastPairCookie | null> =>
-  getCookie(request, MagicSwapCookie.LastPair);
+  getCookie(request, MagicswapCookie.LastPair);
 
 export const saveLastPairCookie = async (value: LastPairCookie) =>
-  saveCookie(MagicSwapCookie.LastPair, value);
+  saveCookie(MagicswapCookie.LastPair, value);
