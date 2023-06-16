@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
@@ -7,18 +7,19 @@ import {
   useLoaderData,
   useParams,
 } from "@remix-run/react";
+import { useEffect } from "react";
 import invariant from "tiny-invariant";
+
 import { TimeIntervalLineGraph } from "~/components/Graph";
+import { TokenLogo } from "~/components/TokenLogo";
+import { usePrice } from "~/context/priceContext";
+import { useBlockExplorer } from "~/hooks/useBlockExplorer";
+import type { Pair, Swap } from "~/types";
+import { truncateEthAddress } from "~/utils/address";
+import { createMetaTags } from "~/utils/meta";
 import { formatCurrency, formatUsd } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
-import type { Pair, Swap } from "~/types";
 import { getSwaps } from "~/utils/swap.server";
-import { usePrice } from "~/context/priceContext";
-import { createMetaTags } from "~/utils/meta";
-import { TokenLogo } from "~/components/TokenLogo";
-import { truncateEthAddress } from "~/utils/address";
-import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
-import { useBlockExplorer } from "~/hooks/useBlockExplorer";
 
 type LoaderData = {
   pair: Pair;
@@ -72,7 +73,7 @@ export default function Analytics() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col divide-y divide-night-700 rounded-md border border-night-800 bg-[#131D2E] sm:flex-row sm:divide-y-0 sm:divide-x">
+      <div className="flex flex-col divide-y divide-night-700 rounded-md border border-night-800 bg-[#131D2E] sm:flex-row sm:divide-x sm:divide-y-0">
         <div className="flex-1 p-4">
           <div className="flex justify-between">
             <p className="col-span-4 text-[0.6rem] text-night-500 sm:text-xs">
@@ -136,13 +137,13 @@ export default function Analytics() {
               <tr>
                 <th
                   scope="col"
-                  className="py-3.5 px-4 text-left text-xs font-semibold text-night-400"
+                  className="px-4 py-3.5 text-left text-xs font-semibold text-night-400"
                 >
                   Token
                 </th>
                 <th
                   scope="col"
-                  className="py-3.5 px-4 text-left text-xs font-semibold text-night-400"
+                  className="px-4 py-3.5 text-left text-xs font-semibold text-night-400"
                 >
                   Amount
                 </th>

@@ -1,26 +1,27 @@
-import { useState, useEffect, Fragment } from "react";
-import type { ChangeEvent } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import {
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
-import { redirect, json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import type { ShouldReloadFunction } from "@remix-run/react";
 import { useFetcher } from "@remix-run/react";
 import { Link } from "@remix-run/react";
 import { useLocation } from "@remix-run/react";
 import { useParams } from "@remix-run/react";
 import { Outlet, useLoaderData } from "@remix-run/react";
-import { Dialog, Transition } from "@headlessui/react";
-import { SlashIcon, SpinnerIcon } from "~/components/Icons";
-import { formatPercent } from "~/utils/number";
-import type { Pair } from "~/types";
-import { getPairs } from "~/utils/pair.server";
-import { TokenLogo } from "~/components/TokenLogo";
-import { createMetaTags } from "~/utils/meta";
+import { Fragment, useEffect, useState } from "react";
+import type { ChangeEvent } from "react";
 import { twMerge } from "tailwind-merge";
-import {
-  ChevronDownIcon,
-  MagnifyingGlassIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+
+import { SlashIcon, SpinnerIcon } from "~/components/Icons";
+import { TokenLogo } from "~/components/TokenLogo";
+import type { Pair } from "~/types";
+import { createMetaTags } from "~/utils/meta";
+import { formatPercent } from "~/utils/number";
+import { getPairs } from "~/utils/pair.server";
 
 type LoaderData = {
   pairs: Pair[];
@@ -42,7 +43,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   });
 
   if (pairs.length === 1 && !params.poolId) {
-    return redirect(`/pools/${pairs[0].id}/manage`);
+    return redirect(`/pools/${pairs[0]?.id}/manage`);
   }
 
   return json<LoaderData>({ pairs });
@@ -155,7 +156,11 @@ export default function Pools() {
                 <div className="flex-1 overflow-auto">
                   <ul>
                     {filteredPairs.map((pair) => (
-                      <PoolLink pair={pair} lastPath={lastPath} key={pair.id} />
+                      <PoolLink
+                        pair={pair}
+                        lastPath={lastPath ?? ""}
+                        key={pair.id}
+                      />
                     ))}
                   </ul>
                 </div>
@@ -280,7 +285,11 @@ export default function Pools() {
             <div className="flex-1 overflow-auto">
               <ul>
                 {filteredPairs.map((pair) => (
-                  <PoolLink pair={pair} lastPath={lastPath} key={pair.id} />
+                  <PoolLink
+                    pair={pair}
+                    lastPath={lastPath ?? ""}
+                    key={pair.id}
+                  />
                 ))}
               </ul>
             </div>

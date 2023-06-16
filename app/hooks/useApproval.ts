@@ -1,11 +1,12 @@
+import type { BigNumber } from "@ethersproject/bignumber";
 import { AddressZero, MaxUint256, Zero } from "@ethersproject/constants";
 import { erc20ABI, useContractRead } from "wagmi";
-import type { AddressString, Pair, Token } from "~/types";
-import { useContractWrite } from "./useContractWrite";
-import { useUser } from "~/context/userContext";
+
 import { useContractAddress } from "./useContractAddress";
+import { useContractWrite } from "./useContractWrite";
 import { AppContract } from "~/const";
-import type { BigNumber } from "@ethersproject/bignumber";
+import { useUser } from "~/context/userContext";
+import type { AddressString, Pair, Token } from "~/types";
 
 const useErc20Approval = (
   tokenId: AddressString,

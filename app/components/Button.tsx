@@ -1,6 +1,7 @@
 import { useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
 import type { ButtonHTMLAttributes, MouseEventHandler } from "react";
 import { twMerge } from "tailwind-merge";
+
 import { useUser } from "~/context/userContext";
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {

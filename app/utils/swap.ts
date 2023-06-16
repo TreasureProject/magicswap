@@ -1,6 +1,7 @@
 import type { BigNumber } from "@ethersproject/bignumber";
-import type { PairToken } from "~/types";
+
 import { toNumber } from "./number";
+import type { PairToken } from "~/types";
 
 export const calculatePriceImpact = (
   inputToken: PairToken,

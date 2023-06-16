@@ -1,12 +1,13 @@
+import type { BigNumber } from "@ethersproject/bignumber";
+
+import { TokenLogo } from "~/components/TokenLogo";
+import { usePrice } from "~/context/priceContext";
 import type { PairToken } from "~/types";
 import {
   formatBigNumberDisplay,
   formatBigNumberInput,
   formatUsdLong,
 } from "~/utils/number";
-import { TokenLogo } from "~/components/TokenLogo";
-import { usePrice } from "~/context/priceContext";
-import type { BigNumber } from "@ethersproject/bignumber";
 
 type Props = {
   id: string;
@@ -48,7 +49,7 @@ export default function TokenInput({
         {label}
       </label>
       <div className="relative focus-within:border-ruby-600">
-        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center space-x-2 pl-3 pb-4">
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center space-x-2 pb-4 pl-3">
           {!!token && (
             <TokenLogo
               token={token}
@@ -63,13 +64,13 @@ export default function TokenInput({
         <input
           id={id}
           type="text"
-          className="block w-full rounded-md border-0 bg-night-900 pl-7 pb-6 text-right focus:outline-none focus:ring-2 focus:ring-ruby-600 sm:text-lg lg:text-2xl"
+          className="block w-full rounded-md border-0 bg-night-900 pb-6 pl-7 text-right focus:outline-none focus:ring-2 focus:ring-ruby-600 sm:text-lg lg:text-2xl"
           placeholder="0.00"
           value={value === "0" ? "" : value}
           onChange={handleChange}
         />
         <div
-          className="absolute left-0 bottom-2 flex cursor-pointer flex-col items-end pl-3"
+          className="absolute bottom-2 left-0 flex cursor-pointer flex-col items-end pl-3"
           onClick={() =>
             onChange(formatBigNumberInput(balance, token?.decimals))
           }

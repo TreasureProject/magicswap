@@ -1,7 +1,7 @@
-import { AppContract } from "~/const";
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
 import { useContractAddress } from "./useContractAddress";
 import { useContractWrite } from "./useContractWrite";
+import { AppContract } from "~/const";
 
 export type RouterFunctionName =
   | "addLiquidity"

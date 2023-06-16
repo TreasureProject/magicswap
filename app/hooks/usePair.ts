@@ -1,9 +1,10 @@
 import type { BigNumber } from "@ethersproject/bignumber";
 import { formatUnits } from "ethers/lib/utils";
-import { REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
-import type { AddressString, Pair } from "~/types";
+
 import UniswapV2PairAbi from "../../artifacts/UniswapV2Pair.json";
 import { useContractRead } from "./useContractRead";
+import { REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
+import type { AddressString, Pair } from "~/types";
 
 // Fetches pair reserve values directly from contract
 const usePairReserves = (

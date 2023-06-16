@@ -1,7 +1,7 @@
-import React from "react";
 import { useLocale } from "@react-aria/i18n";
 import { useNumberField } from "@react-aria/numberfield";
 import { useNumberFieldState } from "@react-stately/numberfield";
+import React from "react";
 import { twMerge } from "tailwind-merge";
 
 export const NumberField = ({

@@ -5,18 +5,18 @@ import {
   // ArrowSmUpIcon,
   ChevronDownIcon,
 } from "@heroicons/react/24/solid";
+
+// import { getPrice24hChange } from "~/utils/price";
+// import { TimeIntervalLineGraph } from "./Graph";
+import { TokenLogo } from "./TokenLogo";
 import { usePrice } from "~/context/priceContext";
 import { useBlockExplorer } from "~/hooks/useBlockExplorer";
 import type { Token } from "~/types";
 import {
   formatBigNumberDisplay,
   formatBigNumberInput,
-  formatUsdLong,
-  // formatPercent
+  formatUsdLong, // formatPercent
 } from "~/utils/number";
-// import { getPrice24hChange } from "~/utils/price";
-// import { TimeIntervalLineGraph } from "./Graph";
-import { TokenLogo } from "./TokenLogo";
 
 type Props = {
   id: string;
@@ -67,12 +67,12 @@ export default function PairTokenInput({
             <input
               id={id}
               type="text"
-              className="block w-full border-0 border-transparent bg-transparent pr-12 pb-6 focus:ring-0 sm:text-lg lg:text-2xl"
+              className="block w-full border-0 border-transparent bg-transparent pb-6 pr-12 focus:ring-0 sm:text-lg lg:text-2xl"
               placeholder="0.00"
               value={value === "0" ? "" : value}
               onChange={handleChange}
             />
-            <div className="pointer-events-none absolute left-0 bottom-2 flex flex-col items-end pl-3">
+            <div className="pointer-events-none absolute bottom-2 left-0 flex flex-col items-end pl-3">
               <span className="text-xs text-night-500">
                 ~{" "}
                 {formatUsdLong(

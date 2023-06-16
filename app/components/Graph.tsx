@@ -4,6 +4,7 @@ import { scaleLinear } from "@visx/scale";
 import { LinePath } from "@visx/shape";
 import { useId, useMemo } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
+
 import type { TimeInterval } from "~/types";
 
 type GraphDataPoint = {

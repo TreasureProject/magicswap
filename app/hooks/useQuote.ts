@@ -1,11 +1,12 @@
 import type { BigNumber } from "@ethersproject/bignumber";
 import { Zero } from "@ethersproject/constants";
-import { AppContract, REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
-import type { PairToken } from "~/types";
-import { toBigNumber } from "~/utils/number";
+
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
 import { useContractAddress } from "./useContractAddress";
 import { useContractRead } from "./useContractRead";
+import { AppContract, REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
+import type { PairToken } from "~/types";
+import { toBigNumber } from "~/utils/number";
 
 export const useQuote = (
   token0: PairToken,

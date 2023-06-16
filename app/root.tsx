@@ -1,58 +1,56 @@
-import type { LinksFunction, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import {
-  Links,
-  LiveReload,
-  Meta,
-  Outlet,
-  Scripts,
-  NavLink as Link,
-  useTransition,
-  useFetchers,
-  useLoaderData,
-} from "@remix-run/react";
-import { resolveValue, Toaster } from "react-hot-toast";
-import { createClient, configureChains, WagmiConfig } from "wagmi";
-import { arbitrum, arbitrumGoerli } from "wagmi/chains";
-import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
-import { trustWallet, ledgerWallet } from "@rainbow-me/rainbowkit/wallets";
-import {
-  ConnectButton,
-  connectorsForWallets,
-  darkTheme,
-  getDefaultWallets,
-  RainbowKitProvider,
-} from "@rainbow-me/rainbowkit";
-import { publicProvider } from "wagmi/providers/public";
-import { alchemyProvider } from "wagmi/providers/alchemy";
-
-import type { Env } from "./types";
-import styles from "./styles/tailwind.css";
-import React, { useState } from "react";
-import {
-  PieIcon,
-  SpinnerIcon,
-  SplitIcon,
-  TwitterIcon,
-  DiscordIcon,
-  GitHubIcon,
-} from "./components/Icons";
-import MagicswapLogo from "../public/img/logo-magicswap.svg";
-
-import NProgress from "nprogress";
-import nProgressStyles from "./styles/nprogress.css";
-import fontStyles from "./styles/font.css";
-
-import { UserProvider } from "./context/userContext";
-import { PriceProvider } from "./context/priceContext";
-import { SettingsProvider } from "./context/settingsContext";
 import { Transition } from "@headlessui/react";
 import {
   CheckCircleIcon,
   ExclamationCircleIcon,
 } from "@heroicons/react/24/outline";
-import { createMetaTags } from "./utils/meta";
+import {
+  ConnectButton,
+  RainbowKitProvider,
+  connectorsForWallets,
+  darkTheme,
+  getDefaultWallets,
+} from "@rainbow-me/rainbowkit";
+import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
+import { ledgerWallet, trustWallet } from "@rainbow-me/rainbowkit/wallets";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import {
+  NavLink as Link,
+  Links,
+  LiveReload,
+  Meta,
+  Outlet,
+  Scripts,
+  useFetchers,
+  useLoaderData,
+  useTransition,
+} from "@remix-run/react";
+import NProgress from "nprogress";
+import React, { useState } from "react";
+import { Toaster, resolveValue } from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
+import { WagmiConfig, configureChains, createClient } from "wagmi";
+import { arbitrum, arbitrumGoerli } from "wagmi/chains";
+import { alchemyProvider } from "wagmi/providers/alchemy";
+import { publicProvider } from "wagmi/providers/public";
+
+import MagicswapLogo from "../public/img/logo-magicswap.svg";
+import {
+  DiscordIcon,
+  GitHubIcon,
+  PieIcon,
+  SpinnerIcon,
+  SplitIcon,
+  TwitterIcon,
+} from "./components/Icons";
+import { PriceProvider } from "./context/priceContext";
+import { SettingsProvider } from "./context/settingsContext";
+import { UserProvider } from "./context/userContext";
+import fontStyles from "./styles/font.css";
+import nProgressStyles from "./styles/nprogress.css";
+import styles from "./styles/tailwind.css";
+import type { Env } from "./types";
+import { createMetaTags } from "./utils/meta";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -154,6 +152,7 @@ export default function App() {
     );
 
     const { wallets } = getDefaultWallets({
+      projectId: ENV.PUBLIC_WALLETCONNECT_PROJECT_ID,
       appName: "Magicswap",
       chains,
     });
@@ -162,7 +161,16 @@ export default function App() {
       ...wallets,
       {
         groupName: "Others",
-        wallets: [trustWallet({ chains }), ledgerWallet({ chains })],
+        wallets: [
+          trustWallet({
+            projectId: ENV.PUBLIC_WALLETCONNECT_PROJECT_ID,
+            chains,
+          }),
+          ledgerWallet({
+            projectId: ENV.PUBLIC_WALLETCONNECT_PROJECT_ID,
+            chains,
+          }),
+        ],
       },
     ]);
 
@@ -273,7 +281,7 @@ export default function App() {
                     <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] flex-col p-8 pt-0 sm:pt-8 xl:max-w-6xl 2xl:max-w-7xl">
                       <Outlet />
                     </div>
-                    <header className="fixed left-0 right-0 bottom-[4.5rem] z-10 px-2 sm:bottom-24">
+                    <header className="fixed bottom-[4.5rem] left-0 right-0 z-10 px-2 sm:bottom-24">
                       <div className="relative">
                         <div className="absolute left-1/2 z-10 w-full max-w-lg -translate-x-1/2 transform rounded-xl bg-night-800/40 p-2 shadow-2xl shadow-night-800/30 backdrop-blur-md 2xl:max-w-2xl">
                           <nav className="flex gap-1">

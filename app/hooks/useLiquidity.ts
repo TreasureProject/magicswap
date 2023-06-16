@@ -1,13 +1,12 @@
 import type { BigNumber } from "@ethersproject/bignumber";
 import { useRef } from "react";
+
+import { useV2RouterWrite } from "./useV2RouterWrite";
 import { useSettings } from "~/context/settingsContext";
 import { useUser } from "~/context/userContext";
-
 import type { Optional, Pair } from "~/types";
 import { toBigNumber } from "~/utils/number";
 import { calculateAmountOutMin } from "~/utils/swap";
-
-import { useV2RouterWrite } from "./useV2RouterWrite";
 
 export const useRemoveLiquidity = () => {
   const { address } = useUser();

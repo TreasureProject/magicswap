@@ -1,43 +1,43 @@
-import { ArrowRightIcon, ArrowDownIcon } from "@heroicons/react/24/solid";
-import { Button } from "~/components/Button";
-import { useCallback, useEffect } from "react";
-import { Link, useCatch, useLoaderData, useLocation } from "@remix-run/react";
+import { BigNumber } from "@ethersproject/bignumber";
+import { Zero } from "@ethersproject/constants";
+import { Dialog } from "@headlessui/react";
+import { CogIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { ArrowDownIcon, ArrowRightIcon } from "@heroicons/react/24/solid";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Dialog } from "@headlessui/react";
-import { getTokenBySymbol, getUniqueTokens } from "~/utils/tokens.server";
-import type { Pair, PairToken, Token } from "~/types";
-import { useTokenBalance } from "~/hooks/useTokenBalance";
-import { getPairs } from "~/utils/pair.server";
-import PairTokenInput from "~/components/PairTokenInput";
+import { Link, useCatch, useLoaderData, useLocation } from "@remix-run/react";
+import { useCallback, useEffect } from "react";
 import { useState } from "react";
-import { useSwap } from "~/hooks/useSwap";
-import { TokenLogo } from "~/components/TokenLogo";
-import { CogIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
-import { useTokenApproval } from "~/hooks/useApproval";
+import { twMerge } from "tailwind-merge";
 
-import { usePair } from "~/hooks/usePair";
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
+import { Button } from "~/components/Button";
 import { Modal } from "~/components/Modal";
+import PairTokenInput from "~/components/PairTokenInput";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
+import { TokenLogo } from "~/components/TokenLogo";
+import { useAmount } from "~/hooks/useAmount";
+import { useTokenApproval } from "~/hooks/useApproval";
+import { usePair } from "~/hooks/usePair";
+import { useSwap } from "~/hooks/useSwap";
+import { useTokenBalance } from "~/hooks/useTokenBalance";
+import type { Pair, PairToken, Token } from "~/types";
+import { getLastPairCookie, saveLastPairCookie } from "~/utils/cookie.server";
+import { createMetaTags } from "~/utils/meta";
 import {
   formatBigNumberInput,
   formatBigNumberOutput,
   formatPercent,
   toBigNumber,
 } from "~/utils/number";
+import { getPairs } from "~/utils/pair.server";
 import {
   COMMUNITY_ECO_FUND,
   COMMUNITY_GAME_FUND,
   LIQUIDITY_PROVIDER_FEE,
 } from "~/utils/price";
-import { useAmount } from "~/hooks/useAmount";
-import { createMetaTags } from "~/utils/meta";
-import { twMerge } from "tailwind-merge";
-import { Zero } from "@ethersproject/constants";
 import { calculatePriceImpact } from "~/utils/swap";
-import { getLastPairCookie, saveLastPairCookie } from "~/utils/cookie.server";
-import type { BigNumber } from "@ethersproject/bignumber";
+import { getTokenBySymbol, getUniqueTokens } from "~/utils/tokens.server";
 
 type LoaderData = {
   pairs: Pair[];
@@ -386,8 +386,8 @@ const ConfirmSwapModal = ({
   } = useSwap({
     inputToken: inputPairToken,
     outputToken: outputPairToken,
-    amountIn: inputValues[0],
-    amountOut: inputValues[1],
+    amountIn: inputValues[0] ?? BigNumber.from(0),
+    amountOut: inputValues[1] ?? BigNumber.from(0),
     isExactOut,
   });
 
@@ -412,12 +412,15 @@ const ConfirmSwapModal = ({
         >
           Confirm Swap
         </Dialog.Title>
-        <div className="mt-4 mb-4 flex flex-col items-center">
+        <div className="mb-4 mt-4 flex flex-col items-center">
           <div className="flex w-full justify-between rounded-md bg-night-900 p-4">
             <span className="truncate text-lg font-medium tracking-wide">
               {isExactOut
-                ? formatBigNumberOutput(inputValues[0], inputPairToken.decimals)
-                : formatBigNumberInput(inputValues[0])}
+                ? formatBigNumberOutput(
+                    inputValues[0] ?? BigNumber.from(0),
+                    inputPairToken.decimals
+                  )
+                : formatBigNumberInput(inputValues[0] ?? BigNumber.from(0))}
             </span>
             <div className="flex flex-shrink-0 items-center space-x-2 pl-2">
               <TokenLogo
@@ -435,9 +438,9 @@ const ConfirmSwapModal = ({
           <div className="flex w-full justify-between rounded-md bg-night-900 p-4">
             <span className="text-lg font-medium tracking-wide">
               {isExactOut
-                ? formatBigNumberInput(inputValues[1])
+                ? formatBigNumberInput(inputValues[1] ?? BigNumber.from(0))
                 : formatBigNumberOutput(
-                    inputValues[1],
+                    inputValues[1] ?? BigNumber.from(0),
                     outputPairToken.decimals
                   )}
             </span>

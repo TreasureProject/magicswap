@@ -1,7 +1,7 @@
-import type { GetSwapsQuery } from "~/graphql/exchange.generated";
-import type { Swap } from "~/types";
 import { exchangeSdk } from "./api";
 import { getTimeAgo } from "./date.server";
+import type { GetSwapsQuery } from "~/graphql/exchange.generated";
+import type { Swap } from "~/types";
 
 type RawSwap = GetSwapsQuery["swaps"][0];
 

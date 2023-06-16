@@ -2,6 +2,7 @@ export type EnvVar =
   | "PUBLIC_ALCHEMY_KEY"
   | "PUBLIC_NODE_ENV"
   | "PUBLIC_ENABLE_TESTNETS"
+  | "PUBLIC_WALLETCONNECT_PROJECT_ID"
   | "MAGICSWAP_API_URL";
 
 export type Env = {

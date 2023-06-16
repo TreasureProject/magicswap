@@ -1,7 +1,8 @@
-import { useBalance } from "wagmi";
-import type { AddressString, Token } from "~/types";
-import { useUser } from "~/context/userContext";
 import { Zero } from "@ethersproject/constants";
+import { useBalance } from "wagmi";
+
+import { useUser } from "~/context/userContext";
+import type { AddressString, Token } from "~/types";
 
 export const useAddressBalance = (address?: AddressString) => {
   const { address: userAddress, isConnected } = useUser();

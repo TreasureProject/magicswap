@@ -1,4 +1,5 @@
 import { arbitrum, arbitrumGoerli } from "wagmi/chains";
+
 import type { AddressString } from "./types";
 
 export enum AppContract {

@@ -1,12 +1,12 @@
+import { exchangeSdk } from "./api";
+import { getApy } from "./price";
+import { normalizeAdvancedToken } from "./tokens.server";
 import { SUPPORTED_CONTRACT_ADDRESSES } from "~/const";
 import type {
   GetSwapPairQuery,
   Pair_Filter,
 } from "~/graphql/exchange.generated";
 import type { AddressString, Optional, Pair } from "~/types";
-import { exchangeSdk } from "./api";
-import { getApy } from "./price";
-import { normalizeAdvancedToken } from "./tokens.server";
 
 type RawPair = GetSwapPairQuery["pairs"][0];
 
