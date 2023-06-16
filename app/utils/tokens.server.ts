@@ -23,6 +23,16 @@ const TOKEN_LIST = [
     name: "gFly",
     image: "/img/tokens/gfly.png",
   },
+  {
+    symbol: "VEE",
+    name: "VEE",
+    image: "/img/tokens/vee.png",
+  },
+  {
+    symbol: "ANIMA",
+    name: "ANIMA",
+    image: "/img/tokens/anima.png",
+  },
 ];
 
 const normalizeSymbol = (symbol: string) => symbol.replace("$", "");

@@ -26,7 +26,7 @@ type LoaderData = {
   pairs: Pair[];
 };
 
-export const meta: MetaFunction = () => createMetaTags("Pools | MagicSwap");
+export const meta: MetaFunction = () => createMetaTags("Pools | Magicswap");
 
 const tabs = [
   { name: "Manage Liquidity", href: "manage" },

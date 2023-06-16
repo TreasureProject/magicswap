@@ -45,8 +45,8 @@ const useErc20Approval = (
   };
 };
 
-export const usePairApproval = (pair: Pair) =>
-  useErc20Approval(pair.id, `${pair.name} LP Token`);
+export const usePairApproval = (pair: Pair, minAmount?: BigNumber) =>
+  useErc20Approval(pair.id, `${pair.name} LP Token`, minAmount);
 
 export const useTokenApproval = (token: Token, minAmount?: BigNumber) =>
   useErc20Approval(token.id, token.symbol, minAmount);

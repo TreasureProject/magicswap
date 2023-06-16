@@ -12,7 +12,7 @@ import { getLpTokenCount, getTokenCount } from "~/utils/price";
 import {
   formatBigNumberOutput,
   formatCurrency,
-  formatUsd,
+  formatUsdLong,
   toBigNumber,
   toNumber,
 } from "~/utils/number";
@@ -44,7 +44,7 @@ const tabs = [
 ] as const;
 
 export const meta: MetaFunction = ({ data }: { data: LoaderData }) =>
-  createMetaTags(`${data.pair.name} - Manage | MagicSwap`);
+  createMetaTags(`${data.pair.name} - Manage | Magicswap`);
 
 export const loader: LoaderFunction = async ({ params: { poolId } }) => {
   invariant(poolId, `poolId is required`);
@@ -128,6 +128,25 @@ const Liquidity = () => {
     addInput.isExactToken0
   );
 
+  const removeAmount =
+    removeInput && removeInput !== "." ? toBigNumber(removeInput) : Zero;
+  const removeEstimate = {
+    token0: removeAmount.gt(Zero)
+      ? getTokenCount(
+          toNumber(removeAmount),
+          pair.token0.reserve,
+          pair.totalSupply
+        )
+      : 0,
+    token1: removeAmount.gt(Zero)
+      ? getTokenCount(
+          toNumber(removeAmount),
+          pair.token1.reserve,
+          pair.totalSupply
+        )
+      : 0,
+  };
+
   const { value: token0Balance, refetch: refetchPair0 } = useTokenBalance(
     pair.token0
   );
@@ -155,7 +174,7 @@ const Liquidity = () => {
     isLoading: isLoadingLp,
     isSuccess: isSuccessLp,
     refetch: refetchLpApprovalStatus,
-  } = usePairApproval(pair);
+  } = usePairApproval(pair, removeAmount);
   const {
     addLiquidity,
     isSuccess: isAddSuccess,
@@ -166,25 +185,6 @@ const Liquidity = () => {
     isSuccess: isRemoveSuccess,
     isLoading: isRemoveLoading,
   } = useRemoveLiquidity();
-
-  const removeAmount =
-    removeInput && removeInput !== "." ? toBigNumber(removeInput) : Zero;
-  const removeEstimate = {
-    token0: removeAmount.gt(Zero)
-      ? getTokenCount(
-          toNumber(removeAmount),
-          pair.token0.reserve,
-          pair.totalSupply
-        )
-      : 0,
-    token1: removeAmount.gt(Zero)
-      ? getTokenCount(
-          toNumber(removeAmount),
-          pair.token1.reserve,
-          pair.totalSupply
-        )
-      : 0,
-  };
 
   const token0BalanceInsufficient = token0Balance.lt(addAmount.token0);
   const token1BalanceInsufficient = token1Balance.lt(addAmount.token1);
@@ -383,7 +383,7 @@ const Liquidity = () => {
                 </span>
                 <span className="text-night-200">
                   ≈{" "}
-                  {formatUsd(
+                  {formatUsdLong(
                     removeEstimate.token0 * pair.token0.priceMagic * magicUsd
                   )}
                 </span>
@@ -394,7 +394,7 @@ const Liquidity = () => {
                 </span>
                 <span className="text-night-200">
                   ={" "}
-                  {formatUsd(
+                  {formatUsdLong(
                     removeEstimate.token1 * pair.token1.priceMagic * magicUsd
                   )}
                 </span>

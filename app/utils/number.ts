@@ -42,13 +42,25 @@ export const formatUsd = (value: number) =>
     maximumFractionDigits: 2,
   })}`;
 
-export const formatUsdLong = (value: number) =>
-  `$${new Decimal(value)
-    .toSignificantDigits(4)
+export const formatUsdLong = (value: number) => {
+  let significantDigits = 4;
+  let maximumFractionDigits = 2;
+  if (value < 1) {
+    maximumFractionDigits = 3;
+    if (value < 0.01) {
+      significantDigits = 6;
+      maximumFractionDigits = 6;
+    }
+  }
+
+  return `$${new Decimal(value)
+    .toSignificantDigits(significantDigits)
     .toNumber()
     .toLocaleString("en-US", {
       minimumFractionDigits: 2,
+      maximumFractionDigits,
     })}`;
+};
 
 export const formatPercent = (
   value: number,

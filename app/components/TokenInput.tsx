@@ -2,7 +2,7 @@ import type { PairToken } from "~/types";
 import {
   formatBigNumberDisplay,
   formatBigNumberInput,
-  formatUsd,
+  formatUsdLong,
 } from "~/utils/number";
 import { TokenLogo } from "~/components/TokenLogo";
 import { usePrice } from "~/context/priceContext";
@@ -82,7 +82,7 @@ export default function TokenInput({
           <div className="pointer-events-none absolute bottom-2 right-0 flex flex-col items-end pr-3">
             <span className="text-xs text-night-500">
               ~{" "}
-              {formatUsd(
+              {formatUsdLong(
                 token.priceMagic *
                   magicUsd *
                   (parsedValue > 0 ? parsedValue : 1)

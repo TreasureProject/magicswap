@@ -51,12 +51,12 @@ export const meta: MetaFunction = ({ data, location }) => {
   const { inputToken, outputToken } = (data || {}) as LoaderData;
 
   if (!inputToken || !outputToken) {
-    return createMetaTags("404 | MagicSwap");
+    return createMetaTags("404 | Magicswap");
   }
 
   if (location.search) {
     return createMetaTags(
-      `Swap ${inputToken.symbol} to ${outputToken.symbol} | MagicSwap`
+      `Swap ${inputToken.symbol} to ${outputToken.symbol} | Magicswap`
     );
   }
 
@@ -374,7 +374,7 @@ const ConfirmSwapModal = ({
     isLoading: isApproveLoading,
     isSuccess: isApproveSuccess,
     refetch: refetchTokenApprovalStatus,
-  } = useTokenApproval(inputPairToken);
+  } = useTokenApproval(inputPairToken, inputValues[0]);
 
   const {
     amountIn: worstAmountIn,

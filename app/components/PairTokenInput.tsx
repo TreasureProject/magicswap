@@ -11,7 +11,6 @@ import type { Token } from "~/types";
 import {
   formatBigNumberDisplay,
   formatBigNumberInput,
-  formatUsd,
   formatUsdLong,
   // formatPercent
 } from "~/utils/number";
@@ -76,7 +75,7 @@ export default function PairTokenInput({
             <div className="pointer-events-none absolute left-0 bottom-2 flex flex-col items-end pl-3">
               <span className="text-xs text-night-500">
                 ~{" "}
-                {formatUsd(
+                {formatUsdLong(
                   token.priceMagic *
                     magicUsd *
                     (!parsedValue || Number.isNaN(parsedValue)
