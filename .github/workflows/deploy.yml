@@ -2,7 +2,7 @@ name: Deploy
 on:
   push:
     branches:
-      - feat/fly-io
+      - fly-io
   pull_request: {}
 jobs:
   typecheck:
