@@ -33,8 +33,8 @@ export const Graph = ({
     () =>
       scaleLinear<number>({
         domain: [
-          Math.min(data[0].x, data[data.length - 1].x),
-          Math.max(data[0].x, data[data.length - 1].x),
+          Math.min(data[0]?.x ?? 0, data[data.length - 1]?.x ?? 0),
+          Math.max(data[0]?.x ?? 0, data[data.length - 1]?.x ?? 0),
         ],
         range: [10, width - 10],
       }),

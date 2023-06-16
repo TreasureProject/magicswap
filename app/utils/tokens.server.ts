@@ -2,7 +2,13 @@ import type {
   GetSwapPairQuery,
   GetSwapPairsQuery,
 } from "~/graphql/exchange.generated";
-import type { AdvancedToken, Optional, Pair, Token } from "~/types";
+import type {
+  AddressString,
+  AdvancedToken,
+  Optional,
+  Pair,
+  Token,
+} from "~/types";
 
 type RawToken = GetSwapPairsQuery["pairs"][0]["token0"];
 type RawPairToken = GetSwapPairQuery["pairs"][0]["token0"];
@@ -46,7 +52,7 @@ export const normalizeToken = ({
 }: RawToken): Token => {
   const symbol = normalizeSymbol(rawSymbol);
   return {
-    id,
+    id: id as AddressString,
     symbol,
     isEth: symbol === "ETH" || symbol === "WETH",
     isMagic: symbol === "MAGIC",

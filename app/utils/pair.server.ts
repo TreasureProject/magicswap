@@ -1,3 +1,5 @@
+import invariant from "tiny-invariant";
+
 import { exchangeSdk } from "./api";
 import { getApy } from "./price";
 import { normalizeAdvancedToken } from "./tokens.server";
@@ -85,6 +87,8 @@ export const getPair = async (
   tokenB: string
 ): Promise<Optional<Pair>> => {
   const [token0, token1] = [tokenA, tokenB].sort();
+  invariant(token0);
+  invariant(token1);
   const {
     pairs: [pair],
   } = await exchangeSdk.getSwapPair({

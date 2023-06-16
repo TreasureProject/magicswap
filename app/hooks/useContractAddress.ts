@@ -4,5 +4,5 @@ import { useChainId } from "./useChainId";
 
 export const useContractAddress = (contract: AppContract) => {
   const chainId = useChainId();
-  return CONTRACT_ADDRESSES[chainId][contract];
+  return CONTRACT_ADDRESSES[chainId]?.[contract];
 };

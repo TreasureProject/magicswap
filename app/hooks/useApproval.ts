@@ -19,7 +19,7 @@ const useErc20Approval = (
     address: tokenId,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address ?? AddressZero, contractAddress],
+    args: [address ?? AddressZero, contractAddress as AddressString],
     enabled: !!address,
   });
 

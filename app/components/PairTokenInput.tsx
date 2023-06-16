@@ -1,13 +1,7 @@
 import type { BigNumber } from "@ethersproject/bignumber";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
-import {
-  // ArrowSmDownIcon,
-  // ArrowSmUpIcon,
-  ChevronDownIcon,
-} from "@heroicons/react/24/solid";
+import { ChevronDownIcon } from "@heroicons/react/24/solid";
 
-// import { getPrice24hChange } from "~/utils/price";
-// import { TimeIntervalLineGraph } from "./Graph";
 import { TokenLogo } from "./TokenLogo";
 import { usePrice } from "~/context/priceContext";
 import { useBlockExplorer } from "~/hooks/useBlockExplorer";
@@ -27,7 +21,6 @@ type Props = {
   locked?: boolean;
   onChange: (value: string) => void;
   onTokenClick: () => void;
-  // showPriceGraph: boolean;
 };
 
 export default function PairTokenInput({
@@ -42,8 +35,6 @@ export default function PairTokenInput({
 }: Props) {
   const { magicUsd } = usePrice();
   const blockExplorer = useBlockExplorer();
-  // const price24hChange = getPrice24hChange(token);
-  // const positive = price24hChange >= 0;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let periodMatches = 0;
