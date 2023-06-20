@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { formatCurrency, formatPercent, formatUsd } from "./number";
 
 describe("number utils", () => {

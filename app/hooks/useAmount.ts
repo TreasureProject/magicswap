@@ -1,11 +1,12 @@
+import type { BigNumber } from "@ethersproject/bignumber";
 import { Zero } from "@ethersproject/constants";
-import type { BigNumber } from "ethers";
-import { AppContract, REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
-import type { PairToken } from "~/types";
-import { toBigNumber } from "~/utils/number";
+
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
 import { useContractAddress } from "./useContractAddress";
 import { useContractRead } from "./useContractRead";
+import { AppContract, REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
+import type { PairToken } from "~/types";
+import { toBigNumber } from "~/utils/number";
 
 export const useAmount = (
   tokenIn: PairToken,
@@ -15,8 +16,8 @@ export const useAmount = (
 ) => {
   const contractAddress = useContractAddress(AppContract.Router);
   const { data = Zero } = useContractRead({
-    addressOrName: contractAddress,
-    contractInterface: UniswapV2Router02Abi,
+    address: contractAddress,
+    abi: UniswapV2Router02Abi,
     functionName: isExactOut ? "getAmountIn" : "getAmountOut",
     enabled: value.gt(Zero),
     args: [

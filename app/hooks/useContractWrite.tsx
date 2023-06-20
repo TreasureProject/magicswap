@@ -1,9 +1,10 @@
-import { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
+import toast from "react-hot-toast";
 import {
   useContractWrite as useContractWriteWagmi,
   useWaitForTransaction,
 } from "wagmi";
-import toast from "react-hot-toast";
+
 import type { Optional } from "~/types";
 
 type UseContractWriteArgs = Parameters<typeof useContractWriteWagmi>;

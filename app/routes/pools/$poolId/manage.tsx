@@ -1,14 +1,29 @@
-import { useCallback, useEffect, useState } from "react";
+import { Zero } from "@ethersproject/constants";
+import { Switch } from "@headlessui/react";
+import { CogIcon } from "@heroicons/react/24/outline";
+import { PlusIcon } from "@heroicons/react/24/solid";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldReloadFunction } from "@remix-run/react";
 import { useCatch, useLoaderData } from "@remix-run/react";
-import { PlusIcon } from "@heroicons/react/solid";
 import { Link, useParams, useSearchParams } from "@remix-run/react";
+import { useCallback, useEffect, useState } from "react";
+import { twMerge } from "tailwind-merge";
 import invariant from "tiny-invariant";
+
+import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
 import { Button } from "~/components/Button";
-import { Switch } from "@headlessui/react";
-import { getLpTokenCount, getTokenCount } from "~/utils/price";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
+import TokenInput from "~/components/TokenInput";
+import { usePrice } from "~/context/priceContext";
+import { useUser } from "~/context/userContext";
+import { usePairApproval, useTokenApproval } from "~/hooks/useApproval";
+import { useAddLiquidity, useRemoveLiquidity } from "~/hooks/useLiquidity";
+import { usePair } from "~/hooks/usePair";
+import { useQuote } from "~/hooks/useQuote";
+import { useAddressBalance, useTokenBalance } from "~/hooks/useTokenBalance";
+import type { Pair } from "~/types";
+import { createMetaTags } from "~/utils/meta";
 import {
   formatBigNumberOutput,
   formatCurrency,
@@ -17,21 +32,7 @@ import {
   toNumber,
 } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
-import type { Pair } from "~/types";
-import { useAddressBalance, useTokenBalance } from "~/hooks/useTokenBalance";
-import { useAddLiquidity, useRemoveLiquidity } from "~/hooks/useLiquidity";
-import TokenInput from "~/components/TokenInput";
-import { usePairApproval, useTokenApproval } from "~/hooks/useApproval";
-import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
-import { CogIcon } from "@heroicons/react/outline";
-import { useUser } from "~/context/userContext";
-import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
-import { usePair } from "~/hooks/usePair";
-import { usePrice } from "~/context/priceContext";
-import { createMetaTags } from "~/utils/meta";
-import { useQuote } from "~/hooks/useQuote";
-import { twMerge } from "tailwind-merge";
-import { Zero } from "@ethersproject/constants";
+import { getLpTokenCount, getTokenCount } from "~/utils/price";
 
 type LoaderData = {
   pair: Pair;
@@ -49,7 +50,7 @@ export const meta: MetaFunction = ({ data }: { data: LoaderData }) =>
 export const loader: LoaderFunction = async ({ params: { poolId } }) => {
   invariant(poolId, `poolId is required`);
 
-  const pair = await getPairById(poolId, process.env.EXCHANGE_ENDPOINT);
+  const pair = await getPairById(poolId);
 
   if (!pair) {
     throw new Response("Pool not found", {
@@ -83,7 +84,7 @@ export default function Manage() {
                   isActive
                     ? "border-ruby-500 bg-night-500/20 text-white"
                     : "border-transparent text-night-500 hover:border-night-300 hover:text-night-700",
-                  "flex-1 whitespace-nowrap border-t-2 py-3 px-4 text-center text-xs font-medium sm:flex-none sm:py-4 sm:px-8 sm:text-left sm:text-sm"
+                  "flex-1 whitespace-nowrap border-t-2 px-4 py-3 text-center text-xs font-medium sm:flex-none sm:px-8 sm:py-4 sm:text-left sm:text-sm"
                 )}
                 aria-current={isActive ? "page" : undefined}
               >

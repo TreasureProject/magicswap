@@ -1,7 +1,7 @@
-import type { GetSwapsQuery } from "~/graphql/exchange.generated";
-import type { Swap } from "~/types";
 import { exchangeSdk } from "./api";
 import { getTimeAgo } from "./date.server";
+import type { GetSwapsQuery } from "~/graphql/exchange.generated";
+import type { Swap } from "~/types";
 
 type RawSwap = GetSwapsQuery["swaps"][0];
 
@@ -32,12 +32,8 @@ const normalizeSwap = ({
   };
 };
 
-export const getSwaps = async (
-  pairId: string,
-  url: string
-): Promise<Swap[]> => {
-  const sdk = exchangeSdk(url);
-  const { swaps } = await sdk.getSwaps({
+export const getSwaps = async (pairId: string): Promise<Swap[]> => {
+  const { swaps } = await exchangeSdk.getSwaps({
     where: {
       pair: pairId,
     },

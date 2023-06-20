@@ -1,11 +1,12 @@
 import React, { createContext, useContext } from "react";
 import { useAccount, useNetwork } from "wagmi";
-import { useIsMounted } from "~/hooks";
-import type { Optional } from "~/types";
+
+import { useIsMounted } from "~/hooks/useIsMounted";
+import type { AddressString, Optional } from "~/types";
 
 const Context = createContext<{
   isConnected: boolean;
-  address: Optional<string>;
+  address: Optional<AddressString>;
   unsupported: boolean;
 } | null>(null);
 

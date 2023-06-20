@@ -31,10 +31,6 @@ npm run dev
 
 ## Contributing
 
-### Feature Requests
-
-Coming soon
-
 ### Issues/Bugs
 
 To file a bug, please create an [issue](https://github.com/TreasureProject/magicswap/issues), providing as many details as possible.
@@ -43,4 +39,4 @@ To fix a bug, please fork the repository, make changes on your fork, then create
 
 ## Deployment
 
-Merge changes to `main` branch to trigger push to [Vercel](https://vercel.com).
+Merge changes to `main` branch to trigger a production deployment.

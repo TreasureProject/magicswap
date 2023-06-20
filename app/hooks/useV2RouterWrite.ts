@@ -1,7 +1,7 @@
-import { AppContract } from "~/const";
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
 import { useContractAddress } from "./useContractAddress";
 import { useContractWrite } from "./useContractWrite";
+import { AppContract } from "~/const";
 
 export type RouterFunctionName =
   | "addLiquidity"
@@ -21,8 +21,8 @@ export const useV2RouterWrite = (
 ) => {
   const contractAddress = useContractAddress(AppContract.Router);
   return useContractWrite(statusHeader, {
-    addressOrName: contractAddress,
-    contractInterface: UniswapV2Router02Abi,
+    address: contractAddress,
+    abi: UniswapV2Router02Abi,
     mode: "recklesslyUnprepared",
     functionName,
   });

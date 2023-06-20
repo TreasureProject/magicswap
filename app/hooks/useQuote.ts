@@ -1,11 +1,12 @@
+import type { BigNumber } from "@ethersproject/bignumber";
 import { Zero } from "@ethersproject/constants";
-import type { BigNumber } from "ethers";
-import { AppContract, REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
-import type { PairToken } from "~/types";
-import { toBigNumber } from "~/utils/number";
+
 import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
 import { useContractAddress } from "./useContractAddress";
 import { useContractRead } from "./useContractRead";
+import { AppContract, REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
+import type { PairToken } from "~/types";
+import { toBigNumber } from "~/utils/number";
 
 export const useQuote = (
   token0: PairToken,
@@ -17,8 +18,8 @@ export const useQuote = (
   const tokenIn = isExactToken0 ? token0 : token1;
   const tokenOut = isExactToken0 ? token1 : token0;
   const { data = Zero } = useContractRead({
-    addressOrName: contractAddress,
-    contractInterface: UniswapV2Router02Abi,
+    address: contractAddress,
+    abi: UniswapV2Router02Abi,
     functionName: "quote",
     enabled: amount.gt(Zero),
     args: [

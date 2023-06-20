@@ -1,68 +1,56 @@
-import type {
-  LinksFunction,
-  LoaderFunction,
-  MetaFunction,
-} from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { ShouldReloadFunction } from "@remix-run/react";
+import { Transition } from "@headlessui/react";
 import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+} from "@heroicons/react/24/outline";
+import {
+  ConnectButton,
+  RainbowKitProvider,
+  connectorsForWallets,
+  darkTheme,
+  getDefaultWallets,
+} from "@rainbow-me/rainbowkit";
+import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
+import { ledgerWallet, trustWallet } from "@rainbow-me/rainbowkit/wallets";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import {
+  NavLink as Link,
   Links,
   LiveReload,
   Meta,
   Outlet,
   Scripts,
-  NavLink as Link,
-  useTransition,
   useFetchers,
   useLoaderData,
+  useTransition,
 } from "@remix-run/react";
-import { resolveValue, Toaster } from "react-hot-toast";
-import { chain, createClient, configureChains, WagmiConfig } from "wagmi";
-import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
-import {
-  ConnectButton,
-  darkTheme,
-  getDefaultWallets,
-  RainbowKitProvider,
-} from "@rainbow-me/rainbowkit";
-import { publicProvider } from "wagmi/providers/public";
+import NProgress from "nprogress";
+import React, { useState } from "react";
+import { Toaster, resolveValue } from "react-hot-toast";
+import { twMerge } from "tailwind-merge";
+import { WagmiConfig, configureChains, createClient } from "wagmi";
+import { arbitrum, arbitrumGoerli } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
-import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
+import { publicProvider } from "wagmi/providers/public";
 
-import styles from "./styles/tailwind.css";
-import React from "react";
+import MagicswapLogo from "../public/img/logo-magicswap.svg";
 import {
+  DiscordIcon,
+  GitHubIcon,
   PieIcon,
   SpinnerIcon,
   SplitIcon,
   TwitterIcon,
-  DiscordIcon,
-  GitHubIcon,
 } from "./components/Icons";
-import MagicswapLogo from "../public/img/logo-magicswap.svg";
-
-import NProgress from "nprogress";
-import nProgressStyles from "./styles/nprogress.css";
-import fontStyles from "./styles/font.css";
-
-import { UserProvider } from "./context/userContext";
 import { PriceProvider } from "./context/priceContext";
 import { SettingsProvider } from "./context/settingsContext";
-import { Transition } from "@headlessui/react";
-import {
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-} from "@heroicons/react/outline";
+import { UserProvider } from "./context/userContext";
+import fontStyles from "./styles/font.css";
+import nProgressStyles from "./styles/nprogress.css";
+import styles from "./styles/tailwind.css";
+import type { Env } from "./types";
 import { createMetaTags } from "./utils/meta";
-import { twMerge } from "tailwind-merge";
-import type { Optional } from "./types";
-
-type LoaderData = {
-  nodeEnv: typeof process.env.NODE_ENV;
-  enableTestnets: boolean;
-  alchemyKey: Optional<string>;
-  treasureRpcKey: Optional<string>;
-};
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -103,16 +91,27 @@ export const meta: MetaFunction = () => ({
   "theme-color": "#DC2626",
 });
 
-export const loader: LoaderFunction = async () => {
-  return json<LoaderData>({
-    nodeEnv: process.env.NODE_ENV,
-    enableTestnets: process.env.ENABLE_TESTNETS === "true",
-    alchemyKey: process.env.ALCHEMY_KEY,
-    treasureRpcKey: process.env.TREASURE_RPC_API_KEY,
-  });
+const strictEntries = <T extends Record<string, any>>(
+  object: T
+): [keyof T, T[keyof T]][] => {
+  return Object.entries(object);
 };
 
-export const unstable_shouldReload: ShouldReloadFunction = () => false;
+function getPublicKeys(env: Env): Env {
+  const publicKeys = {} as Env;
+  for (const [key, value] of strictEntries(env)) {
+    if (key.startsWith("PUBLIC_")) {
+      publicKeys[key] = value;
+    }
+  }
+  return publicKeys;
+}
+
+export const loader = async () => {
+  return json({
+    ENV: getPublicKeys(process.env),
+  });
+};
 
 const NavLink = ({
   to,
@@ -144,51 +143,45 @@ const NavLink = ({
 
 export default function App() {
   const transition = useTransition();
-  const { nodeEnv, enableTestnets, alchemyKey, treasureRpcKey } =
-    useLoaderData<LoaderData>();
+  const { ENV } = useLoaderData<typeof loader>();
 
-  const { chains, provider } = React.useMemo(
-    () =>
-      configureChains(
-        [...(enableTestnets ? [chain.arbitrumGoerli] : []), chain.arbitrum],
-        [
-          ...(treasureRpcKey
-            ? [
-                jsonRpcProvider({
-                  rpc: (currentChain) =>
-                    currentChain === chain.arbitrum
-                      ? {
-                          http: `https://arbitrum-rpc.treasure.lol/?t=${treasureRpcKey}`,
-                        }
-                      : null,
-                }),
-              ]
-            : []),
-          ...(alchemyKey ? [alchemyProvider({ apiKey: alchemyKey })] : []),
-          publicProvider(),
-        ]
-      ),
-    [enableTestnets, alchemyKey, treasureRpcKey]
-  );
+  const [{ client, chains }] = useState(() => {
+    const { chains, provider } = configureChains(
+      [arbitrum, ...(ENV.PUBLIC_ENABLE_TESTNETS ? [arbitrumGoerli] : [])],
+      [alchemyProvider({ apiKey: ENV.PUBLIC_ALCHEMY_KEY }), publicProvider()]
+    );
 
-  const { connectors } = React.useMemo(
-    () =>
-      getDefaultWallets({
-        appName: "Magicswap",
-        chains,
-      }),
-    [chains]
-  );
+    const { wallets } = getDefaultWallets({
+      projectId: ENV.PUBLIC_WALLETCONNECT_PROJECT_ID,
+      appName: "Magicswap",
+      chains,
+    });
 
-  const client = React.useMemo(
-    () =>
-      createClient({
-        autoConnect: true,
-        connectors,
-        provider,
-      }),
-    [connectors, provider]
-  );
+    const connectors = connectorsForWallets([
+      ...wallets,
+      {
+        groupName: "Others",
+        wallets: [
+          trustWallet({
+            projectId: ENV.PUBLIC_WALLETCONNECT_PROJECT_ID,
+            chains,
+          }),
+          ledgerWallet({
+            projectId: ENV.PUBLIC_WALLETCONNECT_PROJECT_ID,
+            chains,
+          }),
+        ],
+      },
+    ]);
+
+    const client = createClient({
+      autoConnect: true,
+      connectors,
+      provider,
+    });
+
+    return { client, chains };
+  });
 
   const fetchers = useFetchers();
 
@@ -266,7 +259,11 @@ export default function App() {
                       </div>
                       <div className="flex flex-1 items-center justify-start sm:justify-center">
                         <Link to="/">
-                          <img src={MagicswapLogo} className="h-8" />
+                          <img
+                            src={MagicswapLogo}
+                            className="h-8"
+                            alt="Magicswap"
+                          />
                         </Link>
                       </div>
                       <div className="ml-auto flex flex-1 items-center justify-end">
@@ -284,7 +281,7 @@ export default function App() {
                     <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] flex-col p-8 pt-0 sm:pt-8 xl:max-w-6xl 2xl:max-w-7xl">
                       <Outlet />
                     </div>
-                    <header className="fixed left-0 right-0 bottom-[4.5rem] z-10 px-2 sm:bottom-24">
+                    <header className="fixed bottom-[4.5rem] left-0 right-0 z-10 px-2 sm:bottom-24">
                       <div className="relative">
                         <div className="absolute left-1/2 z-10 w-full max-w-lg -translate-x-1/2 transform rounded-xl bg-night-800/40 p-2 shadow-2xl shadow-night-800/30 backdrop-blur-md 2xl:max-w-2xl">
                           <nav className="flex gap-1">
@@ -349,7 +346,7 @@ export default function App() {
           )}
         </Toaster>
         <Scripts />
-        {nodeEnv === "development" ? <LiveReload /> : null}
+        {ENV.PUBLIC_NODE_ENV === "development" ? <LiveReload /> : null}
         <script
           src="https://efficient-bloc-party.treasure.lol/script.js"
           data-site="XBZCEUKN"

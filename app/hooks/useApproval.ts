@@ -1,24 +1,25 @@
-import { MaxUint256, Zero } from "@ethersproject/constants";
+import type { BigNumber } from "@ethersproject/bignumber";
+import { AddressZero, MaxUint256, Zero } from "@ethersproject/constants";
 import { erc20ABI, useContractRead } from "wagmi";
-import type { Pair, Token } from "~/types";
-import { useContractWrite } from "./useContractWrite";
-import { useUser } from "~/context/userContext";
+
 import { useContractAddress } from "./useContractAddress";
+import { useContractWrite } from "./useContractWrite";
 import { AppContract } from "~/const";
-import type { BigNumber } from "ethers";
+import { useUser } from "~/context/userContext";
+import type { AddressString, Pair, Token } from "~/types";
 
 const useErc20Approval = (
-  tokenId: string,
+  tokenId: AddressString,
   tokenSymbol: string,
   minAmount?: BigNumber
 ) => {
   const contractAddress = useContractAddress(AppContract.Router);
   const { address } = useUser();
   const { data = Zero, refetch } = useContractRead({
-    addressOrName: tokenId,
-    contractInterface: erc20ABI,
+    address: tokenId,
+    abi: erc20ABI,
     functionName: "allowance",
-    args: [address, contractAddress],
+    args: [address ?? AddressZero, contractAddress as AddressString],
     enabled: !!address,
   });
 
@@ -27,8 +28,8 @@ const useErc20Approval = (
     isLoading,
     isSuccess,
   } = useContractWrite(`Approve ${tokenSymbol}`, {
-    addressOrName: tokenId,
-    contractInterface: erc20ABI,
+    address: tokenId,
+    abi: erc20ABI,
     mode: "recklesslyUnprepared",
     functionName: "approve",
   });

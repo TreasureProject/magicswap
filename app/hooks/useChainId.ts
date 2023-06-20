@@ -1,10 +1,11 @@
-import { chainId, useNetwork } from "wagmi";
+import { useNetwork } from "wagmi";
+import { arbitrum } from "wagmi/chains";
 
 export const useChainId = () => {
   const { chain } = useNetwork();
   if (!chain) {
-    return chainId.arbitrum;
+    return arbitrum.id;
   }
 
-  return chain.unsupported ? chainId.arbitrum : chain.id;
+  return chain.unsupported ? arbitrum.id : chain.id;
 };

@@ -2,9 +2,9 @@ import { curveBasis } from "@visx/curve";
 import { LinearGradient } from "@visx/gradient";
 import { scaleLinear } from "@visx/scale";
 import { LinePath } from "@visx/shape";
-import { useMemo } from "react";
-import { useId } from "@reach/auto-id";
+import { useId, useMemo } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
+
 import type { TimeInterval } from "~/types";
 
 type GraphDataPoint = {
@@ -33,8 +33,8 @@ export const Graph = ({
     () =>
       scaleLinear<number>({
         domain: [
-          Math.min(data[0].x, data[data.length - 1].x),
-          Math.max(data[0].x, data[data.length - 1].x),
+          Math.min(data[0]?.x ?? 0, data[data.length - 1]?.x ?? 0),
+          Math.max(data[0]?.x ?? 0, data[data.length - 1]?.x ?? 0),
         ],
         range: [10, width - 10],
       }),

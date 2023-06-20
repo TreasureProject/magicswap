@@ -1,22 +1,16 @@
-import { ExternalLinkIcon } from "@heroicons/react/outline";
-import {
-  // ArrowSmDownIcon,
-  // ArrowSmUpIcon,
-  ChevronDownIcon,
-} from "@heroicons/react/solid";
-import type { BigNumber } from "ethers";
+import type { BigNumber } from "@ethersproject/bignumber";
+import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon } from "@heroicons/react/24/solid";
+
+import { TokenLogo } from "./TokenLogo";
 import { usePrice } from "~/context/priceContext";
 import { useBlockExplorer } from "~/hooks/useBlockExplorer";
 import type { Token } from "~/types";
 import {
   formatBigNumberDisplay,
   formatBigNumberInput,
-  formatUsdLong,
-  // formatPercent
+  formatUsdLong, // formatPercent
 } from "~/utils/number";
-// import { getPrice24hChange } from "~/utils/price";
-// import { TimeIntervalLineGraph } from "./Graph";
-import { TokenLogo } from "./TokenLogo";
 
 type Props = {
   id: string;
@@ -27,7 +21,6 @@ type Props = {
   locked?: boolean;
   onChange: (value: string) => void;
   onTokenClick: () => void;
-  // showPriceGraph: boolean;
 };
 
 export default function PairTokenInput({
@@ -42,8 +35,6 @@ export default function PairTokenInput({
 }: Props) {
   const { magicUsd } = usePrice();
   const blockExplorer = useBlockExplorer();
-  // const price24hChange = getPrice24hChange(token);
-  // const positive = price24hChange >= 0;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let periodMatches = 0;
@@ -67,12 +58,12 @@ export default function PairTokenInput({
             <input
               id={id}
               type="text"
-              className="block w-full border-0 border-transparent bg-transparent pr-12 pb-6 focus:ring-0 sm:text-lg lg:text-2xl"
+              className="block w-full border-0 border-transparent bg-transparent pb-6 pr-12 focus:ring-0 sm:text-lg lg:text-2xl"
               placeholder="0.00"
               value={value === "0" ? "" : value}
               onChange={handleChange}
             />
-            <div className="pointer-events-none absolute left-0 bottom-2 flex flex-col items-end pl-3">
+            <div className="pointer-events-none absolute bottom-2 left-0 flex flex-col items-end pl-3">
               <span className="text-xs text-night-500">
                 ~{" "}
                 {formatUsdLong(
@@ -126,7 +117,7 @@ export default function PairTokenInput({
                   <>({token.name})</>
                 )}
               </span>
-              <ExternalLinkIcon className="h-3 w-3" />
+              <ArrowUpRightIcon className="h-3 w-3" />
             </a>
             <div className="flex flex-col items-end sm:flex-row sm:items-baseline">
               <p className="whitespace-nowrap text-xs font-normal text-night-300 sm:text-lg">

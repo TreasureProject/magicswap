@@ -1,6 +1,6 @@
-import type { BigNumber } from "ethers";
-import { formatUnits, parseUnits } from "ethers/lib/utils";
+import type { BigNumber } from "@ethersproject/bignumber";
 import { Decimal } from "decimal.js-light";
+import { formatUnits, parseUnits } from "ethers/lib/utils";
 
 // Avoid scientific notation
 Decimal.set({ toExpPos: 18, toExpNeg: -18 });

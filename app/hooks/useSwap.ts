@@ -1,14 +1,13 @@
-import type { BigNumber, CallOverrides } from "ethers";
+import type { BigNumber } from "@ethersproject/bignumber";
 import { useMemo, useRef } from "react";
-import { useSettings } from "~/context/settingsContext";
-import { useUser } from "~/context/userContext";
-
-import type { Optional, Token } from "~/types";
-import { formatBigNumberDisplay } from "~/utils/number";
-import { calculateAmountInMin, calculateAmountOutMin } from "~/utils/swap";
 
 import type { RouterFunctionName } from "./useV2RouterWrite";
 import { useV2RouterWrite } from "./useV2RouterWrite";
+import { useSettings } from "~/context/settingsContext";
+import { useUser } from "~/context/userContext";
+import type { Optional, Token } from "~/types";
+import { formatBigNumberDisplay } from "~/utils/number";
+import { calculateAmountInMin, calculateAmountOutMin } from "~/utils/swap";
 
 type Props = {
   inputToken: Token;
@@ -44,7 +43,7 @@ export const useSwap = ({
     : calculateAmountOutMin(rawAmountOut, slippage);
 
   const [functionName, args, overrides] = useMemo<
-    [RouterFunctionName, any, CallOverrides?]
+    [RouterFunctionName, any, any?]
   >(() => {
     if (isExactOut) {
       if (isEth) {

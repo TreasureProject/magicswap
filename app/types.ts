@@ -1,4 +1,17 @@
+export type EnvVar =
+  | "PUBLIC_ALCHEMY_KEY"
+  | "PUBLIC_NODE_ENV"
+  | "PUBLIC_ENABLE_TESTNETS"
+  | "PUBLIC_WALLETCONNECT_PROJECT_ID"
+  | "MAGICSWAP_API_URL";
+
+export type Env = {
+  [key in EnvVar]: string;
+};
+
 export type Optional<T> = T | undefined;
+
+export type AddressString = `0x${string}`;
 
 export type TimeInterval = {
   date: number;
@@ -6,7 +19,7 @@ export type TimeInterval = {
 };
 
 export type Token = {
-  id: string;
+  id: AddressString;
   symbol: string;
   isEth: boolean;
   isMagic: boolean;
@@ -29,7 +42,7 @@ export type PairToken = AdvancedToken & {
 };
 
 export type Pair = {
-  id: string;
+  id: `0x${string}`;
   name: string;
   token0: PairToken;
   token1: PairToken;
