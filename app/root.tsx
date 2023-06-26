@@ -11,7 +11,11 @@ import {
   getDefaultWallets,
 } from "@rainbow-me/rainbowkit";
 import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
-import { ledgerWallet, trustWallet } from "@rainbow-me/rainbowkit/wallets";
+import {
+  coinbaseWallet,
+  ledgerWallet,
+  trustWallet,
+} from "@rainbow-me/rainbowkit/wallets";
 import type { LinksFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
@@ -163,6 +167,10 @@ export default function App() {
         groupName: "Others",
         wallets: [
           trustWallet({
+            projectId: ENV.PUBLIC_WALLETCONNECT_PROJECT_ID,
+            chains,
+          }),
+          coinbaseWallet({
             projectId: ENV.PUBLIC_WALLETCONNECT_PROJECT_ID,
             chains,
           }),
