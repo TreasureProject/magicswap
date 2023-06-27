@@ -15,7 +15,7 @@ Create environment variables file:
 cp .env.sample .env
 ```
 
-Fill in the `ALCHEMY_KEY` environment variable with your own API key.
+Fill in the environment variables with your own API keys and enpoints.
 
 Install dependencies:
 
@@ -39,4 +39,6 @@ To fix a bug, please fork the repository, make changes on your fork, then create
 
 ## Deployment
 
-Merge changes to `main` branch to trigger a production deployment.
+Merge changes to the `main` branch to trigger a production deployment.
+
+Merge changes to the `develop` branch to trigger a staging deployment.
