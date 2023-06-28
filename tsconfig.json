@@ -9,7 +9,6 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "target": "ES2019",
-    "strict": true,
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "noUncheckedIndexedAccess": true,
