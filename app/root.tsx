@@ -352,6 +352,13 @@ export default function App() {
           data-site="XBZCEUKN"
           defer
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.process = ${JSON.stringify({
+              env: {},
+            })}`,
+          }}
+        />
       </body>
     </html>
   );
