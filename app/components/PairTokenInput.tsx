@@ -1,6 +1,7 @@
 import type { BigNumber } from "@ethersproject/bignumber";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
+import { ClientOnly } from "remix-utils";
 
 import { TokenLogo } from "./TokenLogo";
 import { usePrice } from "~/context/priceContext";
@@ -64,16 +65,20 @@ export default function PairTokenInput({
               onChange={handleChange}
             />
             <div className="pointer-events-none absolute bottom-2 left-0 flex flex-col items-end pl-3">
-              <span className="text-xs text-night-500">
-                ~{" "}
-                {formatUsdLong(
-                  token.priceMagic *
-                    magicUsd *
-                    (!parsedValue || Number.isNaN(parsedValue)
-                      ? 1
-                      : parsedValue)
+              <ClientOnly>
+                {() => (
+                  <span className="text-xs text-night-500">
+                    ~{" "}
+                    {formatUsdLong(
+                      token.priceMagic *
+                        magicUsd *
+                        (!parsedValue || Number.isNaN(parsedValue)
+                          ? 1
+                          : parsedValue)
+                    )}
+                  </span>
                 )}
-              </span>
+              </ClientOnly>
             </div>
             <div className="absolute bottom-2 right-0 flex flex-col items-end pr-3">
               <div className="relative mb-1 flex items-center space-x-1">
@@ -120,9 +125,13 @@ export default function PairTokenInput({
               <ArrowUpRightIcon className="h-3 w-3" />
             </a>
             <div className="flex flex-col items-end sm:flex-row sm:items-baseline">
-              <p className="whitespace-nowrap text-xs font-normal text-night-300 sm:text-lg">
-                {formatUsdLong(token.priceMagic * magicUsd)} USD
-              </p>
+              <ClientOnly>
+                {() => (
+                  <p className="whitespace-nowrap text-xs font-normal text-night-300 sm:text-lg">
+                    {formatUsdLong(token.priceMagic * magicUsd)} USD
+                  </p>
+                )}
+              </ClientOnly>
               {/* <p
                 className={twMerge(
                   "flex items-baseline text-[0.5rem] font-semibold sm:ml-1 sm:text-xs",

@@ -11,7 +11,6 @@ module.exports = {
     "@rainbow-me/rainbowkit",
     "@rainbow-me/rainbowkit/wallets",
     /^@?wagmi.*/,
-    /.*/,
   ],
   serverModuleFormat: "cjs",
 };
