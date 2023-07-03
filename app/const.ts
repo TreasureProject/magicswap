@@ -16,7 +16,7 @@ export const CONTRACT_ADDRESSES: Record<
 > = {
   [arbitrum.id]: {
     [AppContract.Router]: "0x23805449f91bb2d2054d9ba288fdc8f09b5eac79",
-    // [AppContract.MagicElmPair]: "0xf904469497e6a179a9d47a7b468e4be42ec56e65",
+    [AppContract.MagicElmPair]: "0x3e8fb78ec6fb60575967bb07ac64e5fa9f498a4a",
     [AppContract.MagicGflyPair]: "0x088f2bd3667f385427d9289c28725d43d4b74ab4",
     [AppContract.MagicVeePair]: "0x6210775833732f144058713c9b36de09afd1ca3b",
     [AppContract.MagicAnimaPair]: "0x7bc27907ac638dbceb74b1fb02fc154da3e15334",
