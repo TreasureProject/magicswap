@@ -8,10 +8,19 @@ import {
   RainbowKitProvider,
   connectorsForWallets,
   darkTheme,
-  getDefaultWallets,
 } from "@rainbow-me/rainbowkit";
 import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
-import { ledgerWallet, trustWallet } from "@rainbow-me/rainbowkit/wallets";
+import {
+  braveWallet,
+  coinbaseWallet,
+  injectedWallet,
+  ledgerWallet,
+  metaMaskWallet,
+  rainbowWallet,
+  safeWallet,
+  trustWallet,
+  walletConnectWallet,
+} from "@rainbow-me/rainbowkit/wallets";
 import type { LinksFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
@@ -145,32 +154,37 @@ export default function App() {
   const transition = useTransition();
   const { ENV } = useLoaderData<typeof loader>();
 
+  const projectId = ENV.PUBLIC_WALLETCONNECT_PROJECT_ID;
+
   const [{ client, chains }] = useState(() => {
     const { chains, provider } = configureChains(
       [arbitrum, ...(ENV.PUBLIC_ENABLE_TESTNETS ? [arbitrumGoerli] : [])],
       [alchemyProvider({ apiKey: ENV.PUBLIC_ALCHEMY_KEY }), publicProvider()]
     );
 
-    const { wallets } = getDefaultWallets({
-      projectId: ENV.PUBLIC_WALLETCONNECT_PROJECT_ID,
-      appName: "Magicswap",
-      chains,
-    });
-
     const connectors = connectorsForWallets([
-      ...wallets,
       {
-        groupName: "Others",
+        groupName: "Popular",
         wallets: [
+          injectedWallet({ chains }),
+          metaMaskWallet({ chains, projectId }),
+          rainbowWallet({ chains, projectId }),
+          coinbaseWallet({ appName: "Magicswap", chains }),
+          walletConnectWallet({ chains, projectId }),
+          braveWallet({ chains }),
           trustWallet({
-            projectId: ENV.PUBLIC_WALLETCONNECT_PROJECT_ID,
+            projectId,
             chains,
           }),
           ledgerWallet({
-            projectId: ENV.PUBLIC_WALLETCONNECT_PROJECT_ID,
+            projectId,
             chains,
           }),
         ],
+      },
+      {
+        groupName: "Multisig",
+        wallets: [safeWallet({ chains })],
       },
     ]);
 
