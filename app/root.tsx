@@ -1,3 +1,4 @@
+import { bloctoWallet } from "@blocto/rainbowkit-connector";
 import { Transition } from "@headlessui/react";
 import {
   CheckCircleIcon,
@@ -167,6 +168,7 @@ export default function App() {
         groupName: "Popular",
         wallets: [
           injectedWallet({ chains }),
+          bloctoWallet({ chains }),
           metaMaskWallet({ chains, projectId }),
           rainbowWallet({ chains, projectId }),
           coinbaseWallet({ appName: "Magicswap", chains }),

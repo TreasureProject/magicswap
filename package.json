@@ -26,6 +26,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@blocto/rainbowkit-connector": "^0.2.4",
     "@coinbase/wallet-sdk": "^3.7.1",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@ethersproject/bignumber": "^5.7.0",
