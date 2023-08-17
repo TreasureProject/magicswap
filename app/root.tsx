@@ -168,6 +168,8 @@ export default function App() {
         groupName: "Popular",
         wallets: [
           injectedWallet({ chains }),
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
           bloctoWallet({ chains }),
           metaMaskWallet({ chains, projectId }),
           rainbowWallet({ chains, projectId }),
