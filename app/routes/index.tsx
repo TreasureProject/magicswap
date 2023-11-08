@@ -80,7 +80,8 @@ export const loader: LoaderFunction = async ({ request }) => {
     });
   }
 
-  const outputSymbol = url.searchParams.get("output") ?? outputCookie ?? "GFLY";
+  const outputSymbol =
+    url.searchParams.get("output") ?? outputCookie ?? "ANIMA";
   const outputToken = getTokenBySymbol(tokens, outputSymbol);
   if (!outputToken) {
     throw new Response(`${outputSymbol} token not found`, {
