@@ -44,7 +44,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     name_contains: name,
   });
 
-  if (pairs.length === 1 && !params.poolId) {
+  if (pairs.length > 0 && !params.poolId) {
     return redirect(`/pools/${pairs[0]?.id}/manage`);
   }
 

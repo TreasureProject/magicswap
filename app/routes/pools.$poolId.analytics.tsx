@@ -2,10 +2,11 @@ import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
-  useCatch,
+  isRouteErrorResponse,
   useFetcher,
   useLoaderData,
   useParams,
+  useRouteError,
 } from "@remix-run/react";
 import { useEffect } from "react";
 import invariant from "tiny-invariant";
@@ -26,7 +27,7 @@ type LoaderData = {
   swaps: Swap[];
 };
 
-export const meta: MetaFunction = ({ data }: { data: LoaderData }) =>
+export const meta: MetaFunction<typeof loader> = ({ data }) =>
   createMetaTags(`${data.pair.name} - Analytics | Magicswap`);
 
 export const loader: LoaderFunction = async ({ params: { poolId } }) => {
@@ -298,10 +299,11 @@ export default function Analytics() {
   );
 }
 
-export function CatchBoundary() {
-  const caught = useCatch();
+export function ErrorBoundary() {
+  const error = useRouteError();
   const params = useParams();
-  if (caught.status === 404) {
+
+  if (isRouteErrorResponse(error) && error.status === 404) {
     return (
       <div className="flex h-full flex-col items-center justify-center">
         <p className="text-[0.6rem] text-night-500 sm:text-base">
@@ -310,5 +312,6 @@ export function CatchBoundary() {
       </div>
     );
   }
-  throw new Error(`Unhandled error: ${caught.status}`);
+
+  throw new Error(`Unhandled error: ${error}`);
 }
