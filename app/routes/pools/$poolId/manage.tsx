@@ -5,8 +5,13 @@ import { PlusIcon } from "@heroicons/react/24/solid";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldReloadFunction } from "@remix-run/react";
-import { useCatch, useLoaderData } from "@remix-run/react";
-import { Link, useParams, useSearchParams } from "@remix-run/react";
+import {
+  Link,
+  useCatch,
+  useLoaderData,
+  useParams,
+  useSearchParams,
+} from "@remix-run/react";
 import { useCallback, useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import invariant from "tiny-invariant";
@@ -84,7 +89,7 @@ export default function Manage() {
                   isActive
                     ? "border-ruby-500 bg-night-500/20 text-white"
                     : "border-transparent text-night-500 hover:border-night-300 hover:text-night-700",
-                  "flex-1 whitespace-nowrap border-t-2 px-4 py-3 text-center text-xs font-medium sm:flex-none sm:px-8 sm:py-4 sm:text-left sm:text-sm"
+                  "flex-1 whitespace-nowrap border-t-2 px-4 py-3 text-center text-xs font-medium sm:flex-none sm:px-8 sm:py-4 sm:text-left sm:text-sm",
                 )}
                 aria-current={isActive ? "page" : undefined}
               >
@@ -124,9 +129,9 @@ const Liquidity = () => {
     pair.token0,
     pair.token1,
     toBigNumber(
-      addInput.value && addInput.value !== "." ? addInput.value : "0"
+      addInput.value && addInput.value !== "." ? addInput.value : "0",
     ),
-    addInput.isExactToken0
+    addInput.isExactToken0,
   );
 
   const removeAmount =
@@ -136,23 +141,23 @@ const Liquidity = () => {
       ? getTokenCount(
           toNumber(removeAmount),
           pair.token0.reserve,
-          pair.totalSupply
+          pair.totalSupply,
         )
       : 0,
     token1: removeAmount.gt(Zero)
       ? getTokenCount(
           toNumber(removeAmount),
           pair.token1.reserve,
-          pair.totalSupply
+          pair.totalSupply,
         )
       : 0,
   };
 
   const { value: token0Balance, refetch: refetchPair0 } = useTokenBalance(
-    pair.token0
+    pair.token0,
   );
   const { value: token1Balance, refetch: refetchPair1 } = useTokenBalance(
-    pair.token1
+    pair.token1,
   );
   const { value: lpBalance, refetch: refetchLp } = useAddressBalance(pair.id);
   const {
@@ -245,7 +250,7 @@ const Liquidity = () => {
       pair,
       removeAmount,
       removeEstimate.token0,
-      removeEstimate.token1
+      removeEstimate.token1,
     );
   };
 
@@ -257,7 +262,7 @@ const Liquidity = () => {
             <span
               className={twMerge(
                 isAddLiquidity && "text-night-500",
-                "text-[0.6rem] font-bold uppercase sm:text-base"
+                "text-[0.6rem] font-bold uppercase sm:text-base",
               )}
             >
               Remove Liquidity
@@ -278,21 +283,21 @@ const Liquidity = () => {
                 aria-hidden="true"
                 className={twMerge(
                   isAddLiquidity ? "bg-ruby-900" : "bg-night-200",
-                  "pointer-events-none absolute mx-auto h-2.5 w-8 rounded-full transition-colors duration-200 ease-in-out"
+                  "pointer-events-none absolute mx-auto h-2.5 w-8 rounded-full transition-colors duration-200 ease-in-out",
                 )}
               />
               <span
                 aria-hidden="true"
                 className={twMerge(
                   isAddLiquidity ? "translate-x-5" : "translate-x-0",
-                  "pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full border border-ruby-700 bg-ruby-700 shadow ring-0 transition-transform duration-200 ease-in-out"
+                  "pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full border border-ruby-700 bg-ruby-700 shadow ring-0 transition-transform duration-200 ease-in-out",
                 )}
               />
             </Switch>
             <span
               className={twMerge(
                 !isAddLiquidity && "text-night-500",
-                "text-[0.6rem] font-bold uppercase sm:text-base"
+                "text-[0.6rem] font-bold uppercase sm:text-base",
               )}
             >
               Add Liquidity
@@ -323,7 +328,7 @@ const Liquidity = () => {
                   ? addInput.value
                   : formatBigNumberOutput(
                       addAmount.token0,
-                      pair.token0.decimals
+                      pair.token0.decimals,
                     )
               }
               onChange={(value) => setAddInput({ value, isExactToken0: true })}
@@ -340,7 +345,7 @@ const Liquidity = () => {
                 addInput.isExactToken0
                   ? formatBigNumberOutput(
                       addAmount.token1,
-                      pair.token1.decimals
+                      pair.token1.decimals,
                     )
                   : addInput.value
               }
@@ -356,8 +361,8 @@ const Liquidity = () => {
                   getLpTokenCount(
                     toNumber(addAmount.token0),
                     pair.token0.reserve,
-                    pair.totalSupply
-                  )
+                    pair.totalSupply,
+                  ),
                 )}{" "}
                 {pair.name} Pool Tokens
               </p>
@@ -385,7 +390,7 @@ const Liquidity = () => {
                 <span className="text-night-200">
                   ≈{" "}
                   {formatUsdLong(
-                    removeEstimate.token0 * pair.token0.priceMagic * magicUsd
+                    removeEstimate.token0 * pair.token0.priceMagic * magicUsd,
                   )}
                 </span>
               </div>
@@ -396,7 +401,7 @@ const Liquidity = () => {
                 <span className="text-night-200">
                   ={" "}
                   {formatUsdLong(
-                    removeEstimate.token1 * pair.token1.priceMagic * magicUsd
+                    removeEstimate.token1 * pair.token1.priceMagic * magicUsd,
                   )}
                 </span>
               </div>
@@ -483,10 +488,10 @@ const Liquidity = () => {
               {isRemoveLoading
                 ? "Removing Liquidity..."
                 : lpBalanceInsufficient
-                ? "Insufficient LP Token Balance"
-                : removeAmount.gt(Zero)
-                ? "Remove Liquidity"
-                : "Enter an Amount"}
+                  ? "Insufficient LP Token Balance"
+                  : removeAmount.gt(Zero)
+                    ? "Remove Liquidity"
+                    : "Enter an Amount"}
             </Button>
           </>
         )}

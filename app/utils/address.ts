@@ -8,5 +8,5 @@ export const truncateEthAddress = (address: string) => {
 
 export const createAddressExplorerUrl = (
   blockExplorer: string,
-  address: string
+  address: string,
 ) => `${blockExplorer}/address/${address}`;

@@ -8,7 +8,7 @@ export const calculatePriceImpact = (
   outputToken: PairToken,
   amountIn: BigNumber,
   amountOut: BigNumber,
-  isExactOut = false
+  isExactOut = false,
 ) => {
   const parsedAmountIn = toNumber(amountIn, inputToken.decimals);
   const parsedAmountOut = toNumber(amountOut, outputToken.decimals);

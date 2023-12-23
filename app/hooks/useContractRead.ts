@@ -18,7 +18,9 @@ export const useContractRead = (params: UseContractReadParams) => {
   const response = wagmiUseContractRead(wagmiParams);
   useInterval(
     response.refetch,
-    params.enabled || params.enabled === undefined ? refetchInterval : undefined
+    params.enabled || params.enabled === undefined
+      ? refetchInterval
+      : undefined,
   );
   return response;
 };
@@ -28,7 +30,9 @@ export const useContractReads = (params: UseContractReadsParams) => {
   const response = wagmiUseContractReads(wagmiParams);
   useInterval(
     response.refetch,
-    params.enabled || params.enabled === undefined ? refetchInterval : undefined
+    params.enabled || params.enabled === undefined
+      ? refetchInterval
+      : undefined,
   );
   return response;
 };

@@ -45,11 +45,11 @@ export const useContractWrite = (
           renderStatusWithHeader("Transaction in progress...", statusHeader),
           {
             id: toastId.current,
-          }
+          },
         );
       } else {
         toastId.current = toast.loading(
-          renderStatusWithHeader("Transaction in progress...", statusHeader)
+          renderStatusWithHeader("Transaction in progress...", statusHeader),
         );
       }
     } else if (transaction.status === "success") {
@@ -57,7 +57,7 @@ export const useContractWrite = (
         renderStatusWithHeader("Transaction successful", statusHeader),
         {
           id: toastId.current,
-        }
+        },
       );
     } else if (isError) {
       toast.error(renderStatusWithHeader("Transaction failed", statusHeader), {

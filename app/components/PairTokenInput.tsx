@@ -1,7 +1,7 @@
 import type { BigNumber } from "@ethersproject/bignumber";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
-import { ClientOnly } from "remix-utils";
+import { ClientOnly } from "remix-utils/client-only";
 
 import { TokenLogo } from "./TokenLogo";
 import { usePrice } from "~/context/priceContext";
@@ -74,7 +74,7 @@ export default function PairTokenInput({
                         magicUsd *
                         (!parsedValue || Number.isNaN(parsedValue)
                           ? 1
-                          : parsedValue)
+                          : parsedValue),
                     )}
                   </span>
                 )}

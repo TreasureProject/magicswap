@@ -40,7 +40,7 @@ const normalizePair = ({
   const volume1wMagic = dayData.reduce(
     (total, { volumeToken0, volumeToken1 }) =>
       total + parseFloat(token0.isMagic ? volumeToken0 : volumeToken1),
-    0
+    0,
   );
   return {
     id: id as AddressString,
@@ -64,18 +64,18 @@ const normalizePair = ({
       ({ date, volumeToken0, volumeToken1 }) => ({
         date,
         value: parseFloat(token0.isMagic ? volumeToken0 : volumeToken1),
-      })
+      }),
     ),
     volume1wMagicIntervals: dayData.map(
       ({ date, volumeToken0, volumeToken1 }) => ({
         date,
         value: parseFloat(token0.isMagic ? volumeToken0 : volumeToken1),
-      })
+      }),
     ),
     volume1dMagic: hourData.reduce(
       (total, { volumeToken0, volumeToken1 }) =>
         total + parseFloat(token0.isMagic ? volumeToken0 : volumeToken1),
-      0
+      0,
     ),
     volume1wMagic,
     apy: getApy(volume1wMagic, liquidityMagic),
@@ -84,7 +84,7 @@ const normalizePair = ({
 
 export const getPair = async (
   tokenA: string,
-  tokenB: string
+  tokenB: string,
 ): Promise<Optional<Pair>> => {
   const [token0, token1] = [tokenA, tokenB].sort();
   invariant(token0);

@@ -81,11 +81,11 @@ export const normalizeAdvancedToken = ({
     })),
     volume1dMagic: hourData.reduce(
       (total, { volumeETH }) => total + parseFloat(volumeETH),
-      0
+      0,
     ),
     volume1wMagic: dayData.reduce(
       (total, { volumeETH }) => total + parseFloat(volumeETH),
-      0
+      0,
     ),
   };
 };
@@ -111,9 +111,9 @@ export const getUniqueTokens = (pairs: Pair[]) => {
 
 export const getTokenBySymbol = (
   tokens: Token[],
-  symbol: string
+  symbol: string,
 ): Optional<Token> =>
   tokens.find(
     (token) =>
-      token.symbol.toLowerCase() === normalizeSymbol(symbol).toLowerCase()
+      token.symbol.toLowerCase() === normalizeSymbol(symbol).toLowerCase(),
   );

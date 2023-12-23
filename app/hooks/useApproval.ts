@@ -11,7 +11,7 @@ import type { AddressString, Pair, Token } from "~/types";
 const useErc20Approval = (
   tokenId: AddressString,
   tokenSymbol: string,
-  minAmount?: BigNumber
+  minAmount?: BigNumber,
 ) => {
   const contractAddress = useContractAddress(AppContract.Router);
   const { address } = useUser();

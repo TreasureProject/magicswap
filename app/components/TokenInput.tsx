@@ -86,7 +86,7 @@ export default function TokenInput({
               {formatUsdLong(
                 token.priceMagic *
                   magicUsd *
-                  (parsedValue > 0 ? parsedValue : 1)
+                  (parsedValue > 0 ? parsedValue : 1),
               )}
             </span>
           </div>

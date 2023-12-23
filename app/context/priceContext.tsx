@@ -26,7 +26,7 @@ export const PriceProvider = ({ children }: { children: ReactNode }) => {
     {
       refetchInterval: REFETCH_INTERVAL_HIGH_PRIORITY,
       select: (data) => data.magicUsd,
-    }
+    },
   );
 
   return <Context.Provider value={{ magicUsd }}>{children}</Context.Provider>;

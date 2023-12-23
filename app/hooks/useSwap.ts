@@ -30,7 +30,7 @@ export const useSwap = ({
 
   const path = useMemo(
     () => [inputToken.id, outputToken.id],
-    [inputToken.id, outputToken.id]
+    [inputToken.id, outputToken.id],
   );
   const isOutputEth = outputToken.isEth;
   const isEth = inputToken.isEth || isOutputEth;
@@ -110,7 +110,7 @@ export const useSwap = ({
 
   const { write, isError, isSuccess, isLoading } = useV2RouterWrite(
     functionName,
-    statusRef.current
+    statusRef.current,
   );
 
   return {
@@ -120,10 +120,10 @@ export const useSwap = ({
     swap: () => {
       statusRef.current = `Swap ${formatBigNumberDisplay(
         amountIn,
-        inputToken.decimals
+        inputToken.decimals,
       )} ${inputToken.symbol} to ${formatBigNumberDisplay(
         amountOut,
-        outputToken.decimals
+        outputToken.decimals,
       )} ${outputToken.symbol}`;
       write?.({
         recklesslySetUnpreparedOverrides: overrides,

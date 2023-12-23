@@ -33,7 +33,7 @@ export const NumberField = ({
               sanitizedValue > 49
                 ? "focus:border-ruby-500 focus:ring-ruby-500"
                 : "focus:border-night-500 focus:ring-night-500",
-              "block w-full rounded-md bg-night-800/60 text-sm focus:border-night-500"
+              "block w-full rounded-md bg-night-800/60 text-sm focus:border-night-500",
             )}
             placeholder={props.placeholder}
           />

@@ -12,7 +12,7 @@ export const useAmount = (
   tokenIn: PairToken,
   tokenOut: PairToken,
   value: BigNumber,
-  isExactOut: boolean
+  isExactOut: boolean,
 ) => {
   const contractAddress = useContractAddress(AppContract.Router);
   const { data = Zero } = useContractRead({

@@ -12,7 +12,7 @@ export const useQuote = (
   token0: PairToken,
   token1: PairToken,
   amount: BigNumber,
-  isExactToken0: boolean
+  isExactToken0: boolean,
 ) => {
   const contractAddress = useContractAddress(AppContract.Router);
   const tokenIn = isExactToken0 ? token0 : token1;

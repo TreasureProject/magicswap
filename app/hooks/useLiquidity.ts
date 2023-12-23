@@ -30,17 +30,17 @@ export const useRemoveLiquidity = () => {
     pair: Pair,
     lpAmount: BigNumber,
     rawToken0Amount: number,
-    rawToken1Amount: number
+    rawToken1Amount: number,
   ) => {
     const isToken1Eth = pair.token1.isEth;
 
     const token0AmountMin = calculateAmountOutMin(
       toBigNumber(rawToken0Amount),
-      slippage
+      slippage,
     );
     const token1AmountMin = calculateAmountOutMin(
       toBigNumber(rawToken1Amount),
-      slippage
+      slippage,
     );
     const transactionDeadline = (
       Math.ceil(Date.now() / 1000) +
@@ -104,7 +104,7 @@ export const useAddLiquidity = () => {
   const addLiquidity = (
     pair: Pair,
     token0Amount: BigNumber,
-    token1Amount: BigNumber
+    token1Amount: BigNumber,
   ) => {
     const isToken1Eth = pair.token1.isEth;
     const token0AmountMin = calculateAmountOutMin(token0Amount, slippage);

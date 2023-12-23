@@ -5,9 +5,14 @@ import { CogIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { ArrowDownIcon, ArrowRightIcon } from "@heroicons/react/24/solid";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useCatch, useLoaderData, useLocation } from "@remix-run/react";
-import { useCallback, useEffect } from "react";
-import { useState } from "react";
+import {
+  Link,
+  isRouteErrorResponse,
+  useLoaderData,
+  useLocation,
+  useRouteError,
+} from "@remix-run/react";
+import { useCallback, useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
@@ -56,7 +61,7 @@ export const meta: MetaFunction = ({ data, location }) => {
 
   if (location.search) {
     return createMetaTags(
-      `Swap ${inputToken.symbol} to ${outputToken.symbol} | Magicswap`
+      `Swap ${inputToken.symbol} to ${outputToken.symbol} | Magicswap`,
     );
   }
 
@@ -70,7 +75,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const pairs = await getPairs();
   const tokens = getUniqueTokens(pairs).sort((a, b) =>
-    a.symbol.localeCompare(b.symbol)
+    a.symbol.localeCompare(b.symbol),
   );
   const inputSymbol = url.searchParams.get("input") ?? inputCookie ?? "MAGIC";
   const inputToken = getTokenBySymbol(tokens, inputSymbol);
@@ -92,7 +97,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const pair = pairs.find(
     ({ token0, token1 }) =>
       (token0.id === inputToken.id || token0.id === outputToken.id) &&
-      (token1.id === inputToken.id || token1.id === outputToken.id)
+      (token1.id === inputToken.id || token1.id === outputToken.id),
   );
 
   if (!pair) {
@@ -100,7 +105,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       `${inputToken.symbol}-${outputToken.symbol} swap not allowed`,
       {
         status: 404,
-      }
+      },
     );
   }
 
@@ -113,7 +118,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       outputToken:
         pair.token0.id === outputToken.id ? pair.token0 : pair.token1,
     },
-    await saveLastPairCookie({ input: inputSymbol, output: outputSymbol })
+    await saveLastPairCookie({ input: inputSymbol, output: outputSymbol }),
   );
 };
 
@@ -156,12 +161,12 @@ export default function Index() {
         ...props,
         open: false,
       })),
-    []
+    [],
   );
 
   const handleCloseConfirmModal = useCallback(
     () => setIsOpenConfirmSwapModal(false),
-    []
+    [],
   );
 
   const handleSwapSuccess = useCallback(() => {
@@ -175,16 +180,16 @@ export default function Index() {
     inputPairToken,
     outputPairToken,
     toBigNumber(
-      swapInput.value && swapInput.value !== "." ? swapInput.value : "0"
+      swapInput.value && swapInput.value !== "." ? swapInput.value : "0",
     ),
-    swapInput.isExactOut
+    swapInput.isExactOut,
   );
   const priceImpact = calculatePriceImpact(
     inputPairToken,
     outputPairToken,
     swapAmount.in,
     swapAmount.out,
-    swapInput.isExactOut
+    swapInput.isExactOut,
   );
   const insufficientBalance = inputTokenBalance.lt(swapAmount.in);
 
@@ -266,7 +271,7 @@ export default function Index() {
                 swapInput.isExactOut
                   ? formatBigNumberOutput(
                       swapAmount.in,
-                      inputPairToken.decimals
+                      inputPairToken.decimals,
                     )
                   : swapInput.value
               }
@@ -299,7 +304,7 @@ export default function Index() {
                   ? swapInput.value
                   : formatBigNumberOutput(
                       swapAmount.out,
-                      outputPairToken.decimals
+                      outputPairToken.decimals,
                     )
               }
               locked={outputPairToken.isMagic}
@@ -327,8 +332,8 @@ export default function Index() {
             {insufficientBalance
               ? "Insufficient Balance"
               : swapAmount.in.gt(Zero) && swapAmount.out.gt(Zero)
-              ? "Swap"
-              : "Enter an Amount"}
+                ? "Swap"
+                : "Enter an Amount"}
           </Button>
         </div>
       </div>
@@ -419,7 +424,7 @@ const ConfirmSwapModal = ({
               {isExactOut
                 ? formatBigNumberOutput(
                     inputValues[0] ?? BigNumber.from(0),
-                    inputPairToken.decimals
+                    inputPairToken.decimals,
                   )
                 : formatBigNumberInput(inputValues[0] ?? BigNumber.from(0))}
             </span>
@@ -442,7 +447,7 @@ const ConfirmSwapModal = ({
                 ? formatBigNumberInput(inputValues[1] ?? BigNumber.from(0))
                 : formatBigNumberOutput(
                     inputValues[1] ?? BigNumber.from(0),
-                    outputPairToken.decimals
+                    outputPairToken.decimals,
                   )}
             </span>
             <div className="flex items-center space-x-2 pl-2">
@@ -542,8 +547,8 @@ const ConfirmSwapModal = ({
                 ? "Swapping..."
                 : "Confirm Swap"
               : isApproveLoading
-              ? `Approving ${inputPairToken.symbol}...`
-              : `Approve ${inputPairToken.symbol}`}
+                ? `Approving ${inputPairToken.symbol}...`
+                : `Approve ${inputPairToken.symbol}`}
           </Button>
         </div>
       </div>
@@ -569,7 +574,7 @@ const TokenSelectionModal = ({
   const filteredTokens = loaderData.tokens.filter(
     (token) =>
       token.symbol.toLowerCase().includes(searchString.toLowerCase()) ||
-      token.name.toLowerCase().includes(searchString.toLowerCase())
+      token.name.toLowerCase().includes(searchString.toLowerCase()),
   );
 
   const currentToken =
@@ -629,7 +634,7 @@ const TokenSelectionModal = ({
                     isDisabled
                       ? "pointer-events-none opacity-20"
                       : "hover:bg-night-800/40",
-                    "relative flex items-center space-x-3 px-6 py-5 transition duration-150 ease-in-out focus-within:ring-2 focus-within:ring-inset focus-within:ring-ruby-500"
+                    "relative flex items-center space-x-3 px-6 py-5 transition duration-150 ease-in-out focus-within:ring-2 focus-within:ring-inset focus-within:ring-ruby-500",
                   )}
                 >
                   <div className="flex-shrink-0">
@@ -680,16 +685,19 @@ const TokenSelectionModal = ({
   );
 };
 
-export function CatchBoundary() {
-  const caught = useCatch();
-  if (caught.status === 404) {
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  // when true, this is what used to go to `CatchBoundary`
+  if (isRouteErrorResponse(error)) {
     return (
       <div className="flex h-full flex-col items-center justify-center">
         <p className="text-[0.6rem] text-night-500 sm:text-base">
-          {caught.data}
+          {error.data.message}
         </p>
       </div>
     );
   }
-  throw new Error(`Unhandled error: ${caught.status}`);
+
+  throw new Error(`Unhandled error: ${error}`);
 }

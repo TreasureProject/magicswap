@@ -10,7 +10,7 @@ import type { AddressString, Pair } from "~/types";
 const usePairReserves = (
   id: AddressString,
   token0Decimals = 18,
-  token1Decimals = 18
+  token1Decimals = 18,
 ) => {
   const { data: pairData } = useContractRead({
     address: id,
@@ -40,7 +40,7 @@ export const usePair = (pair: Pair) => {
   const { reserve0, reserve1 } = usePairReserves(
     pair.id,
     pair.token0.decimals,
-    pair.token1.decimals
+    pair.token1.decimals,
   );
 
   const nextPair = { ...pair };

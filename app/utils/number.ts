@@ -65,7 +65,7 @@ export const formatUsdLong = (value: number) => {
 export const formatPercent = (
   value: number,
   minimumFractionDigits = 0,
-  maximumFractionDigits = 2
+  maximumFractionDigits = 2,
 ) =>
   `${(value * 100).toLocaleString("en-US", {
     minimumFractionDigits,

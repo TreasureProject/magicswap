@@ -31,7 +31,7 @@ export const CONTRACT_ADDRESSES: Record<
 };
 
 export const SUPPORTED_CONTRACT_ADDRESSES = Object.entries(
-  CONTRACT_ADDRESSES
+  CONTRACT_ADDRESSES,
 ).flatMap(([, contracts]) => Object.values(contracts));
 
 export const REFETCH_INTERVAL_HIGH_PRIORITY = 2_500;

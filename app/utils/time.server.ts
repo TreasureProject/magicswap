@@ -10,7 +10,7 @@ import {
 
 export const getOneDayFilter = () => {
   const date = startOfSecond(
-    startOfMinute(startOfHour(subDays(Date.now(), 1)))
+    startOfMinute(startOfHour(subDays(Date.now(), 1))),
   );
   const start = getUnixTime(date);
   const end = getUnixTime(addSeconds(date, 600));
@@ -22,7 +22,7 @@ export const getOneDayFilter = () => {
 
 export const getOneWeekFilter = () => {
   const date = startOfSecond(
-    startOfMinute(startOfHour(subWeeks(Date.now(), 1)))
+    startOfMinute(startOfHour(subWeeks(Date.now(), 1))),
   );
   const start = getUnixTime(date);
   const end = getUnixTime(addSeconds(date, 600));

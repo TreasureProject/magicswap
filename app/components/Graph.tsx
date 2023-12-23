@@ -38,7 +38,7 @@ export const Graph = ({
         ],
         range: [10, width - 10],
       }),
-    [data, width]
+    [data, width],
   );
 
   const yScale = useMemo(() => {

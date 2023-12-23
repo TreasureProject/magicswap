@@ -10,7 +10,7 @@ import {
   connectorsForWallets,
   darkTheme,
 } from "@rainbow-me/rainbowkit";
-import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
+import "@rainbow-me/rainbowkit/styles.css";
 import {
   braveWallet,
   coinbaseWallet,
@@ -23,7 +23,6 @@ import {
   walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import type { LinksFunction, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import {
   NavLink as Link,
   Links,
@@ -31,9 +30,9 @@ import {
   Meta,
   Outlet,
   Scripts,
+  ScrollRestoration,
   useFetchers,
-  useLoaderData,
-  useTransition,
+  useNavigation,
 } from "@remix-run/react";
 import NProgress from "nprogress";
 import React, { useState } from "react";
@@ -56,17 +55,12 @@ import {
 import { PriceProvider } from "./context/priceContext";
 import { SettingsProvider } from "./context/settingsContext";
 import { UserProvider } from "./context/userContext";
-import fontStyles from "./styles/font.css";
-import nProgressStyles from "./styles/nprogress.css";
-import styles from "./styles/tailwind.css";
-import type { Env } from "./types";
+import "./styles/font.css";
+import "./styles/nprogress.css";
+import "./styles/tailwind.css";
 import { createMetaTags } from "./utils/meta";
 
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: styles },
-  { rel: "stylesheet", href: nProgressStyles },
-  { rel: "stylesheet", href: rainbowStyles },
-  { rel: "stylesheet", href: fontStyles },
   {
     rel: "icon",
     type: "image/png",
@@ -90,38 +84,29 @@ export const links: LinksFunction = () => [
   { rel: "shortcut icon", href: "/img/favicon.ico" },
 ];
 
-export const meta: MetaFunction = () => ({
+export const meta: MetaFunction = () => [
   ...createMetaTags("Swap | Magicswap"),
-  charset: "utf-8",
-  viewport: "width=device-width,initial-scale=1",
-  "apple-mobile-web-app-title": "Magicswap",
-  "application-name": "Magicswap",
-  "msapplication-TileColor": "#DC2626",
-  "msapplication-config": "/browserconfig.xml",
-  "theme-color": "#DC2626",
-});
-
-const strictEntries = <T extends Record<string, any>>(
-  object: T
-): [keyof T, T[keyof T]][] => {
-  return Object.entries(object);
-};
-
-function getPublicKeys(env: Env): Env {
-  const publicKeys = {} as Env;
-  for (const [key, value] of strictEntries(env)) {
-    if (key.startsWith("PUBLIC_")) {
-      publicKeys[key] = value;
-    }
-  }
-  return publicKeys;
-}
-
-export const loader = async () => {
-  return json({
-    ENV: getPublicKeys(process.env),
-  });
-};
+  {
+    name: "apple-mobile-web-app-title",
+    content: "Magicswap",
+  },
+  {
+    name: "application-name",
+    content: "Magicswap",
+  },
+  {
+    name: "msapplication-TileColor",
+    content: "#DC2626",
+  },
+  {
+    name: "msapplication-config",
+    content: "/browserconfig.xml",
+  },
+  {
+    name: "theme-color",
+    content: "#DC2626",
+  },
+];
 
 const NavLink = ({
   to,
@@ -140,7 +125,7 @@ const NavLink = ({
             "flex flex-1 items-center justify-center space-x-6 rounded-lg px-4 py-3 text-base font-medium tracking-wide 2xl:px-8 2xl:py-4 2xl:text-base",
             isActive
               ? "bg-night-900 text-white"
-              : "text-night-500 hover:bg-night-700/10 hover:text-night-500"
+              : "text-night-500 hover:bg-night-700/10 hover:text-night-500",
           )}
         >
           <Icon className={twMerge("h-6 w-6", isActive && "fill-ruby-500")} />
@@ -152,15 +137,22 @@ const NavLink = ({
 };
 
 export default function App() {
-  const transition = useTransition();
-  const { ENV } = useLoaderData<typeof loader>();
+  const navigation = useNavigation();
 
-  const projectId = ENV.PUBLIC_WALLETCONNECT_PROJECT_ID;
+  const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID;
 
   const [{ client, chains }] = useState(() => {
     const { chains, provider } = configureChains(
-      [arbitrum, ...(ENV.PUBLIC_ENABLE_TESTNETS ? [arbitrumGoerli] : [])],
-      [alchemyProvider({ apiKey: ENV.PUBLIC_ALCHEMY_KEY }), publicProvider()]
+      [
+        arbitrum,
+        ...(import.meta.env.VITE_ENABLE_TESTNETS === "true"
+          ? [arbitrumGoerli]
+          : []),
+      ],
+      [
+        alchemyProvider({ apiKey: import.meta.env.VITE_ALCHEMY_KEY }),
+        publicProvider(),
+      ],
     );
 
     const connectors = connectorsForWallets([
@@ -206,24 +198,26 @@ export default function App() {
   const state = React.useMemo<"idle" | "loading">(
     function getGlobalState() {
       const states = [
-        transition.state,
+        navigation.state,
         ...fetchers.map((fetcher) => fetcher.state),
       ];
       if (states.every((state) => state === "idle")) return "idle";
       return "loading";
     },
-    [transition.state, fetchers]
+    [navigation.state, fetchers],
   );
 
   // slim loading bars on top of the page, for page transitions
   React.useEffect(() => {
     if (state === "loading") NProgress.start();
     if (state === "idle") NProgress.done();
-  }, [state, transition.state]);
+  }, [state, navigation.state]);
 
   return (
     <html lang="en">
       <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
       </head>
@@ -363,19 +357,13 @@ export default function App() {
             </Transition>
           )}
         </Toaster>
+        <ScrollRestoration />
+        <LiveReload />
         <Scripts />
-        {ENV.PUBLIC_NODE_ENV === "development" ? <LiveReload /> : null}
         <script
           src="https://efficient-bloc-party.treasure.lol/script.js"
           data-site="XBZCEUKN"
           defer
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.process = ${JSON.stringify({
-              env: {},
-            })}`,
-          }}
         />
       </body>
     </html>

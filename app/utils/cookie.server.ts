@@ -16,7 +16,7 @@ export const getCookie = async (request: Request, type: MagicswapCookie) => {
 
 export const saveCookie = async (
   type: MagicswapCookie,
-  value: string | object
+  value: string | object,
 ) => {
   const cookie = createCookie(type, { httpOnly: true, secure: true });
   return {
@@ -27,7 +27,7 @@ export const saveCookie = async (
 };
 
 export const getLastPairCookie = async (
-  request: Request
+  request: Request,
 ): Promise<LastPairCookie | null> =>
   getCookie(request, MagicswapCookie.LastPair);
 

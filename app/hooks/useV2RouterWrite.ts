@@ -17,7 +17,7 @@ export type RouterFunctionName =
 
 export const useV2RouterWrite = (
   functionName: RouterFunctionName,
-  statusHeader?: string
+  statusHeader?: string,
 ) => {
   const contractAddress = useContractAddress(AppContract.Router);
   return useContractWrite(statusHeader, {

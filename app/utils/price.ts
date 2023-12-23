@@ -15,13 +15,13 @@ export const getApy = (volume: number, liquidity: number) =>
 export const getLpTokenCount = (
   tokenCount: number,
   tokenReserve: number,
-  lpTotalSupply: number
+  lpTotalSupply: number,
 ) => (tokenReserve > 0 ? (tokenCount / tokenReserve) * lpTotalSupply : 0);
 
 export const getTokenCount = (
   lpCount: number,
   tokenReserve: number,
-  lpTotalSupply: number
+  lpTotalSupply: number,
 ) => (lpTotalSupply > 0 ? (lpCount / lpTotalSupply) * tokenReserve : 0);
 
 export const fetchMagicPrice = async (): Promise<{
