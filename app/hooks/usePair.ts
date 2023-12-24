@@ -1,8 +1,8 @@
-import type { BigNumber } from "@ethersproject/bignumber";
-import { formatUnits } from "ethers/lib/utils";
+import { uniswapV2PairABI } from "artifacts/uniswapV2PairABI";
+import { formatUnits } from "viem";
+import { useContractRead } from "wagmi";
 
-import UniswapV2PairAbi from "../../artifacts/UniswapV2Pair.json";
-import { useContractRead } from "./useContractRead";
+import { useInterval } from "./useInterval";
 import { REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
 import type { AddressString, Pair } from "~/types";
 
@@ -12,12 +12,13 @@ const usePairReserves = (
   token0Decimals = 18,
   token1Decimals = 18,
 ) => {
-  const { data: pairData } = useContractRead({
+  const { data: pairData, refetch } = useContractRead({
     address: id,
-    abi: UniswapV2PairAbi,
+    abi: uniswapV2PairABI,
     functionName: "getReserves",
-    refetchInterval: REFETCH_INTERVAL_HIGH_PRIORITY,
   });
+
+  useInterval(refetch, REFETCH_INTERVAL_HIGH_PRIORITY);
 
   const reserves = {
     id,
@@ -26,7 +27,7 @@ const usePairReserves = (
   };
 
   if (pairData) {
-    const [rawReserve0, rawReserve1] = pairData as [BigNumber, BigNumber];
+    const [rawReserve0, rawReserve1] = pairData;
     reserves.reserve0 = parseFloat(formatUnits(rawReserve0, token0Decimals));
     reserves.reserve1 = parseFloat(formatUnits(rawReserve1, token1Decimals));
   }

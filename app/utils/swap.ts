@@ -1,13 +1,11 @@
-import type { BigNumber } from "@ethersproject/bignumber";
-
 import { toNumber } from "./number";
 import type { PairToken } from "~/types";
 
 export const calculatePriceImpact = (
   inputToken: PairToken,
   outputToken: PairToken,
-  amountIn: BigNumber,
-  amountOut: BigNumber,
+  amountIn: bigint,
+  amountOut: bigint,
   isExactOut = false,
 ) => {
   const parsedAmountIn = toNumber(amountIn, inputToken.decimals);
@@ -17,8 +15,8 @@ export const calculatePriceImpact = (
     : 1 - parsedAmountOut / (parsedAmountIn * outputToken.price);
 };
 
-export const calculateAmountInMin = (amountIn: BigNumber, slippage: number) =>
-  amountIn.add(amountIn.mul(slippage * 1000).div(1000));
+export const calculateAmountInMin = (amountIn: bigint, slippage: number) =>
+  amountIn + (amountIn * BigInt(slippage * 1000)) / 1000n;
 
-export const calculateAmountOutMin = (amountOut: BigNumber, slippage: number) =>
-  amountOut.sub(amountOut.mul(slippage * 1000).div(1000));
+export const calculateAmountOutMin = (amountOut: bigint, slippage: number) =>
+  amountOut - (amountOut * BigInt(slippage * 1000)) / 1000n;

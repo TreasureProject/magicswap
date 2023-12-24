@@ -1,4 +1,3 @@
-import { bloctoWallet } from "@blocto/rainbowkit-connector";
 import { Transition } from "@headlessui/react";
 import {
   CheckCircleIcon,
@@ -7,21 +6,8 @@ import {
 import {
   ConnectButton,
   RainbowKitProvider,
-  connectorsForWallets,
   darkTheme,
 } from "@rainbow-me/rainbowkit";
-import "@rainbow-me/rainbowkit/styles.css";
-import {
-  braveWallet,
-  coinbaseWallet,
-  injectedWallet,
-  ledgerWallet,
-  metaMaskWallet,
-  rainbowWallet,
-  safeWallet,
-  trustWallet,
-  walletConnectWallet,
-} from "@rainbow-me/rainbowkit/wallets";
 import type { LinksFunction, MetaFunction } from "@remix-run/node";
 import {
   NavLink as Link,
@@ -35,13 +21,10 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import NProgress from "nprogress";
-import React, { useState } from "react";
+import { Fragment, useEffect, useMemo } from "react";
 import { Toaster, resolveValue } from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
-import { WagmiConfig, configureChains, createClient } from "wagmi";
-import { arbitrum, arbitrumGoerli } from "wagmi/chains";
-import { alchemyProvider } from "wagmi/providers/alchemy";
-import { publicProvider } from "wagmi/providers/public";
+import { WagmiConfig } from "wagmi";
 
 import MagicswapLogo from "../public/img/logo-magicswap.svg";
 import {
@@ -59,6 +42,7 @@ import "./styles/font.css";
 import "./styles/nprogress.css";
 import "./styles/tailwind.css";
 import { createMetaTags } from "./utils/meta";
+import { createWagmiConfig } from "./utils/wagmi";
 
 export const links: LinksFunction = () => [
   {
@@ -136,66 +120,14 @@ const NavLink = ({
   );
 };
 
+const { chains, config: wagmiConfig } = createWagmiConfig();
+
 export default function App() {
   const navigation = useNavigation();
 
-  const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID;
-
-  const [{ client, chains }] = useState(() => {
-    const { chains, provider } = configureChains(
-      [
-        arbitrum,
-        ...(import.meta.env.VITE_ENABLE_TESTNETS === "true"
-          ? [arbitrumGoerli]
-          : []),
-      ],
-      [
-        alchemyProvider({ apiKey: import.meta.env.VITE_ALCHEMY_KEY }),
-        publicProvider(),
-      ],
-    );
-
-    const connectors = connectorsForWallets([
-      {
-        groupName: "Popular",
-        wallets: [
-          injectedWallet({ chains }),
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
-          bloctoWallet({ chains }),
-          metaMaskWallet({ chains, projectId }),
-          rainbowWallet({ chains, projectId }),
-          coinbaseWallet({ appName: "Magicswap", chains }),
-          walletConnectWallet({ chains, projectId }),
-          braveWallet({ chains }),
-          trustWallet({
-            projectId,
-            chains,
-          }),
-          ledgerWallet({
-            projectId,
-            chains,
-          }),
-        ],
-      },
-      {
-        groupName: "Multisig",
-        wallets: [safeWallet({ chains })],
-      },
-    ]);
-
-    const client = createClient({
-      autoConnect: true,
-      connectors,
-      provider,
-    });
-
-    return { client, chains };
-  });
-
   const fetchers = useFetchers();
 
-  const state = React.useMemo<"idle" | "loading">(
+  const state = useMemo<"idle" | "loading">(
     function getGlobalState() {
       const states = [
         navigation.state,
@@ -208,7 +140,7 @@ export default function App() {
   );
 
   // slim loading bars on top of the page, for page transitions
-  React.useEffect(() => {
+  useEffect(() => {
     if (state === "loading") NProgress.start();
     if (state === "idle") NProgress.done();
   }, [state, navigation.state]);
@@ -223,7 +155,7 @@ export default function App() {
       </head>
       <body className="bg-night-900 text-white antialiased">
         <div className="border-2 border-t border-ruby-900" />
-        <WagmiConfig client={client}>
+        <WagmiConfig config={wagmiConfig}>
           <RainbowKitProvider
             appInfo={{
               appName: "Magicswap",
@@ -313,7 +245,7 @@ export default function App() {
           {(t) => (
             <Transition
               show={t.visible}
-              as={React.Fragment}
+              as={Fragment}
               enter="transform ease-out duration-300 transition"
               enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
               enterTo="translate-y-0 opacity-100 sm:translate-x-0"

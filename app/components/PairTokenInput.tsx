@@ -1,4 +1,3 @@
-import type { BigNumber } from "@ethersproject/bignumber";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { ClientOnly } from "remix-utils/client-only";
@@ -8,8 +7,8 @@ import { usePrice } from "~/context/priceContext";
 import { useBlockExplorer } from "~/hooks/useBlockExplorer";
 import type { Token } from "~/types";
 import {
-  formatBigNumberDisplay,
-  formatBigNumberInput,
+  formatBigIntDisplay,
+  formatBigIntInput,
   formatUsdLong, // formatPercent
 } from "~/utils/number";
 
@@ -17,7 +16,7 @@ type Props = {
   id: string;
   label: string;
   token: Token;
-  balance: BigNumber;
+  balance: bigint;
   value: string;
   locked?: boolean;
   onChange: (value: string) => void;
@@ -98,10 +97,10 @@ export default function PairTokenInput({
               <span
                 className="cursor-pointer text-xs text-night-500"
                 onClick={() =>
-                  onChange(formatBigNumberInput(balance, token.decimals))
+                  onChange(formatBigIntInput(balance, token.decimals))
                 }
               >
-                Balance: {formatBigNumberDisplay(balance, token.decimals)}
+                Balance: {formatBigIntDisplay(balance, token.decimals)}
               </span>
             </div>
           </div>

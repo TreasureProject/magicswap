@@ -1,35 +1,41 @@
-import type { BigNumber } from "@ethersproject/bignumber";
-import { Zero } from "@ethersproject/constants";
+import { uniswapV2Router02ABI } from "artifacts/uniswapV2Router02ABI";
+import { useCallback } from "react";
+import { useContractRead } from "wagmi";
 
-import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
-import { useContractAddress } from "./useContractAddress";
-import { useContractRead } from "./useContractRead";
-import { AppContract, REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
+import { useContractAddresses } from "./useContractAddresses";
+import { useInterval } from "./useInterval";
+import { REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
 import type { PairToken } from "~/types";
-import { toBigNumber } from "~/utils/number";
+import { toBigInt } from "~/utils/number";
 
 export const useAmount = (
   tokenIn: PairToken,
   tokenOut: PairToken,
-  value: BigNumber,
+  value: bigint,
   isExactOut: boolean,
 ) => {
-  const contractAddress = useContractAddress(AppContract.Router);
-  const { data = Zero } = useContractRead({
-    address: contractAddress,
-    abi: UniswapV2Router02Abi,
+  const enabled = value > 0;
+  const { data = 0n, refetch } = useContractRead({
+    address: useContractAddresses().Router,
+    abi: uniswapV2Router02ABI,
     functionName: isExactOut ? "getAmountIn" : "getAmountOut",
-    enabled: value.gt(Zero),
     args: [
       value,
-      toBigNumber(tokenIn.reserve, tokenIn.decimals),
-      toBigNumber(tokenOut.reserve, tokenOut.decimals),
+      toBigInt(tokenIn.reserve, tokenIn.decimals),
+      toBigInt(tokenOut.reserve, tokenOut.decimals),
     ],
-    refetchInterval: REFETCH_INTERVAL_HIGH_PRIORITY,
+    enabled,
   });
-  const result = data as BigNumber;
+  useInterval(
+    useCallback(() => {
+      if (enabled) {
+        refetch();
+      }
+    }, [refetch, enabled]),
+    REFETCH_INTERVAL_HIGH_PRIORITY,
+  );
   return {
-    in: isExactOut ? result : value,
-    out: isExactOut ? value : result,
+    in: isExactOut ? data : value,
+    out: isExactOut ? value : data,
   };
 };

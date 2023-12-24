@@ -1,5 +1,3 @@
-import type { AdvancedToken } from "~/types";
-
 export const LIQUIDITY_PROVIDER_FEE = 0.0225;
 export const COMMUNITY_GAME_FUND = 0.00375;
 export const COMMUNITY_ECO_FUND = 0.00375;

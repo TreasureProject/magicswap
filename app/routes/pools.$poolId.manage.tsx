@@ -1,4 +1,3 @@
-import { Zero } from "@ethersproject/constants";
 import { Switch } from "@headlessui/react";
 import { CogIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/24/solid";
@@ -22,18 +21,19 @@ import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
 import TokenInput from "~/components/TokenInput";
 import { usePrice } from "~/context/priceContext";
 import { useUser } from "~/context/userContext";
+import { useAddLiquidity } from "~/hooks/useAddLiquidity";
 import { usePairApproval, useTokenApproval } from "~/hooks/useApproval";
-import { useAddLiquidity, useRemoveLiquidity } from "~/hooks/useLiquidity";
 import { usePair } from "~/hooks/usePair";
 import { useQuote } from "~/hooks/useQuote";
+import { useRemoveLiquidity } from "~/hooks/useRemoveLiquidity";
 import { useAddressBalance, useTokenBalance } from "~/hooks/useTokenBalance";
 import type { Pair } from "~/types";
 import { createMetaTags } from "~/utils/meta";
 import {
-  formatBigNumberOutput,
+  formatBigIntOutput,
   formatCurrency,
   formatUsdLong,
-  toBigNumber,
+  toBigInt,
   toNumber,
 } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
@@ -126,29 +126,29 @@ const Liquidity = () => {
   const addAmount = useQuote(
     pair.token0,
     pair.token1,
-    toBigNumber(
-      addInput.value && addInput.value !== "." ? addInput.value : "0",
-    ),
+    toBigInt(addInput.value && addInput.value !== "." ? addInput.value : "0"),
     addInput.isExactToken0,
   );
 
   const removeAmount =
-    removeInput && removeInput !== "." ? toBigNumber(removeInput) : Zero;
+    removeInput && removeInput !== "." ? toBigInt(removeInput) : 0n;
   const removeEstimate = {
-    token0: removeAmount.gt(Zero)
-      ? getTokenCount(
-          toNumber(removeAmount),
-          pair.token0.reserve,
-          pair.totalSupply,
-        )
-      : 0,
-    token1: removeAmount.gt(Zero)
-      ? getTokenCount(
-          toNumber(removeAmount),
-          pair.token1.reserve,
-          pair.totalSupply,
-        )
-      : 0,
+    token0:
+      removeAmount > 0
+        ? getTokenCount(
+            toNumber(removeAmount),
+            pair.token0.reserve,
+            pair.totalSupply,
+          )
+        : 0,
+    token1:
+      removeAmount > 0
+        ? getTokenCount(
+            toNumber(removeAmount),
+            pair.token1.reserve,
+            pair.totalSupply,
+          )
+        : 0,
   };
 
   const { value: token0Balance, refetch: refetchPair0 } = useTokenBalance(
@@ -162,39 +162,64 @@ const Liquidity = () => {
     isApproved: isToken0Approved,
     approve: approveToken0,
     isLoading: isLoadingToken0,
-    isSuccess: isSuccessToken0,
     refetch: refetchToken0ApprovalStatus,
-  } = useTokenApproval(pair.token0, addAmount.token0);
+  } = useTokenApproval({
+    token: pair.token0,
+    amount: addAmount.token0,
+    onSuccess: () => {
+      refetchTokensApprovalStatus();
+    },
+  });
   const {
     isApproved: isToken1Approved,
     approve: approveToken1,
     isLoading: isLoadingToken1,
-    isSuccess: isSuccessToken1,
     refetch: refetchToken1ApprovalStatus,
-  } = useTokenApproval(pair.token1, addAmount.token1);
+  } = useTokenApproval({
+    token: pair.token1,
+    amount: addAmount.token1,
+    onSuccess: () => {
+      refetchTokensApprovalStatus();
+    },
+  });
   const {
     isApproved: isLpApproved,
     approve: approveLp,
     isLoading: isLoadingLp,
-    isSuccess: isSuccessLp,
     refetch: refetchLpApprovalStatus,
-  } = usePairApproval(pair, removeAmount);
-  const {
-    addLiquidity,
-    isSuccess: isAddSuccess,
-    isLoading: isAddLoading,
-  } = useAddLiquidity();
-  const {
-    removeLiquidity,
-    isSuccess: isRemoveSuccess,
-    isLoading: isRemoveLoading,
-  } = useRemoveLiquidity();
+  } = usePairApproval({
+    pair,
+    amount: removeAmount,
+    onSuccess: () => {
+      refetchTokensApprovalStatus();
+    },
+  });
 
-  const token0BalanceInsufficient = token0Balance.lt(addAmount.token0);
-  const token1BalanceInsufficient = token1Balance.lt(addAmount.token1);
+  const { addLiquidity, isLoading: isAddLoading } = useAddLiquidity({
+    pair,
+    token0Amount: addAmount.token0,
+    token1Amount: addAmount.token1,
+    enabled: isToken0Approved && isToken1Approved,
+    onSuccess: () => {
+      resetInputs();
+    },
+  });
+
+  const { removeLiquidity, isLoading: isRemoveLoading } = useRemoveLiquidity({
+    pair,
+    amount: removeAmount,
+    token0Amount: toBigInt(removeEstimate.token0, pair.token0.decimals),
+    token1Amount: toBigInt(removeEstimate.token1, pair.token1.decimals),
+    onSuccess: () => {
+      resetInputs();
+    },
+  });
+
+  const token0BalanceInsufficient = token0Balance < addAmount.token0;
+  const token1BalanceInsufficient = token1Balance < addAmount.token1;
   const insufficientBalance =
     token0BalanceInsufficient || token1BalanceInsufficient;
-  const lpBalanceInsufficient = lpBalance.lt(removeAmount);
+  const lpBalanceInsufficient = lpBalance < removeAmount;
 
   const refetchAll = useCallback(async () => {
     Promise.all([refetchPair0(), refetchPair1(), refetchLp()]);
@@ -212,17 +237,6 @@ const Liquidity = () => {
     refetchToken1ApprovalStatus,
   ]);
 
-  useEffect(() => {
-    if (isSuccessToken0 || isSuccessToken1 || isSuccessLp) {
-      refetchTokensApprovalStatus();
-    }
-  }, [
-    isSuccessLp,
-    isSuccessToken0,
-    isSuccessToken1,
-    refetchTokensApprovalStatus,
-  ]);
-
   const resetInputs = useCallback(() => {
     setAddInput({ value: "", isExactToken0: false });
     setRemoveInput("");
@@ -230,27 +244,8 @@ const Liquidity = () => {
   }, [refetchAll]);
 
   useEffect(() => {
-    if (isAddSuccess || isRemoveSuccess) {
-      resetInputs();
-    }
-  }, [isAddSuccess, isRemoveSuccess, resetInputs]);
-
-  useEffect(() => {
     resetInputs();
   }, [pair.id, resetInputs]);
-
-  const handleAddLiquidity = () => {
-    addLiquidity(pair, addAmount.token0, addAmount.token1);
-  };
-
-  const handleRemoveLiquidity = () => {
-    removeLiquidity(
-      pair,
-      removeAmount,
-      removeEstimate.token0,
-      removeEstimate.token1,
-    );
-  };
 
   return (
     <div className="flex flex-1 items-center justify-center p-6 lg:p-8">
@@ -324,10 +319,7 @@ const Liquidity = () => {
               value={
                 addInput.isExactToken0
                   ? addInput.value
-                  : formatBigNumberOutput(
-                      addAmount.token0,
-                      pair.token0.decimals,
-                    )
+                  : formatBigIntOutput(addAmount.token0, pair.token0.decimals)
               }
               onChange={(value) => setAddInput({ value, isExactToken0: true })}
             />
@@ -341,10 +333,7 @@ const Liquidity = () => {
               balance={token1Balance}
               value={
                 addInput.isExactToken0
-                  ? formatBigNumberOutput(
-                      addAmount.token1,
-                      pair.token1.decimals,
-                    )
+                  ? formatBigIntOutput(addAmount.token1, pair.token1.decimals)
                   : addInput.value
               }
               onChange={(value) => setAddInput({ value, isExactToken0: false })}
@@ -409,19 +398,23 @@ const Liquidity = () => {
 
         {isAddLiquidity ? (
           <>
-            {addAmount.token0.gt(Zero) &&
-              addAmount.token1.gt(Zero) &&
+            {addAmount.token0 > 0 &&
+              addAmount.token1 > 0 &&
               (!isToken0Approved || !isToken1Approved) &&
               !insufficientBalance &&
               isConnected && (
                 <Button
                   disabled={isLoadingToken0 || isLoadingToken1}
                   onClick={() =>
-                    isToken0Approved ? approveToken1() : approveToken0()
+                    isToken0Approved ? approveToken1?.() : approveToken0?.()
                   }
                 >
                   {isLoadingToken0 || isLoadingToken1
-                    ? "Approving Token..."
+                    ? `Approving ${
+                        isLoadingToken0
+                          ? pair.token0.symbol
+                          : pair.token1.symbol
+                      }...`
                     : `Approve ${
                         isToken0Approved
                           ? pair.token1.symbol
@@ -431,14 +424,14 @@ const Liquidity = () => {
               )}
             <Button
               disabled={
-                addAmount.token0.eq(Zero) ||
-                addAmount.token1.eq(Zero) ||
+                addAmount.token0 === 0n ||
+                addAmount.token1 === 0n ||
                 insufficientBalance ||
                 !isToken0Approved ||
                 !isToken1Approved ||
                 isAddLoading
               }
-              onClick={handleAddLiquidity}
+              onClick={() => addLiquidity?.()}
               requiresConnect
             >
               {isAddLoading ? (
@@ -453,7 +446,7 @@ const Liquidity = () => {
                 </>
               ) : (
                 <>
-                  {addAmount.token0.gt(Zero) && addAmount.token1.gt(Zero)
+                  {addAmount.token0 > 0 && addAmount.token1 > 0
                     ? "Add Liquidity"
                     : "Enter an Amount"}
                 </>
@@ -462,11 +455,11 @@ const Liquidity = () => {
           </>
         ) : (
           <>
-            {removeAmount.gt(Zero) &&
+            {removeAmount > 0 &&
               !isLpApproved &&
               !lpBalanceInsufficient &&
               isConnected && (
-                <Button disabled={isLoadingLp} onClick={() => approveLp()}>
+                <Button disabled={isLoadingLp} onClick={() => approveLp?.()}>
                   {isLoadingLp
                     ? "Approving LP..."
                     : `Approve ${pair.name} LP Token`}
@@ -475,19 +468,19 @@ const Liquidity = () => {
             <Button
               disabled={
                 (isConnected &&
-                  (removeAmount.eq(Zero) ||
+                  (removeAmount === 0n ||
                     lpBalanceInsufficient ||
                     !isLpApproved)) ||
                 isRemoveLoading
               }
-              onClick={handleRemoveLiquidity}
+              onClick={() => removeLiquidity?.()}
               requiresConnect
             >
               {isRemoveLoading
                 ? "Removing Liquidity..."
                 : lpBalanceInsufficient
                   ? "Insufficient LP Token Balance"
-                  : removeAmount.gt(Zero)
+                  : removeAmount > 0
                     ? "Remove Liquidity"
                     : "Enter an Amount"}
             </Button>

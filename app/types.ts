@@ -1,3 +1,5 @@
+import type { CONTRACT_ADDRESSES } from "./const";
+
 export type EnvVar =
   | "PUBLIC_ALCHEMY_KEY"
   | "PUBLIC_NODE_ENV"
@@ -12,6 +14,7 @@ export type Env = {
 export type Optional<T> = T | undefined;
 
 export type AddressString = `0x${string}`;
+export type SupportedChainId = keyof typeof CONTRACT_ADDRESSES;
 
 export type TimeInterval = {
   date: number;
