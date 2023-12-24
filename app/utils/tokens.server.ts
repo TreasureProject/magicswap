@@ -39,6 +39,11 @@ const TOKEN_LIST = [
     name: "ANIMA",
     image: "/img/tokens/anima.png",
   },
+  {
+    symbol: "SMOL",
+    name: "SMOL",
+    image: "/img/tokens/smol.png",
+  },
 ];
 
 const normalizeSymbol = (symbol: string) => symbol.replace("$", "");
