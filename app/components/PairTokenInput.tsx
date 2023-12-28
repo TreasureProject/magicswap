@@ -109,7 +109,7 @@ export default function PairTokenInput({
           <div className="flex items-center justify-between">
             <a
               className="flex items-center gap-2"
-              href={`${blockExplorer}/token/${token.id}`}
+              href={`${blockExplorer.url}/token/${token.id}`}
               title={`${token.symbol} (${token.id})`}
               target="_blank"
               rel="noopener noreferrer"

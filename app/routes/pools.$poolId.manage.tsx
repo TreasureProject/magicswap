@@ -12,13 +12,17 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import { useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 import invariant from "tiny-invariant";
+import type { TransactionReceipt } from "viem";
 
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
 import { Button } from "~/components/Button";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
+import { ToastContent } from "~/components/ToastContent";
 import TokenInput from "~/components/TokenInput";
+import { TransactionLink } from "~/components/TransactionLink";
 import { usePrice } from "~/context/priceContext";
 import { useUser } from "~/context/userContext";
 import { useAddLiquidity } from "~/hooks/useAddLiquidity";
@@ -158,6 +162,17 @@ const Liquidity = () => {
     pair.token1,
   );
   const { value: lpBalance, refetch: refetchLp } = useAddressBalance(pair.id);
+
+  const refetchAll = useCallback(async () => {
+    Promise.all([refetchPair0(), refetchPair1(), refetchLp()]);
+  }, [refetchLp, refetchPair0, refetchPair1]);
+
+  const resetInputs = useCallback(() => {
+    setAddInput({ value: "", isExactToken0: false });
+    setRemoveInput("");
+    refetchAll();
+  }, [refetchAll]);
+
   const {
     isApproved: isToken0Approved,
     approve: approveToken0,
@@ -170,6 +185,7 @@ const Liquidity = () => {
       refetchTokensApprovalStatus();
     },
   });
+
   const {
     isApproved: isToken1Approved,
     approve: approveToken1,
@@ -182,6 +198,7 @@ const Liquidity = () => {
       refetchTokensApprovalStatus();
     },
   });
+
   const {
     isApproved: isLpApproved,
     approve: approveLp,
@@ -200,9 +217,18 @@ const Liquidity = () => {
     token0Amount: addAmount.token0,
     token1Amount: addAmount.token1,
     enabled: isToken0Approved && isToken1Approved,
-    onSuccess: () => {
-      resetInputs();
-    },
+    onSuccess: useCallback(
+      (txReceipt: TransactionReceipt | undefined) => {
+        toast.success(
+          <ToastContent
+            title="Liquidity added"
+            message={<TransactionLink txHash={txReceipt?.transactionHash} />}
+          />,
+        );
+        resetInputs();
+      },
+      [resetInputs],
+    ),
   });
 
   const { removeLiquidity, isLoading: isRemoveLoading } = useRemoveLiquidity({
@@ -210,9 +236,18 @@ const Liquidity = () => {
     amount: removeAmount,
     token0Amount: toBigInt(removeEstimate.token0, pair.token0.decimals),
     token1Amount: toBigInt(removeEstimate.token1, pair.token1.decimals),
-    onSuccess: () => {
-      resetInputs();
-    },
+    onSuccess: useCallback(
+      (txReceipt: TransactionReceipt | undefined) => {
+        toast.success(
+          <ToastContent
+            title="Liquidity removed"
+            message={<TransactionLink txHash={txReceipt?.transactionHash} />}
+          />,
+        );
+        resetInputs();
+      },
+      [resetInputs],
+    ),
   });
 
   const token0BalanceInsufficient = token0Balance < addAmount.token0;
@@ -220,10 +255,6 @@ const Liquidity = () => {
   const insufficientBalance =
     token0BalanceInsufficient || token1BalanceInsufficient;
   const lpBalanceInsufficient = lpBalance < removeAmount;
-
-  const refetchAll = useCallback(async () => {
-    Promise.all([refetchPair0(), refetchPair1(), refetchLp()]);
-  }, [refetchLp, refetchPair0, refetchPair1]);
 
   const refetchTokensApprovalStatus = useCallback(async () => {
     Promise.all([
@@ -236,12 +267,6 @@ const Liquidity = () => {
     refetchToken0ApprovalStatus,
     refetchToken1ApprovalStatus,
   ]);
-
-  const resetInputs = useCallback(() => {
-    setAddInput({ value: "", isExactToken0: false });
-    setRemoveInput("");
-    refetchAll();
-  }, [refetchAll]);
 
   useEffect(() => {
     resetInputs();
@@ -461,7 +486,7 @@ const Liquidity = () => {
               isConnected && (
                 <Button disabled={isLoadingLp} onClick={() => approveLp?.()}>
                   {isLoadingLp
-                    ? "Approving LP..."
+                    ? "Approving LP Token..."
                     : `Approve ${pair.name} LP Token`}
                 </Button>
               )}

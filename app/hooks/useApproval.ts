@@ -37,7 +37,7 @@ const useErc20Approval = ({
     abi: erc20ABI,
     functionName: "approve",
     args: [operator, amount],
-    enabled: isApproved,
+    enabled: !isApproved,
   });
 
   const { data, write: approve, isLoading } = useContractWrite(config);

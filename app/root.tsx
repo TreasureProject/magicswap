@@ -250,55 +250,55 @@ export default function App() {
               </PriceProvider>
             </UserProvider>
           </RainbowKitProvider>
-        </WagmiConfig>
-        <Toaster position="bottom-left" reverseOrder={false} gutter={18}>
-          {(t) => (
-            <Transition
-              show={t.visible}
-              as={Fragment}
-              enter="transform ease-out duration-300 transition"
-              enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-              enterTo="translate-y-0 opacity-100 sm:translate-x-0"
-              leave="transition ease-in duration-100"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-night-800 shadow-lg ring-1 ring-black ring-opacity-5">
-                <div className="p-4">
-                  <div className="flex items-center justify-center">
-                    <div className="flex-shrink-0">
-                      {(() => {
-                        switch (t.type) {
-                          case "success":
-                            return (
-                              <CheckCircleIcon className="h-6 w-6 text-green-500" />
-                            );
-                          case "error":
-                            return (
-                              <ExclamationCircleIcon className="h-6 w-6 text-ruby-500" />
-                            );
-                          case "loading":
-                            return (
-                              <SpinnerIcon className="h-6 w-6 animate-spin fill-night-800 text-yellow-500" />
-                            );
-                          default:
-                            return (
-                              <CheckCircleIcon className="h-6 w-6 text-yellow-500" />
-                            );
-                        }
-                      })()}
-                    </div>
-                    <div className="ml-3 w-0 flex-1">
-                      <div className="text-sm text-white">
-                        {resolveValue(t.message, t)}
+          <Toaster position="bottom-left" reverseOrder={false} gutter={18}>
+            {(t) => (
+              <Transition
+                show={t.visible}
+                as={Fragment}
+                enter="transform ease-out duration-300 transition"
+                enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+                enterTo="translate-y-0 opacity-100 sm:translate-x-0"
+                leave="transition ease-in duration-100"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-night-800 shadow-lg ring-1 ring-black ring-opacity-5">
+                  <div className="p-4">
+                    <div className="flex items-center justify-center">
+                      <div className="flex-shrink-0">
+                        {(() => {
+                          switch (t.type) {
+                            case "success":
+                              return (
+                                <CheckCircleIcon className="h-6 w-6 text-green-500" />
+                              );
+                            case "error":
+                              return (
+                                <ExclamationCircleIcon className="h-6 w-6 text-ruby-500" />
+                              );
+                            case "loading":
+                              return (
+                                <SpinnerIcon className="h-6 w-6 animate-spin fill-night-800 text-yellow-500" />
+                              );
+                            default:
+                              return (
+                                <CheckCircleIcon className="h-6 w-6 text-yellow-500" />
+                              );
+                          }
+                        })()}
+                      </div>
+                      <div className="ml-3 w-0 flex-1">
+                        <div className="text-sm text-white">
+                          {resolveValue(t.message, t)}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </Transition>
-          )}
-        </Toaster>
+              </Transition>
+            )}
+          </Toaster>
+        </WagmiConfig>
         <ScrollRestoration />
         <LiveReload />
         <Scripts />

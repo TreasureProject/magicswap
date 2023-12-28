@@ -1,5 +1,6 @@
 import { uniswapV2Router02ABI } from "artifacts/uniswapV2Router02ABI";
 import { useEffect } from "react";
+import type { TransactionReceipt } from "viem";
 import {
   useContractWrite,
   usePrepareContractWrite,
@@ -17,7 +18,7 @@ type Props = {
   token0Amount: bigint;
   token1Amount: bigint;
   enabled?: boolean;
-  onSuccess?: () => void;
+  onSuccess?: (txReceipt: TransactionReceipt | undefined) => void;
 };
 
 export const useAddLiquidity = ({
@@ -54,13 +55,17 @@ export const useAddLiquidity = ({
   });
 
   const { data, write: addLiquidity, isLoading } = useContractWrite(config);
-  const { isLoading: isWaiting, isSuccess } = useWaitForTransaction(data);
+  const {
+    data: txReceipt,
+    isLoading: isWaiting,
+    isSuccess,
+  } = useWaitForTransaction(data);
 
   useEffect(() => {
     if (isSuccess) {
-      onSuccess?.();
+      onSuccess?.(txReceipt);
     }
-  }, [isSuccess, onSuccess]);
+  }, [isSuccess, onSuccess, txReceipt]);
 
   return {
     addLiquidity,

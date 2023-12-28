@@ -1,5 +1,6 @@
 import { uniswapV2Router02ABI } from "artifacts/uniswapV2Router02ABI";
 import { useEffect } from "react";
+import type { TransactionReceipt } from "viem";
 import {
   useContractWrite,
   usePrepareContractWrite,
@@ -18,7 +19,7 @@ type Props = {
   amountOut: bigint;
   isExactOut?: boolean;
   enabled?: boolean;
-  onSuccess?: () => void;
+  onSuccess?: (txReceipt: TransactionReceipt | undefined) => void;
 };
 
 export const useSwap = ({
@@ -76,18 +77,21 @@ export const useSwap = ({
     enabled: isEnabled && !isExactOut,
   });
   const swapExactTokensForTokens = useContractWrite(exactInConfig);
-  const { isLoading: isWaitingExactIn, isSuccess: isSuccessExactIn } =
-    useWaitForTransaction(swapExactTokensForTokens.data);
+  const {
+    data: txReceipt,
+    isLoading: isWaitingExactIn,
+    isSuccess: isSuccessExactIn,
+  } = useWaitForTransaction(swapExactTokensForTokens.data);
 
   useEffect(() => {
     if (isExactOut) {
       if (isSuccessExactOut) {
-        onSuccess?.();
+        onSuccess?.(txReceipt);
       }
     } else if (isSuccessExactIn) {
-      onSuccess?.();
+      onSuccess?.(txReceipt);
     }
-  }, [isExactOut, isSuccessExactOut, isSuccessExactIn, onSuccess]);
+  }, [isExactOut, isSuccessExactOut, isSuccessExactIn, onSuccess, txReceipt]);
 
   return {
     amountIn,

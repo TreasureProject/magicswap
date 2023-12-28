@@ -261,7 +261,7 @@ export default function Analytics() {
                       title={swap.userAddress}
                     >
                       <a
-                        href={`${blockExplorer}/address/${swap.userAddress}`}
+                        href={`${blockExplorer.url}/address/${swap.userAddress}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="group flex items-center gap-1"
@@ -277,7 +277,7 @@ export default function Analytics() {
                       title={new Date(swap.date * 1000).toLocaleString()}
                     >
                       <a
-                        href={`${blockExplorer}/tx/${swap.transactionId}`}
+                        href={`${blockExplorer.url}/tx/${swap.transactionId}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="group flex items-center gap-1"

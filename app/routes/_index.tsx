@@ -11,7 +11,9 @@ import {
 } from "@remix-run/react";
 import type { ServerRuntimeMetaArgs } from "@remix-run/server-runtime";
 import { useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
+import type { TransactionReceipt } from "viem";
 
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
 import { Button } from "~/components/Button";
@@ -19,7 +21,9 @@ import { Modal } from "~/components/Modal";
 import PairTokenInput from "~/components/PairTokenInput";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
 import { SwapRoutePanel } from "~/components/SwapRoutePanel";
+import { ToastContent } from "~/components/ToastContent";
 import { TokenLogo } from "~/components/TokenLogo";
+import { TransactionLink } from "~/components/TransactionLink";
 import { usePairs } from "~/context/pairs";
 import { useTokenApproval } from "~/hooks/useApproval";
 import { useSwap } from "~/hooks/useSwap";
@@ -126,17 +130,21 @@ export default function Index() {
     [],
   );
 
-  const handleCloseConfirmModal = useCallback(
-    () => setIsOpenConfirmSwapModal(false),
-    [],
+  const handleSwapSuccess = useCallback(
+    (txReceipt: TransactionReceipt | undefined) => {
+      toast.success(
+        <ToastContent
+          title="Swap complete"
+          message={<TransactionLink txHash={txReceipt?.transactionHash} />}
+        />,
+      );
+      setIsOpenConfirmSwapModal(false);
+      setSwapInput({ value: "", isExactOut: false });
+      refetchInputTokenBalance();
+      refetchOutputTokenBalance();
+    },
+    [refetchInputTokenBalance, refetchOutputTokenBalance],
   );
-
-  const handleSwapSuccess = useCallback(() => {
-    setIsOpenConfirmSwapModal(false);
-    setSwapInput({ value: "", isExactOut: false });
-    refetchInputTokenBalance();
-    refetchOutputTokenBalance();
-  }, [refetchInputTokenBalance, refetchOutputTokenBalance]);
 
   const insufficientBalance = inputTokenBalance < amountIn;
 
@@ -285,7 +293,7 @@ export default function Index() {
         tokenOut={tokenOut}
         isExactOut={swapInput.isExactOut}
         isOpen={isOpenConfirmSwapModal}
-        onClose={handleCloseConfirmModal}
+        onClose={() => setIsOpenConfirmSwapModal(false)}
         onSuccess={handleSwapSuccess}
       />
     </>
@@ -304,7 +312,7 @@ const ConfirmSwapModal = ({
   isExactOut: boolean;
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (txReceipt: TransactionReceipt | undefined) => void;
 }) => {
   const { tokenIn, tokenOut, amountIn, amountOut, path } = swapRoute;
 
@@ -562,7 +570,7 @@ export function ErrorBoundary() {
     return (
       <div className="flex h-full flex-col items-center justify-center">
         <p className="text-[0.6rem] text-night-500 sm:text-base">
-          {(error as any).data.message}
+          {error.data.message}
         </p>
       </div>
     );
