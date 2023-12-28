@@ -49,6 +49,8 @@ export type Pair = {
   name: string;
   token0: PairToken;
   token1: PairToken;
+  reserve0?: number;
+  reserve1?: number;
   hasEth: boolean;
   hasMagic: boolean;
   totalSupply: number;

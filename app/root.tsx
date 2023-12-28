@@ -18,6 +18,7 @@ import {
   Scripts,
   ScrollRestoration,
   useFetchers,
+  useLoaderData,
   useNavigation,
 } from "@remix-run/react";
 import NProgress from "nprogress";
@@ -35,6 +36,7 @@ import {
   SplitIcon,
   TwitterIcon,
 } from "./components/Icons";
+import { PairsProvider } from "./context/pairs";
 import { PriceProvider } from "./context/priceContext";
 import { SettingsProvider } from "./context/settingsContext";
 import { UserProvider } from "./context/userContext";
@@ -42,6 +44,7 @@ import "./styles/font.css";
 import "./styles/nprogress.css";
 import "./styles/tailwind.css";
 import { createMetaTags } from "./utils/meta";
+import { getPairs } from "./utils/pair.server";
 import { createWagmiConfig } from "./utils/wagmi";
 
 export const links: LinksFunction = () => [
@@ -92,6 +95,11 @@ export const meta: MetaFunction = () => [
   },
 ];
 
+export const loader = async () => {
+  const pairs = await getPairs();
+  return { pairs };
+};
+
 const NavLink = ({
   to,
   children,
@@ -124,8 +132,8 @@ const { chains, config: wagmiConfig } = createWagmiConfig();
 
 export default function App() {
   const navigation = useNavigation();
-
   const fetchers = useFetchers();
+  const { pairs } = useLoaderData<typeof loader>();
 
   const state = useMemo<"idle" | "loading">(
     function getGlobalState() {
@@ -170,72 +178,74 @@ export default function App() {
             <UserProvider>
               <PriceProvider>
                 <SettingsProvider>
-                  <div className="z-10 flex items-center justify-center px-8">
-                    <div className="mx-auto flex w-full flex-row items-center gap-2 py-4 xl:max-w-6xl 2xl:max-w-7xl">
-                      <div className="mr-auto hidden flex-1 items-center divide-x divide-night-800 sm:flex">
-                        <a
-                          className="px-3 text-night-500 transition-colors hover:text-white"
-                          href="https://twitter.com/Magicswap_"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title="Twitter"
-                        >
-                          <TwitterIcon className="h-6 w-6" />
-                        </a>
-                        <a
-                          className="px-3 text-night-500 transition-colors hover:text-white"
-                          href="http://discord.gg/treasuredao"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title="Discord"
-                        >
-                          <DiscordIcon className="h-6 w-6" />
-                        </a>
-                        <a
-                          className="px-3 text-night-500 transition-colors hover:text-white"
-                          href="https://github.com/TreasureProject/magicswap"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title="GitHub"
-                        >
-                          <GitHubIcon className="h-6 w-6" />
-                        </a>
-                      </div>
-                      <div className="flex flex-1 items-center justify-start sm:justify-center">
-                        <Link to="/">
-                          <img
-                            src={MagicswapLogo}
-                            className="h-8"
-                            alt="Magicswap"
+                  <PairsProvider pairs={pairs}>
+                    <div className="z-10 flex items-center justify-center px-8">
+                      <div className="mx-auto flex w-full flex-row items-center gap-2 py-4 xl:max-w-6xl 2xl:max-w-7xl">
+                        <div className="mr-auto hidden flex-1 items-center divide-x divide-night-800 sm:flex">
+                          <a
+                            className="px-3 text-night-500 transition-colors hover:text-white"
+                            href="https://twitter.com/Magicswap_"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Twitter"
+                          >
+                            <TwitterIcon className="h-6 w-6" />
+                          </a>
+                          <a
+                            className="px-3 text-night-500 transition-colors hover:text-white"
+                            href="http://discord.gg/treasuredao"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Discord"
+                          >
+                            <DiscordIcon className="h-6 w-6" />
+                          </a>
+                          <a
+                            className="px-3 text-night-500 transition-colors hover:text-white"
+                            href="https://github.com/TreasureProject/magicswap"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="GitHub"
+                          >
+                            <GitHubIcon className="h-6 w-6" />
+                          </a>
+                        </div>
+                        <div className="flex flex-1 items-center justify-start sm:justify-center">
+                          <Link to="/">
+                            <img
+                              src={MagicswapLogo}
+                              className="h-8"
+                              alt="Magicswap"
+                            />
+                          </Link>
+                        </div>
+                        <div className="ml-auto flex flex-1 items-center justify-end">
+                          <ConnectButton
+                            accountStatus="address"
+                            showBalance={{
+                              smallScreen: false,
+                              largeScreen: false,
+                            }}
                           />
-                        </Link>
-                      </div>
-                      <div className="ml-auto flex flex-1 items-center justify-end">
-                        <ConnectButton
-                          accountStatus="address"
-                          showBalance={{
-                            smallScreen: false,
-                            largeScreen: false,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="relative overflow-hidden">
-                    <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] flex-col p-8 pt-0 sm:pt-8 xl:max-w-6xl 2xl:max-w-7xl">
-                      <Outlet />
-                    </div>
-                    <header className="fixed bottom-[4.5rem] left-0 right-0 z-10 px-2 sm:bottom-24">
-                      <div className="relative">
-                        <div className="absolute left-1/2 z-10 w-full max-w-lg -translate-x-1/2 transform rounded-xl bg-night-800/40 p-2 shadow-2xl shadow-night-800/30 backdrop-blur-md 2xl:max-w-2xl">
-                          <nav className="flex gap-1">
-                            <NavLink to="/">Swap</NavLink>
-                            <NavLink to="pools">Pool</NavLink>
-                          </nav>
                         </div>
                       </div>
-                    </header>
-                  </div>
+                    </div>
+                    <div className="relative overflow-hidden">
+                      <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] flex-col p-8 pt-0 sm:pt-8 xl:max-w-6xl 2xl:max-w-7xl">
+                        <Outlet />
+                      </div>
+                      <header className="fixed bottom-[4.5rem] left-0 right-0 z-10 px-2 sm:bottom-24">
+                        <div className="relative">
+                          <div className="absolute left-1/2 z-10 w-full max-w-lg -translate-x-1/2 transform rounded-xl bg-night-800/40 p-2 shadow-2xl shadow-night-800/30 backdrop-blur-md 2xl:max-w-2xl">
+                            <nav className="flex gap-1">
+                              <NavLink to="/">Swap</NavLink>
+                              <NavLink to="pools">Pool</NavLink>
+                            </nav>
+                          </div>
+                        </div>
+                      </header>
+                    </div>
+                  </PairsProvider>
                 </SettingsProvider>
               </PriceProvider>
             </UserProvider>

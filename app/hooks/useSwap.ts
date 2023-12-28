@@ -9,12 +9,11 @@ import {
 import { useContractAddresses } from "./useContractAddresses";
 import { useSettings } from "~/context/settingsContext";
 import { useUser } from "~/context/userContext";
-import type { AddressString, Token } from "~/types";
+import type { AddressString } from "~/types";
 import { calculateAmountInMin, calculateAmountOutMin } from "~/utils/swap";
 
 type Props = {
-  inputToken: Token;
-  outputToken: Token;
+  path: AddressString[];
   amountIn: bigint;
   amountOut: bigint;
   isExactOut?: boolean;
@@ -23,8 +22,7 @@ type Props = {
 };
 
 export const useSwap = ({
-  inputToken,
-  outputToken,
+  path,
   amountIn: rawAmountIn,
   amountOut: rawAmountOut,
   isExactOut,
@@ -41,7 +39,6 @@ export const useSwap = ({
   const amountOut = isExactOut
     ? rawAmountOut
     : calculateAmountOutMin(rawAmountOut, slippage);
-  const path = [inputToken.id, outputToken.id];
   const transactionDeadline = BigInt(
     Math.ceil(Date.now() / 1000) + 60 * deadline,
   );

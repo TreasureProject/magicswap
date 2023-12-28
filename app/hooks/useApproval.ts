@@ -10,7 +10,7 @@ import {
 
 import { useContractAddresses } from "./useContractAddresses";
 import { useUser } from "~/context/userContext";
-import type { AddressString, Pair, Token } from "~/types";
+import type { AddressString, Pair, PairToken, Token } from "~/types";
 
 const useErc20Approval = ({
   tokenAddress,
@@ -37,6 +37,7 @@ const useErc20Approval = ({
     abi: erc20ABI,
     functionName: "approve",
     args: [operator, amount],
+    enabled: isApproved,
   });
 
   const { data, write: approve, isLoading } = useContractWrite(config);
@@ -76,7 +77,7 @@ export const useTokenApproval = ({
   amount,
   onSuccess,
 }: {
-  token: Token;
+  token: Token | PairToken;
   amount: bigint;
   onSuccess?: () => void;
-}) => useErc20Approval({ tokenAddress: token.id, amount, onSuccess });
+}) => useErc20Approval({ tokenAddress: token?.id, amount, onSuccess });

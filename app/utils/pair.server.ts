@@ -2,7 +2,7 @@ import invariant from "tiny-invariant";
 
 import { exchangeSdk } from "./api";
 import { getApy } from "./price";
-import { normalizeAdvancedToken } from "./tokens.server";
+import { normalizeAdvancedToken } from "./tokens";
 import { SUPPORTED_CONTRACT_ADDRESSES } from "~/const";
 import type {
   GetSwapPairQuery,
