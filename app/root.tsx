@@ -188,7 +188,7 @@ export default function App() {
                             rel="noopener noreferrer"
                             title="Twitter"
                           >
-                            <TwitterIcon className="h-6 w-6" />
+                            <TwitterIcon className="h-5 w-5" />
                           </a>
                           <a
                             className="px-3 text-night-500 transition-colors hover:text-white"
