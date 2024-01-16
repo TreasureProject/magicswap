@@ -13,11 +13,6 @@ const config: CodegenConfig = {
       ],
     },
   },
-  hooks: {
-    afterAllFileWrite: [
-      "sed -i '' -e '1s|.*|import type { GraphQLClient, RequestOptions } from \"graphql-request\";|' -e '2s|.*|type GraphQLClientRequestHeaders = RequestOptions[\"requestHeaders\"];|'",
-    ],
-  },
 };
 
 export default config;
