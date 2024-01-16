@@ -1,5 +1,9 @@
 import { Dialog } from "@headlessui/react";
-import { CogIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import {
+  CogIcon,
+  DocumentCheckIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/outline";
 import { ArrowDownIcon, ArrowRightIcon } from "@heroicons/react/24/solid";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import {
@@ -26,6 +30,7 @@ import { TokenLogo } from "~/components/TokenLogo";
 import { TransactionLink } from "~/components/TransactionLink";
 import { usePairs } from "~/context/pairs";
 import { useTokenApproval } from "~/hooks/useApproval";
+import { useBlockExplorer } from "~/hooks/useBlockExplorer";
 import { useSwap } from "~/hooks/useSwap";
 import { type SwapRoute, useSwapRoute } from "~/hooks/useSwapRoute";
 import { useTokenBalance } from "~/hooks/useTokenBalance";
@@ -448,6 +453,7 @@ const TokenSelectionModal = ({
   const { inputSymbol, outputSymbol } = useLoaderData<typeof loader>();
   const location = useLocation();
   const [searchString, setSearchString] = useState("");
+  const blockExplorer = useBlockExplorer();
 
   const { tokens } = usePairs();
 
@@ -474,11 +480,6 @@ const TokenSelectionModal = ({
         >
           Select a Token
         </Dialog.Title>
-        <div className="mt-2">
-          <p className="text-sm text-night-500">
-            Select a token to replace with {currentToken}.
-          </p>
-        </div>
         <div className="mt-3">
           <label htmlFor="search-token" className="sr-only">
             Search Token
@@ -507,53 +508,45 @@ const TokenSelectionModal = ({
               token.symbol === currentToken || token.symbol === otherToken;
             return (
               <li key={token.id}>
-                <div
+                <Link
+                  prefetch="intent"
+                  to={`/?input=${
+                    type === "input" ? token.symbol : otherToken
+                  }&output=${type === "output" ? token.symbol : otherToken}`}
                   className={twMerge(
+                    "flex items-center justify-between gap-3 px-6 py-5 transition duration-150 ease-in-out focus-within:ring-2 focus-within:ring-inset focus-within:ring-ruby-500",
                     isDisabled
                       ? "pointer-events-none opacity-20"
                       : "hover:bg-night-800/40",
-                    "relative flex items-center space-x-3 px-6 py-5 transition duration-150 ease-in-out focus-within:ring-2 focus-within:ring-inset focus-within:ring-ruby-500",
                   )}
                 >
-                  <div className="flex-shrink-0">
+                  <div className="flex items-center gap-3">
                     <TokenLogo
                       token={token}
-                      className="h-10 w-10 rounded-full"
+                      className="h-10 w-10 shrink-0 rounded-full"
                     />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    {isDisabled ? (
-                      <div>
+                    <div className="grow">
+                      <p className="truncate text-sm text-night-200">
+                        {token.symbol}
+                      </p>
+                      {token.name !== token.symbol ? (
                         <p className="text-xs font-medium text-night-500">
                           {token.name}
                         </p>
-                        <p className="truncate text-sm text-night-200">
-                          {token.symbol}
-                        </p>
-                      </div>
-                    ) : (
-                      <Link
-                        prefetch="intent"
-                        to={`/?input=${
-                          type === "input" ? token.symbol : otherToken
-                        }&output=${
-                          type === "output" ? token.symbol : otherToken
-                        }`}
-                      >
-                        <span
-                          className="absolute inset-0"
-                          aria-hidden="true"
-                        ></span>
-                        <p className="text-xs font-medium text-night-500">
-                          {token.name}
-                        </p>
-                        <p className="truncate text-sm text-night-200">
-                          {token.symbol}
-                        </p>
-                      </Link>
-                    )}
+                      ) : null}
+                    </div>
                   </div>
-                </div>
+                  <a
+                    href={`${blockExplorer.url}/address/${token.id}`}
+                    title={`View ${token.symbol} on ${blockExplorer.name}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-night-300 transition-colors hover:text-night-100"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <DocumentCheckIcon className="h-4 w-4" />
+                  </a>
+                </Link>
               </li>
             );
           })}
