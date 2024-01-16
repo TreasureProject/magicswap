@@ -41,7 +41,9 @@ export const NumberField = ({
         </div>
       </div>
       {props.errorMessage && errorCondition(sanitizedValue) ? (
-        <p className="mt-2 text-sm text-ruby-600">{props.errorMessage}</p>
+        <p className="mt-2 text-sm text-ruby-600">
+          {props.errorMessage.toString()}
+        </p>
       ) : null}
     </>
   );

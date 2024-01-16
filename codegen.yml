@@ -1,9 +1,0 @@
-overwrite: true
-generates:
-  ./app/graphql/exchange.generated.ts:
-    schema: ${MAGICSWAP_API_URL}
-    documents: "./app/graphql/exchange.queries.ts"
-    plugins:
-      - "typescript"
-      - "typescript-operations"
-      - "typescript-graphql-request"
