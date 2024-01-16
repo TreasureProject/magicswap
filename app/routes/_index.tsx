@@ -507,7 +507,7 @@ const TokenSelectionModal = ({
             const isDisabled =
               token.symbol === currentToken || token.symbol === otherToken;
             return (
-              <li key={token.id}>
+              <li key={token.id} className="relative">
                 <Link
                   prefetch="intent"
                   to={`/?input=${
@@ -536,17 +536,17 @@ const TokenSelectionModal = ({
                       ) : null}
                     </div>
                   </div>
-                  <a
-                    href={`${blockExplorer.url}/address/${token.id}`}
-                    title={`View ${token.symbol} on ${blockExplorer.name}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-night-300 transition-colors hover:text-night-100"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <DocumentCheckIcon className="h-4 w-4" />
-                  </a>
                 </Link>
+                <a
+                  href={`${blockExplorer.url}/address/${token.id}`}
+                  title={`View ${token.symbol} on ${blockExplorer.name}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute right-6 top-1/2 -translate-y-1/2 text-night-300 transition-colors hover:text-night-100"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <DocumentCheckIcon className="h-4 w-4" />
+                </a>
               </li>
             );
           })}

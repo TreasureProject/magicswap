@@ -100,9 +100,13 @@ export default function PairTokenInput({
               }
             >
               Balance:{" "}
-              <span className="text-night-100">
-                {formatBigIntDisplay(balance, token.decimals)}
-              </span>
+              <ClientOnly>
+                {() => (
+                  <span className="text-night-100">
+                    {formatBigIntDisplay(balance, token.decimals)}
+                  </span>
+                )}
+              </ClientOnly>
             </span>
           </div>
         </div>

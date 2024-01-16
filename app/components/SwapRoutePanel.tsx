@@ -1,3 +1,5 @@
+import { ClientOnly } from "remix-utils/client-only";
+
 import type { SwapRoute } from "~/hooks/useSwapRoute";
 import { formatAmount, formatPercent } from "~/utils/number";
 
@@ -23,7 +25,7 @@ export const SwapRoutePanel = ({
         <span className="font-medium text-honey-25">1</span> {tokenOut?.symbol}{" "}
         ={" "}
         <span className="font-medium text-honey-25">
-          {formatAmount(derivedValue)}
+          <ClientOnly>{() => formatAmount(derivedValue)}</ClientOnly>
         </span>{" "}
         {tokenIn?.symbol}
       </div>
