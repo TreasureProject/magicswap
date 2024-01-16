@@ -27,7 +27,6 @@ import { Toaster, resolveValue } from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 import { WagmiConfig } from "wagmi";
 
-import MagicswapLogo from "../public/img/logo-magicswap.svg";
 import {
   DiscordIcon,
   GitHubIcon,
@@ -213,7 +212,7 @@ export default function App() {
                         <div className="flex flex-1 items-center justify-start sm:justify-center">
                           <Link to="/">
                             <img
-                              src={MagicswapLogo}
+                              src="/img/logo-magicswap.svg"
                               className="h-8"
                               alt="Magicswap"
                             />
