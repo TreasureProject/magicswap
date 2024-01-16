@@ -8,7 +8,7 @@ export const CONTRACT_ADDRESSES = {
     MagicGflyPair: zeroAddress,
     MagicVeePair: zeroAddress,
     MagicAnimaPair: zeroAddress,
-    MagicSmolPair: zeroAddress,
+    MagicSmolPair: "0xeba6af266b49faa76dc26eea589c7d227a597206",
   },
   [arbitrum.id]: {
     Router: "0x23805449f91bb2d2054d9ba288fdc8f09b5eac79",
