@@ -19,7 +19,7 @@
     "build": "remix vite:build",
     "deploy": "fly deploy --remote-only",
     "test": "vitest",
-    "start": "remix-serve build",
+    "start": "remix-serve ./build/server/index.js",
     "typecheck": "tsc",
     "codegen": "graphql-codegen -r dotenv/config",
     "lint": "prettier --write 'app/**/{*.ts,*.tsx}' && eslint --fix --no-error-on-unmatched-pattern 'app/**/{*.ts,*.tsx}'",

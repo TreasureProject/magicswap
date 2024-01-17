@@ -4,14 +4,14 @@ kill_timeout = 5
 processes = []
 
 [env]
-  PORT = "8080"
+  PORT = "3000"
 
 [experimental]
   auto_rollback = true
 
 [[services]]
   http_checks = []
-  internal_port = 8080
+  internal_port = 3000
   processes = ["app"]
   protocol = "tcp"
   script_checks = []
