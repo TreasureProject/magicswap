@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { createContext, useContext } from "react";
 import { useQuery } from "wagmi";
 
+import { REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
 import { fetchMagicPrice } from "~/utils/price";
 
 const Context = createContext<{
@@ -23,9 +24,9 @@ export const PriceProvider = ({ children }: { children: ReactNode }) => {
     ["price:magic-usd"],
     fetchMagicPrice,
     {
-      refetchInterval: 5_000,
+      refetchInterval: REFETCH_INTERVAL_HIGH_PRIORITY,
       select: (data) => data.magicUsd,
-    },
+    }
   );
 
   return <Context.Provider value={{ magicUsd }}>{children}</Context.Provider>;

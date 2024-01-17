@@ -1,38 +1,39 @@
-import { uniswapV2Router02ABI } from "artifacts/uniswapV2Router02ABI";
-import { useEffect } from "react";
-import type { TransactionReceipt } from "viem";
-import {
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
+import type { BigNumber } from "@ethersproject/bignumber";
+import { useMemo, useRef } from "react";
 
-import { useContractAddresses } from "./useContractAddresses";
+import type { RouterFunctionName } from "./useV2RouterWrite";
+import { useV2RouterWrite } from "./useV2RouterWrite";
 import { useSettings } from "~/context/settingsContext";
 import { useUser } from "~/context/userContext";
-import type { AddressString } from "~/types";
+import type { Optional, Token } from "~/types";
+import { formatBigNumberDisplay } from "~/utils/number";
 import { calculateAmountInMin, calculateAmountOutMin } from "~/utils/swap";
 
 type Props = {
-  path: AddressString[];
-  amountIn: bigint;
-  amountOut: bigint;
+  inputToken: Token;
+  outputToken: Token;
+  amountIn: BigNumber;
+  amountOut: BigNumber;
   isExactOut?: boolean;
-  enabled?: boolean;
-  onSuccess?: (txReceipt: TransactionReceipt | undefined) => void;
 };
 
 export const useSwap = ({
-  path,
+  inputToken,
+  outputToken,
   amountIn: rawAmountIn,
   amountOut: rawAmountOut,
   isExactOut,
-  enabled = true,
-  onSuccess,
 }: Props) => {
   const { address } = useUser();
   const { slippage, deadline } = useSettings();
-  const contractAddress = useContractAddresses().Router;
+  const statusRef = useRef<Optional<string>>(undefined);
+
+  const path = useMemo(
+    () => [inputToken.id, outputToken.id],
+    [inputToken.id, outputToken.id]
+  );
+  const isOutputEth = outputToken.isEth;
+  const isEth = inputToken.isEth || isOutputEth;
 
   const amountIn = isExactOut
     ? calculateAmountInMin(rawAmountIn, slippage)
@@ -40,68 +41,102 @@ export const useSwap = ({
   const amountOut = isExactOut
     ? rawAmountOut
     : calculateAmountOutMin(rawAmountOut, slippage);
-  const transactionDeadline = BigInt(
-    Math.ceil(Date.now() / 1000) + 60 * deadline,
-  );
-  const isEnabled =
-    enabled && !!address && (isExactOut ? amountOut > 0 : amountIn > 0);
 
-  const { config: exactOutConfig } = usePrepareContractWrite({
-    address: contractAddress,
-    abi: uniswapV2Router02ABI,
-    functionName: "swapTokensForExactTokens",
-    args: [
-      amountOut, // amountOut
-      amountIn, // amountInMax
-      path,
-      address as AddressString,
-      transactionDeadline,
-    ],
-    enabled: isEnabled && isExactOut,
-  });
-  const swapTokensForExactTokens = useContractWrite(exactOutConfig);
-  const { isLoading: isWaitingExactOut, isSuccess: isSuccessExactOut } =
-    useWaitForTransaction(swapTokensForExactTokens.data);
-
-  const { config: exactInConfig } = usePrepareContractWrite({
-    address: contractAddress,
-    abi: uniswapV2Router02ABI,
-    functionName: "swapExactTokensForTokens",
-    args: [
-      amountIn, // amountIn
-      amountOut, // amountOutMin
-      path,
-      address as AddressString,
-      transactionDeadline,
-    ],
-    enabled: isEnabled && !isExactOut,
-  });
-  const swapExactTokensForTokens = useContractWrite(exactInConfig);
-  const {
-    data: txReceipt,
-    isLoading: isWaitingExactIn,
-    isSuccess: isSuccessExactIn,
-  } = useWaitForTransaction(swapExactTokensForTokens.data);
-
-  useEffect(() => {
+  const [functionName, args, overrides] = useMemo<
+    [RouterFunctionName, any, any?]
+  >(() => {
     if (isExactOut) {
-      if (isSuccessExactOut) {
-        onSuccess?.(txReceipt);
+      if (isEth) {
+        if (isOutputEth) {
+          return [
+            "swapTokensForExactETH",
+            [
+              amountOut, // amountOut
+              amountIn, // amountInMax
+            ],
+          ];
+        }
+
+        return [
+          "swapETHForExactTokens",
+          [
+            amountOut, // amountOut
+          ],
+          {
+            value: amountIn,
+          },
+        ];
       }
-    } else if (isSuccessExactIn) {
-      onSuccess?.(txReceipt);
+
+      return [
+        "swapTokensForExactTokens",
+        [
+          amountOut, // amountOut
+          amountIn, // amountInMax
+        ],
+      ];
     }
-  }, [isExactOut, isSuccessExactOut, isSuccessExactIn, onSuccess, txReceipt]);
+
+    if (isEth) {
+      if (isOutputEth) {
+        return [
+          "swapExactTokensForETH",
+          [
+            amountIn, // amountIn
+            amountOut, // amountOutMin
+          ],
+        ];
+      }
+
+      return [
+        "swapExactETHForTokens",
+        [
+          amountOut, // amountOutMin
+        ],
+        {
+          value: amountIn,
+        },
+      ];
+    }
+
+    return [
+      "swapExactTokensForTokens",
+      [
+        amountIn, // amountIn
+        amountOut, // amountOutMin
+      ],
+    ];
+  }, [isExactOut, isEth, isOutputEth, amountIn, amountOut]);
+
+  const { write, isError, isSuccess, isLoading } = useV2RouterWrite(
+    functionName,
+    statusRef.current
+  );
 
   return {
     amountIn,
     amountOut,
     slippage,
-    swap: isExactOut
-      ? swapTokensForExactTokens.write
-      : swapExactTokensForTokens.write,
-    isLoading: isExactOut
-      ? swapTokensForExactTokens.isLoading || isWaitingExactOut
-      : swapExactTokensForTokens.isLoading || isWaitingExactIn,
+    swap: () => {
+      statusRef.current = `Swap ${formatBigNumberDisplay(
+        amountIn,
+        inputToken.decimals
+      )} ${inputToken.symbol} to ${formatBigNumberDisplay(
+        amountOut,
+        outputToken.decimals
+      )} ${outputToken.symbol}`;
+      write?.({
+        recklesslySetUnpreparedOverrides: overrides,
+        recklesslySetUnpreparedArgs: [
+          ...args,
+          path,
+          address,
+          Math.ceil(Date.now() / 1000) + 60 * deadline,
+        ],
+      });
+    },
+    isLoading,
+    isError,
+    isSuccess,
   };
 };

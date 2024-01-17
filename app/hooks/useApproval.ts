@@ -1,83 +1,53 @@
-import { useEffect } from "react";
-import { zeroAddress } from "viem";
-import {
-  erc20ABI,
-  useContractRead,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
+import type { BigNumber } from "@ethersproject/bignumber";
+import { AddressZero, MaxUint256, Zero } from "@ethersproject/constants";
+import { erc20ABI, useContractRead } from "wagmi";
 
-import { useContractAddresses } from "./useContractAddresses";
+import { useContractAddress } from "./useContractAddress";
+import { useContractWrite } from "./useContractWrite";
+import { AppContract } from "~/const";
 import { useUser } from "~/context/userContext";
-import type { AddressString, Pair, PairToken, Token } from "~/types";
+import type { AddressString, Pair, Token } from "~/types";
 
-const useErc20Approval = ({
-  tokenAddress,
-  amount,
-  onSuccess,
-}: {
-  tokenAddress: AddressString;
-  amount: bigint;
-  onSuccess?: () => void;
-}) => {
-  const operator = useContractAddresses().Router;
+const useErc20Approval = (
+  tokenId: AddressString,
+  tokenSymbol: string,
+  minAmount?: BigNumber
+) => {
+  const contractAddress = useContractAddress(AppContract.Router);
   const { address } = useUser();
-  const { data: allowance = 0n, refetch } = useContractRead({
-    address: tokenAddress,
+  const { data = Zero, refetch } = useContractRead({
+    address: tokenId,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address ?? zeroAddress, operator],
+    args: [address ?? AddressZero, contractAddress as AddressString],
     enabled: !!address,
   });
 
-  const isApproved = allowance >= amount;
-  const { config } = usePrepareContractWrite({
-    address: tokenAddress,
+  const {
+    write: writeApprove,
+    isLoading,
+    isSuccess,
+  } = useContractWrite(`Approve ${tokenSymbol}`, {
+    address: tokenId,
     abi: erc20ABI,
+    mode: "recklesslyUnprepared",
     functionName: "approve",
-    args: [operator, amount],
-    enabled: !isApproved,
   });
-
-  const { data, write: approve, isLoading } = useContractWrite(config);
-  const { isLoading: isWaiting, isSuccess } = useWaitForTransaction(data);
-
-  useEffect(() => {
-    if (isSuccess) {
-      onSuccess?.();
-    }
-  }, [isSuccess, onSuccess]);
 
   return {
     refetch,
-    isLoading: isLoading || isWaiting,
-    isApproved,
-    approve,
+    isLoading,
+    isSuccess,
+    isApproved: minAmount ? data.gte(minAmount) : data.gt(Zero),
+    approve: () =>
+      writeApprove?.({
+        recklesslySetUnpreparedArgs: [contractAddress, MaxUint256.toString()],
+      }),
   };
 };
 
-export const usePairApproval = ({
-  pair,
-  amount,
-  onSuccess,
-}: {
-  pair: Pair;
-  amount: bigint;
-  onSuccess?: () => void;
-}) =>
-  useErc20Approval({
-    tokenAddress: pair.id,
-    amount,
-    onSuccess,
-  });
+export const usePairApproval = (pair: Pair, minAmount?: BigNumber) =>
+  useErc20Approval(pair.id, `${pair.name} LP Token`, minAmount);
 
-export const useTokenApproval = ({
-  token,
-  amount,
-  onSuccess,
-}: {
-  token: Token | PairToken;
-  amount: bigint;
-  onSuccess?: () => void;
-}) => useErc20Approval({ tokenAddress: token?.id, amount, onSuccess });
+export const useTokenApproval = (token: Token, minAmount?: BigNumber) =>
+  useErc20Approval(token.id, token.symbol, minAmount);

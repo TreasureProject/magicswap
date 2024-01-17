@@ -1,9 +1,11 @@
+import type { BigNumber } from "@ethersproject/bignumber";
+
 import { TokenLogo } from "~/components/TokenLogo";
 import { usePrice } from "~/context/priceContext";
 import type { PairToken } from "~/types";
 import {
-  formatBigIntDisplay,
-  formatBigIntInput,
+  formatBigNumberDisplay,
+  formatBigNumberInput,
   formatUsdLong,
 } from "~/utils/number";
 
@@ -13,7 +15,7 @@ type Props = {
   token?: PairToken;
   tokenSymbol?: string;
   price?: number;
-  balance: bigint;
+  balance: BigNumber;
   value: string;
   onChange: (value: string) => void;
 };
@@ -69,10 +71,12 @@ export default function TokenInput({
         />
         <div
           className="absolute bottom-2 left-0 flex cursor-pointer flex-col items-end pl-3"
-          onClick={() => onChange(formatBigIntInput(balance, token?.decimals))}
+          onClick={() =>
+            onChange(formatBigNumberInput(balance, token?.decimals))
+          }
         >
           <span className="text-xs text-night-500">
-            Balance: {formatBigIntDisplay(balance, token?.decimals)}
+            Balance: {formatBigNumberDisplay(balance, token?.decimals)}
           </span>
         </div>
         {!!token && (
@@ -82,7 +86,7 @@ export default function TokenInput({
               {formatUsdLong(
                 token.priceMagic *
                   magicUsd *
-                  (parsedValue > 0 ? parsedValue : 1),
+                  (parsedValue > 0 ? parsedValue : 1)
               )}
             </span>
           </div>

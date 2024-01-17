@@ -1,57 +1,34 @@
+import type { BigNumber } from "@ethersproject/bignumber";
 import { Decimal } from "decimal.js-light";
-import { formatUnits, parseUnits } from "viem";
+import { formatUnits, parseUnits } from "ethers/lib/utils";
 
 // Avoid scientific notation
 Decimal.set({ toExpPos: 18, toExpNeg: -18 });
 
-const toDecimal = (value: bigint, decimals = 18) =>
+const toDecimal = (value: BigNumber, decimals = 18) =>
   new Decimal(formatUnits(value, decimals));
 
-export const toNumber = (value: bigint, decimals = 18) =>
+export const toNumber = (value: BigNumber, decimals = 18) =>
   parseFloat(formatUnits(value, decimals));
 
-export const toBigInt = (value: string | number, decimals = 18) =>
+export const toBigNumber = (value: string | number, decimals = 18) =>
   parseUnits(new Decimal(value).toString(), decimals);
 
-export const formatBigIntInput = (value: bigint, decimals = 18) =>
+export const formatBigNumberInput = (value: BigNumber, decimals = 18) =>
   toDecimal(value, decimals)
     .toSignificantDigits(decimals, Decimal.ROUND_FLOOR)
     .toString();
 
-export const formatBigIntOutput = (value: bigint, decimals = 18) =>
+export const formatBigNumberOutput = (value: BigNumber, decimals = 18) =>
   toDecimal(value, decimals)
     .toSignificantDigits(6, Decimal.ROUND_FLOOR)
     .toString();
 
-export const formatBigIntDisplay = (value: bigint, decimals = 18) =>
+export const formatBigNumberDisplay = (value: BigNumber, decimals = 18) =>
   toDecimal(value, decimals)
     .toSignificantDigits(6, Decimal.ROUND_FLOOR)
     .toNumber()
     .toLocaleString("en-US");
-
-export const formatAmount = (value: string | number, toLocale = true) => {
-  const decimal = new Decimal(value);
-  let decimalPlaces: number;
-  if (decimal.lt(1e-3)) {
-    decimalPlaces = 6;
-  } else if (decimal.lt(1)) {
-    decimalPlaces = 4;
-  } else if (decimal.lt(100)) {
-    decimalPlaces = 3;
-  } else {
-    decimalPlaces = 2;
-  }
-
-  const rounded = decimal.toDecimalPlaces(decimalPlaces, Decimal.ROUND_DOWN);
-
-  if (toLocale) {
-    return rounded
-      .toNumber()
-      .toLocaleString("en-US", { maximumFractionDigits: decimalPlaces });
-  }
-
-  return rounded.toString();
-};
 
 export const formatCurrency = (value: number) =>
   value.toLocaleString("en-US", {
@@ -88,7 +65,7 @@ export const formatUsdLong = (value: number) => {
 export const formatPercent = (
   value: number,
   minimumFractionDigits = 0,
-  maximumFractionDigits = 2,
+  maximumFractionDigits = 2
 ) =>
   `${(value * 100).toLocaleString("en-US", {
     minimumFractionDigits,

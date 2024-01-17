@@ -1,3 +1,4 @@
+import { Zero } from "@ethersproject/constants";
 import { useBalance } from "wagmi";
 
 import { useUser } from "~/context/userContext";
@@ -5,7 +6,7 @@ import type { AddressString, Token } from "~/types";
 
 export const useAddressBalance = (address?: AddressString) => {
   const { address: userAddress, isConnected } = useUser();
-  const { data, refetch } = useBalance({
+  const { data: balanceData, refetch } = useBalance({
     address: userAddress,
     token: address,
     enabled: isConnected,
@@ -13,7 +14,7 @@ export const useAddressBalance = (address?: AddressString) => {
   });
 
   return {
-    value: data?.value ?? 0n,
+    value: balanceData?.value ?? Zero,
     refetch,
   };
 };

@@ -1,8 +1,8 @@
-import { uniswapV2PairABI } from "artifacts/uniswapV2PairABI";
-import { formatUnits } from "viem";
-import { useContractRead } from "wagmi";
+import type { BigNumber } from "@ethersproject/bignumber";
+import { formatUnits } from "ethers/lib/utils";
 
-import { useInterval } from "./useInterval";
+import UniswapV2PairAbi from "../../artifacts/UniswapV2Pair.json";
+import { useContractRead } from "./useContractRead";
 import { REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
 import type { AddressString, Pair } from "~/types";
 
@@ -10,15 +10,14 @@ import type { AddressString, Pair } from "~/types";
 const usePairReserves = (
   id: AddressString,
   token0Decimals = 18,
-  token1Decimals = 18,
+  token1Decimals = 18
 ) => {
-  const { data: pairData, refetch } = useContractRead({
+  const { data: pairData } = useContractRead({
     address: id,
-    abi: uniswapV2PairABI,
+    abi: UniswapV2PairAbi,
     functionName: "getReserves",
+    refetchInterval: REFETCH_INTERVAL_HIGH_PRIORITY,
   });
-
-  useInterval(refetch, REFETCH_INTERVAL_HIGH_PRIORITY);
 
   const reserves = {
     id,
@@ -27,7 +26,7 @@ const usePairReserves = (
   };
 
   if (pairData) {
-    const [rawReserve0, rawReserve1] = pairData;
+    const [rawReserve0, rawReserve1] = pairData as [BigNumber, BigNumber];
     reserves.reserve0 = parseFloat(formatUnits(rawReserve0, token0Decimals));
     reserves.reserve1 = parseFloat(formatUnits(rawReserve1, token1Decimals));
   }
@@ -41,7 +40,7 @@ export const usePair = (pair: Pair) => {
   const { reserve0, reserve1 } = usePairReserves(
     pair.id,
     pair.token0.decimals,
-    pair.token1.decimals,
+    pair.token1.decimals
   );
 
   const nextPair = { ...pair };

@@ -8,22 +8,20 @@ import { AppContract, REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
 import type { PairToken } from "~/types";
 import { toBigNumber } from "~/utils/number";
 
-export const useQuote = (
-  token0: PairToken,
-  token1: PairToken,
-  amount: BigNumber,
-  isExactToken0: boolean
+export const useAmount = (
+  tokenIn: PairToken,
+  tokenOut: PairToken,
+  value: BigNumber,
+  isExactOut: boolean
 ) => {
   const contractAddress = useContractAddress(AppContract.Router);
-  const tokenIn = isExactToken0 ? token0 : token1;
-  const tokenOut = isExactToken0 ? token1 : token0;
   const { data = Zero } = useContractRead({
     address: contractAddress,
     abi: UniswapV2Router02Abi,
-    functionName: "quote",
-    enabled: amount.gt(Zero),
+    functionName: isExactOut ? "getAmountIn" : "getAmountOut",
+    enabled: value.gt(Zero),
     args: [
-      amount,
+      value,
       toBigNumber(tokenIn.reserve, tokenIn.decimals),
       toBigNumber(tokenOut.reserve, tokenOut.decimals),
     ],
@@ -31,7 +29,7 @@ export const useQuote = (
   });
   const result = data as BigNumber;
   return {
-    token0: isExactToken0 ? amount : result,
-    token1: isExactToken0 ? result : amount,
+    in: isExactOut ? result : value,
+    out: isExactOut ? value : result,
   };
 };

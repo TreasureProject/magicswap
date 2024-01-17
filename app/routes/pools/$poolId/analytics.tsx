@@ -2,11 +2,10 @@ import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
-  isRouteErrorResponse,
+  useCatch,
   useFetcher,
   useLoaderData,
   useParams,
-  useRouteError,
 } from "@remix-run/react";
 import { useEffect } from "react";
 import invariant from "tiny-invariant";
@@ -27,7 +26,7 @@ type LoaderData = {
   swaps: Swap[];
 };
 
-export const meta: MetaFunction<typeof loader> = ({ data }) =>
+export const meta: MetaFunction = ({ data }: { data: LoaderData }) =>
   createMetaTags(`${data.pair.name} - Analytics | Magicswap`);
 
 export const loader: LoaderFunction = async ({ params: { poolId } }) => {
@@ -261,7 +260,7 @@ export default function Analytics() {
                       title={swap.userAddress}
                     >
                       <a
-                        href={`${blockExplorer.url}/address/${swap.userAddress}`}
+                        href={`${blockExplorer}/address/${swap.userAddress}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="group flex items-center gap-1"
@@ -277,7 +276,7 @@ export default function Analytics() {
                       title={new Date(swap.date * 1000).toLocaleString()}
                     >
                       <a
-                        href={`${blockExplorer.url}/tx/${swap.transactionId}`}
+                        href={`${blockExplorer}/tx/${swap.transactionId}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="group flex items-center gap-1"
@@ -299,11 +298,10 @@ export default function Analytics() {
   );
 }
 
-export function ErrorBoundary() {
-  const error = useRouteError();
+export function CatchBoundary() {
+  const caught = useCatch();
   const params = useParams();
-
-  if (isRouteErrorResponse(error) && error.status === 404) {
+  if (caught.status === 404) {
     return (
       <div className="flex h-full flex-col items-center justify-center">
         <p className="text-[0.6rem] text-night-500 sm:text-base">
@@ -312,6 +310,5 @@ export function ErrorBoundary() {
       </div>
     );
   }
-
-  throw new Error(`Unhandled error: ${error}`);
+  throw new Error(`Unhandled error: ${caught.status}`);
 }

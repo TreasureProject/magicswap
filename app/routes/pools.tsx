@@ -6,14 +6,12 @@ import {
 } from "@heroicons/react/24/outline";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import {
-  Link,
-  Outlet,
-  useFetcher,
-  useLoaderData,
-  useLocation,
-  useParams,
-} from "@remix-run/react";
+import type { ShouldReloadFunction } from "@remix-run/react";
+import { useFetcher } from "@remix-run/react";
+import { Link } from "@remix-run/react";
+import { useLocation } from "@remix-run/react";
+import { useParams } from "@remix-run/react";
+import { Outlet, useLoaderData } from "@remix-run/react";
 import { Fragment, useEffect, useState } from "react";
 import type { ChangeEvent } from "react";
 import { twMerge } from "tailwind-merge";
@@ -44,12 +42,15 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     name_contains: name,
   });
 
-  if (pairs.length > 0 && !params.poolId) {
+  if (pairs.length === 1 && !params.poolId) {
     return redirect(`/pools/${pairs[0]?.id}/manage`);
   }
 
   return json<LoaderData>({ pairs });
 };
+
+// Changing query params on pools/:poolId/manage route automatically reloads all parent loaders, but we don't have to do that here.
+export const unstable_shouldReload: ShouldReloadFunction = () => false;
 
 export default function Pools() {
   const { pairs } = useLoaderData<LoaderData>();
@@ -193,7 +194,7 @@ export default function Pools() {
                           ? "border-ruby-900 text-white"
                           : "border-transparent text-night-500 hover:border-night-600 hover:text-night-700",
                         notFirstTab && "ml-4",
-                        "border-b-2 py-2 text-base font-medium sm:text-xl",
+                        "border-b-2 py-2 text-base font-medium sm:text-xl"
                       )}
                     >
                       {tab.name}
@@ -317,7 +318,7 @@ const PoolLink = ({ pair, lastPath }: { pair: Pair; lastPath: string }) => {
             "group flex items-center border-l-2 px-6 py-5",
             isActive
               ? "border-ruby-900 bg-ruby-500/10 text-ruby-600"
-              : "border-transparent hover:border-ruby-300",
+              : "border-transparent hover:border-ruby-300"
           )}
         >
           <div className="flex w-full items-center justify-between">
@@ -339,7 +340,7 @@ const PoolLink = ({ pair, lastPath }: { pair: Pair; lastPath: string }) => {
                   "text-sm font-medium",
                   isActive
                     ? "text-ruby-500"
-                    : "text-night-400 group-hover:text-night-200",
+                    : "text-night-400 group-hover:text-night-200"
                 )}
               >
                 {pair.name}

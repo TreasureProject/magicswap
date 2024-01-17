@@ -4,7 +4,7 @@ import type { Optional } from "../types";
 
 export const useInterval = (
   callback: () => void,
-  interval: Optional<number>,
+  interval: Optional<number>
 ) => {
   useEffect(() => {
     if (interval) {

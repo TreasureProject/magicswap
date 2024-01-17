@@ -1,75 +1,124 @@
+import { BigNumber } from "@ethersproject/bignumber";
+import { Zero } from "@ethersproject/constants";
 import { Dialog } from "@headlessui/react";
-import {
-  CogIcon,
-  DocumentCheckIcon,
-  MagnifyingGlassIcon,
-} from "@heroicons/react/24/outline";
+import { CogIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { ArrowDownIcon, ArrowRightIcon } from "@heroicons/react/24/solid";
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import {
-  Link,
-  isRouteErrorResponse,
-  useLoaderData,
-  useLocation,
-  useRouteError,
-} from "@remix-run/react";
-import type { ServerRuntimeMetaArgs } from "@remix-run/server-runtime";
-import { useCallback, useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Link, useCatch, useLoaderData, useLocation } from "@remix-run/react";
+import { useCallback, useEffect } from "react";
+import { useState } from "react";
 import { twMerge } from "tailwind-merge";
-import type { TransactionReceipt } from "viem";
 
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
 import { Button } from "~/components/Button";
 import { Modal } from "~/components/Modal";
 import PairTokenInput from "~/components/PairTokenInput";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
-import { SwapRoutePanel } from "~/components/SwapRoutePanel";
-import { ToastContent } from "~/components/ToastContent";
 import { TokenLogo } from "~/components/TokenLogo";
-import { TransactionLink } from "~/components/TransactionLink";
-import { usePairs } from "~/context/pairs";
+import { useAmount } from "~/hooks/useAmount";
 import { useTokenApproval } from "~/hooks/useApproval";
-import { useBlockExplorer } from "~/hooks/useBlockExplorer";
+import { usePair } from "~/hooks/usePair";
 import { useSwap } from "~/hooks/useSwap";
-import { type SwapRoute, useSwapRoute } from "~/hooks/useSwapRoute";
 import { useTokenBalance } from "~/hooks/useTokenBalance";
-import type { PairToken } from "~/types";
+import type { Pair, PairToken, Token } from "~/types";
 import { getLastPairCookie, saveLastPairCookie } from "~/utils/cookie.server";
 import { createMetaTags } from "~/utils/meta";
-import { formatBigIntInput, formatBigIntOutput } from "~/utils/number";
-import { getTokenBySymbol } from "~/utils/tokens";
+import {
+  formatBigNumberInput,
+  formatBigNumberOutput,
+  formatPercent,
+  toBigNumber,
+} from "~/utils/number";
+import { getPairs } from "~/utils/pair.server";
+import {
+  COMMUNITY_ECO_FUND,
+  COMMUNITY_GAME_FUND,
+  LIQUIDITY_PROVIDER_FEE,
+} from "~/utils/price";
+import { calculatePriceImpact } from "~/utils/swap";
+import { getTokenBySymbol, getUniqueTokens } from "~/utils/tokens.server";
 
-export const meta = ({
-  data,
-  location,
-}: ServerRuntimeMetaArgs<typeof loader>) => {
-  if (!data?.inputSymbol || !data.outputSymbol) {
+type LoaderData = {
+  pairs: Pair[];
+  pair: Pair;
+  tokens: Token[];
+  inputToken: PairToken;
+  outputToken: PairToken;
+};
+
+export const meta: MetaFunction = ({ data, location }) => {
+  const { inputToken, outputToken } = (data || {}) as LoaderData;
+
+  if (!inputToken || !outputToken) {
     return createMetaTags("404 | Magicswap");
   }
 
   if (location.search) {
     return createMetaTags(
-      `Swap ${data.inputSymbol} to ${data.outputSymbol} | Magicswap`,
+      `Swap ${inputToken.symbol} to ${outputToken.symbol} | Magicswap`
     );
   }
 
   return createMetaTags();
 };
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
-  const cookie = await getLastPairCookie(request);
-  const inputSymbol = url.searchParams.get("input") ?? cookie?.input ?? "MAGIC";
+  const { input: inputCookie, output: outputCookie } =
+    (await getLastPairCookie(request)) ?? {};
+
+  const pairs = await getPairs();
+  const tokens = getUniqueTokens(pairs).sort((a, b) =>
+    a.symbol.localeCompare(b.symbol)
+  );
+  const inputSymbol = url.searchParams.get("input") ?? inputCookie ?? "MAGIC";
+  const inputToken = getTokenBySymbol(tokens, inputSymbol);
+  if (!inputToken) {
+    throw new Response(`${inputSymbol} token not found`, {
+      status: 404,
+    });
+  }
+
   const outputSymbol =
-    url.searchParams.get("output") ?? cookie?.output ?? "ELM";
-  await saveLastPairCookie({ input: inputSymbol, output: outputSymbol });
-  return { inputSymbol, outputSymbol };
+    url.searchParams.get("output") ?? outputCookie ?? "ANIMA";
+  const outputToken = getTokenBySymbol(tokens, outputSymbol);
+  if (!outputToken) {
+    throw new Response(`${outputSymbol} token not found`, {
+      status: 404,
+    });
+  }
+
+  const pair = pairs.find(
+    ({ token0, token1 }) =>
+      (token0.id === inputToken.id || token0.id === outputToken.id) &&
+      (token1.id === inputToken.id || token1.id === outputToken.id)
+  );
+
+  if (!pair) {
+    throw new Response(
+      `${inputToken.symbol}-${outputToken.symbol} swap not allowed`,
+      {
+        status: 404,
+      }
+    );
+  }
+
+  return json<LoaderData>(
+    {
+      pairs,
+      pair,
+      tokens,
+      inputToken: pair.token0.id === inputToken.id ? pair.token0 : pair.token1,
+      outputToken:
+        pair.token0.id === outputToken.id ? pair.token0 : pair.token1,
+    },
+    await saveLastPairCookie({ input: inputSymbol, output: outputSymbol })
+  );
 };
 
 export default function Index() {
-  const { inputSymbol, outputSymbol } = useLoaderData<typeof loader>();
-  const { pairs, tokens } = usePairs();
+  const data = useLoaderData<LoaderData>();
   const [openTokenListModalProps, setOpenTokenListModalProps] = useState<{
     open: boolean;
     type: "input" | "output";
@@ -81,42 +130,17 @@ export default function Index() {
     value: "",
     isExactOut: false,
   });
+  const { value: inputTokenBalance, refetch: refetchInputTokenBalance } =
+    useTokenBalance(data.inputToken);
+  const { value: outputTokenBalance, refetch: refetchOutputTokenBalance } =
+    useTokenBalance(data.outputToken);
+  const pair = usePair(data.pair);
   const [isOpenConfirmSwapModal, setIsOpenConfirmSwapModal] = useState(false);
 
-  const rawTokenIn = getTokenBySymbol(tokens, inputSymbol);
-  const rawTokenOut = getTokenBySymbol(tokens, outputSymbol);
-  if (!rawTokenIn || !rawTokenOut) {
-    throw new Response(
-      `${rawTokenIn ? outputSymbol : inputSymbol} token not found`,
-      {
-        status: 404,
-      },
-    );
-  }
-
-  const swapRoute = useSwapRoute({
-    tokenIn: rawTokenIn,
-    tokenOut: rawTokenOut,
-    pools: pairs,
-    amount: swapInput.value,
-    isExactOut: swapInput.isExactOut,
-  });
-
-  const { amountIn, amountOut, tokenIn, tokenOut } = swapRoute;
-
-  if (!tokenIn || !tokenOut) {
-    throw new Response(
-      `${tokenIn ? outputSymbol : inputSymbol} token not found`,
-      {
-        status: 404,
-      },
-    );
-  }
-
-  const { value: inputTokenBalance, refetch: refetchInputTokenBalance } =
-    useTokenBalance(tokenIn);
-  const { value: outputTokenBalance, refetch: refetchOutputTokenBalance } =
-    useTokenBalance(tokenOut);
+  const inputPairToken =
+    pair.token0.id === data.inputToken.id ? pair.token0 : pair.token1;
+  const outputPairToken =
+    pair.token0.id === data.outputToken.id ? pair.token0 : pair.token1;
 
   // Reset inputs if swap changes
   useEffect(() => {
@@ -124,7 +148,7 @@ export default function Index() {
       ...curr,
       isExactOut: !curr.isExactOut,
     }));
-  }, [inputSymbol, outputSymbol]);
+  }, [inputPairToken.id, outputPairToken.id]);
 
   const onClose = useCallback(
     () =>
@@ -132,32 +156,43 @@ export default function Index() {
         ...props,
         open: false,
       })),
-    [],
+    []
   );
 
-  const handleSwapSuccess = useCallback(
-    (txReceipt: TransactionReceipt | undefined) => {
-      toast.success(
-        <ToastContent
-          title="Swap complete"
-          message={<TransactionLink txHash={txReceipt?.transactionHash} />}
-        />,
-      );
-      setIsOpenConfirmSwapModal(false);
-      setSwapInput({ value: "", isExactOut: false });
-      refetchInputTokenBalance();
-      refetchOutputTokenBalance();
-    },
-    [refetchInputTokenBalance, refetchOutputTokenBalance],
+  const handleCloseConfirmModal = useCallback(
+    () => setIsOpenConfirmSwapModal(false),
+    []
   );
 
-  const insufficientBalance = inputTokenBalance < amountIn;
+  const handleSwapSuccess = useCallback(() => {
+    setIsOpenConfirmSwapModal(false);
+    setSwapInput({ value: "", isExactOut: false });
+    refetchInputTokenBalance();
+    refetchOutputTokenBalance();
+  }, [refetchInputTokenBalance, refetchOutputTokenBalance]);
+
+  const swapAmount = useAmount(
+    inputPairToken,
+    outputPairToken,
+    toBigNumber(
+      swapInput.value && swapInput.value !== "." ? swapInput.value : "0"
+    ),
+    swapInput.isExactOut
+  );
+  const priceImpact = calculatePriceImpact(
+    inputPairToken,
+    outputPairToken,
+    swapAmount.in,
+    swapAmount.out,
+    swapInput.isExactOut
+  );
+  const insufficientBalance = inputTokenBalance.lt(swapAmount.in);
 
   return (
     <>
       <div className="flex flex-col items-center">
         <h2 className="mt-2 font-bold sm:mt-4 sm:text-lg">
-          Swap {inputSymbol} to {outputSymbol}
+          Swap {inputPairToken.symbol} to {outputPairToken.symbol}
         </h2>
         <p className="text-sm text-night-500 sm:text-base">
           The gateway to the cross-game economy
@@ -224,14 +259,18 @@ export default function Index() {
           <div className="mt-2.5 flex flex-col xl:flex-row">
             <PairTokenInput
               id="inputToken"
-              label={`${tokenIn.symbol} Amount`}
-              token={tokenIn}
+              label={`${inputPairToken.symbol} Amount`}
+              token={inputPairToken}
               balance={inputTokenBalance}
               value={
                 swapInput.isExactOut
-                  ? formatBigIntOutput(amountIn, tokenIn.decimals)
+                  ? formatBigNumberOutput(
+                      swapAmount.in,
+                      inputPairToken.decimals
+                    )
                   : swapInput.value
               }
+              locked={inputPairToken.isMagic}
               onChange={(value) => setSwapInput({ value, isExactOut: false })}
               // showPriceGraph={showGraph}
               onTokenClick={() =>
@@ -243,7 +282,7 @@ export default function Index() {
             />
             <div className="flex basis-10 items-center justify-center sm:basis-16 xl:basis-32">
               <Link
-                to={`/?input=${tokenOut.symbol}&output=${tokenIn.symbol}`}
+                to={`/?input=${outputPairToken.symbol}&output=${inputPairToken.symbol}`}
                 className="group rounded-full p-2 transition duration-300 ease-in-out hover:bg-night-500/20"
               >
                 <ArrowRightIcon className="hidden h-6 w-6 animate-rotate-back text-night-500 group-hover:animate-rotate-180 xl:block" />
@@ -252,14 +291,18 @@ export default function Index() {
             </div>
             <PairTokenInput
               id="outputToken"
-              label={`${tokenOut.symbol} Amount`}
-              token={tokenOut}
+              label={`${outputPairToken.symbol} Amount`}
+              token={outputPairToken}
               balance={outputTokenBalance}
               value={
                 swapInput.isExactOut
                   ? swapInput.value
-                  : formatBigIntOutput(amountOut, tokenOut.decimals)
+                  : formatBigNumberOutput(
+                      swapAmount.out,
+                      outputPairToken.decimals
+                    )
               }
+              locked={outputPairToken.isMagic}
               onChange={(value) => setSwapInput({ value, isExactOut: true })}
               // showPriceGraph={showGraph}
               onTokenClick={() =>
@@ -271,21 +314,22 @@ export default function Index() {
             />
           </div>
         </div>
-        <div className="mt-4 w-full space-y-6 px-0 sm:mt-8 xl:px-72 2xl:mt-12">
+        <div className="mt-4 w-full space-y-4 px-0 sm:mt-8 xl:px-72 2xl:mt-12">
           <Button
             disabled={
-              amountIn === 0n || amountOut === 0n || insufficientBalance
+              swapAmount.in.eq(Zero) ||
+              swapAmount.out.eq(Zero) ||
+              insufficientBalance
             }
             onClick={() => setIsOpenConfirmSwapModal(true)}
             requiresConnect
           >
             {insufficientBalance
               ? "Insufficient Balance"
-              : amountIn > 0 && amountOut
-                ? "Swap"
-                : "Enter an Amount"}
+              : swapAmount.in.gt(Zero) && swapAmount.out.gt(Zero)
+              ? "Swap"
+              : "Enter an Amount"}
           </Button>
-          <SwapRoutePanel {...swapRoute} />
         </div>
       </div>
       <TokenSelectionModal
@@ -293,12 +337,13 @@ export default function Index() {
         onClose={onClose}
       />
       <ConfirmSwapModal
-        {...swapRoute}
-        tokenIn={tokenIn}
-        tokenOut={tokenOut}
-        isExactOut={swapInput.isExactOut}
         isOpen={isOpenConfirmSwapModal}
-        onClose={() => setIsOpenConfirmSwapModal(false)}
+        onClose={handleCloseConfirmModal}
+        inputPairToken={inputPairToken}
+        outputPairToken={outputPairToken}
+        inputValues={[swapAmount.in, swapAmount.out]}
+        isExactOut={swapInput.isExactOut}
+        priceImpact={priceImpact}
         onSuccess={handleSwapSuccess}
       />
     </>
@@ -306,47 +351,58 @@ export default function Index() {
 }
 
 const ConfirmSwapModal = ({
-  isExactOut,
   isOpen,
   onClose,
+  inputPairToken,
+  outputPairToken,
+  inputValues,
+  isExactOut,
+  priceImpact,
   onSuccess,
-  ...swapRoute
-}: Omit<SwapRoute, "tokenIn" | "tokenOut"> & {
-  tokenIn: PairToken;
-  tokenOut: PairToken;
-  isExactOut: boolean;
+}: {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (txReceipt: TransactionReceipt | undefined) => void;
+  inputPairToken: Token;
+  outputPairToken: Token;
+  inputValues: BigNumber[];
+  isExactOut: boolean;
+  priceImpact: number;
+  onSuccess: () => void;
 }) => {
-  const { tokenIn, tokenOut, amountIn, amountOut, path } = swapRoute;
-
   const {
     isApproved,
     approve,
     isLoading: isApproveLoading,
+    isSuccess: isApproveSuccess,
     refetch: refetchTokenApprovalStatus,
-  } = useTokenApproval({
-    token: tokenIn,
-    amount: amountIn,
-    onSuccess: () => {
-      refetchTokenApprovalStatus();
-    },
-  });
+  } = useTokenApproval(inputPairToken, inputValues[0]);
 
   const {
     amountIn: worstAmountIn,
     amountOut: worstAmountOut,
+    slippage,
     swap,
     isLoading,
+    isSuccess,
   } = useSwap({
-    path,
-    amountIn: amountIn,
-    amountOut: amountOut,
+    inputToken: inputPairToken,
+    outputToken: outputPairToken,
+    amountIn: inputValues[0] ?? BigNumber.from(0),
+    amountOut: inputValues[1] ?? BigNumber.from(0),
     isExactOut,
-    enabled: isApproved,
-    onSuccess,
   });
+
+  useEffect(() => {
+    if (isApproveSuccess) {
+      refetchTokenApprovalStatus();
+    }
+  }, [isApproveSuccess, refetchTokenApprovalStatus]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      onSuccess();
+    }
+  }, [isSuccess, onSuccess]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -361,12 +417,20 @@ const ConfirmSwapModal = ({
           <div className="flex w-full justify-between rounded-md bg-night-900 p-4">
             <span className="truncate text-lg font-medium tracking-wide">
               {isExactOut
-                ? formatBigIntOutput(amountIn, tokenIn.decimals)
-                : formatBigIntInput(amountIn)}
+                ? formatBigNumberOutput(
+                    inputValues[0] ?? BigNumber.from(0),
+                    inputPairToken.decimals
+                  )
+                : formatBigNumberInput(inputValues[0] ?? BigNumber.from(0))}
             </span>
             <div className="flex flex-shrink-0 items-center space-x-2 pl-2">
-              <TokenLogo token={tokenIn} className="h-5 w-5 rounded-full" />
-              <span className="text-sm font-medium">{tokenIn.symbol}</span>
+              <TokenLogo
+                token={inputPairToken}
+                className="h-5 w-5 rounded-full"
+              />
+              <span className="text-sm font-medium">
+                {inputPairToken.symbol}
+              </span>
             </div>
           </div>
           <div className="z-10 -my-3 rounded-full border border-night-900 bg-night-800 p-1">
@@ -375,17 +439,61 @@ const ConfirmSwapModal = ({
           <div className="flex w-full justify-between rounded-md bg-night-900 p-4">
             <span className="text-lg font-medium tracking-wide">
               {isExactOut
-                ? formatBigIntInput(amountOut)
-                : formatBigIntOutput(amountOut, tokenOut.decimals)}
+                ? formatBigNumberInput(inputValues[1] ?? BigNumber.from(0))
+                : formatBigNumberOutput(
+                    inputValues[1] ?? BigNumber.from(0),
+                    outputPairToken.decimals
+                  )}
             </span>
             <div className="flex items-center space-x-2 pl-2">
-              <TokenLogo token={tokenOut} className="h-5 w-5 rounded-full" />
-              <span className="text-sm font-medium">{tokenOut.symbol}</span>
+              <TokenLogo
+                token={outputPairToken}
+                className="h-5 w-5 rounded-full"
+              />
+
+              <span className="text-sm font-medium">
+                {outputPairToken.symbol}
+              </span>
             </div>
           </div>
         </div>
-        <SwapRoutePanel {...swapRoute} hideDerivedValue />
-        <div className="mt-4">
+        <dl className="space-y-1.5 border-t border-night-700">
+          <div className="mt-4 flex justify-between">
+            <dt className="text-xs text-night-400">Price Impact</dt>
+            <dt className="text-xs text-night-200">
+              {formatPercent(priceImpact, 0, 3)}
+            </dt>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-xs text-night-500">Slippage Tolerance</dt>
+            <dt className="text-xs text-night-500">
+              {formatPercent(slippage, 1)}
+            </dt>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-xs text-night-500">Liquidity Provider Fee</dt>
+            <dt className="text-xs text-night-500">
+              {formatPercent(LIQUIDITY_PROVIDER_FEE, 0, 3)}
+            </dt>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-xs text-night-500">
+              Community Gamification Fund Fee
+            </dt>
+            <dt className="text-xs text-night-500">
+              {formatPercent(COMMUNITY_GAME_FUND, 0, 3)}
+            </dt>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-xs text-night-500">
+              Community Ecosystem Fund Fee
+            </dt>
+            <dt className="text-xs text-night-500">
+              {formatPercent(COMMUNITY_ECO_FUND, 0, 3)}
+            </dt>
+          </div>
+        </dl>
+        <div className="mt-4 border-t border-night-700">
           <div className="my-4 space-y-1">
             {isExactOut ? (
               <>
@@ -393,8 +501,10 @@ const ConfirmSwapModal = ({
                   Input is estimated. You will sell at most:
                 </p>
                 <p className="text-sm">
-                  {formatBigIntOutput(worstAmountIn)}{" "}
-                  <span className="text-night-300">{tokenIn.symbol}</span>
+                  {formatBigNumberOutput(worstAmountIn)}{" "}
+                  <span className="text-night-300">
+                    {inputPairToken.symbol}
+                  </span>
                 </p>
                 <p className="text-xs text-night-400">
                   or the transaction will revert.
@@ -406,8 +516,10 @@ const ConfirmSwapModal = ({
                   Output is estimated. You will receieve at least:
                 </p>
                 <p className="text-sm">
-                  {formatBigIntOutput(worstAmountOut)}{" "}
-                  <span className="text-night-300">{tokenOut.symbol}</span>
+                  {formatBigNumberOutput(worstAmountOut)}{" "}
+                  <span className="text-night-300">
+                    {outputPairToken.symbol}
+                  </span>
                 </p>
                 <p className="text-xs text-night-400">
                   or the transaction will revert.
@@ -419,9 +531,9 @@ const ConfirmSwapModal = ({
             disabled={isLoading || isApproveLoading}
             onClick={() => {
               if (!isApproved) {
-                approve?.();
+                approve();
               } else {
-                swap?.();
+                swap();
               }
             }}
           >
@@ -430,8 +542,8 @@ const ConfirmSwapModal = ({
                 ? "Swapping..."
                 : "Confirm Swap"
               : isApproveLoading
-                ? `Approving ${tokenIn.symbol}...`
-                : `Approve ${tokenIn.symbol}`}
+              ? `Approving ${inputPairToken.symbol}...`
+              : `Approve ${inputPairToken.symbol}`}
           </Button>
         </div>
       </div>
@@ -450,21 +562,20 @@ const TokenSelectionModal = ({
   onClose: () => void;
 }) => {
   const { type } = modalProps;
-  const { inputSymbol, outputSymbol } = useLoaderData<typeof loader>();
+  const loaderData = useLoaderData<LoaderData>();
   const location = useLocation();
   const [searchString, setSearchString] = useState("");
-  const blockExplorer = useBlockExplorer();
 
-  const { tokens } = usePairs();
-
-  const filteredTokens = tokens.filter(
+  const filteredTokens = loaderData.tokens.filter(
     (token) =>
       token.symbol.toLowerCase().includes(searchString.toLowerCase()) ||
-      token.name.toLowerCase().includes(searchString.toLowerCase()),
+      token.name.toLowerCase().includes(searchString.toLowerCase())
   );
 
-  const currentToken = type === "input" ? inputSymbol : outputSymbol;
-  const otherToken = type === "input" ? outputSymbol : inputSymbol;
+  const currentToken =
+    type === "input" ? loaderData.inputToken : loaderData.outputToken;
+  const otherToken =
+    type === "input" ? loaderData.outputToken : loaderData.inputToken;
 
   useEffect(() => {
     onClose();
@@ -480,6 +591,11 @@ const TokenSelectionModal = ({
         >
           Select a Token
         </Dialog.Title>
+        <div className="mt-2">
+          <p className="text-sm text-night-500">
+            Select a token to replace with {currentToken.symbol}.
+          </p>
+        </div>
         <div className="mt-3">
           <label htmlFor="search-token" className="sr-only">
             Search Token
@@ -505,48 +621,56 @@ const TokenSelectionModal = ({
         <ul className="mt-2 h-80 overflow-auto rounded-md border border-night-700 bg-night-900">
           {filteredTokens.map((token) => {
             const isDisabled =
-              token.symbol === currentToken || token.symbol === otherToken;
+              token.id === currentToken.id || token.id === otherToken.id;
             return (
-              <li key={token.id} className="relative">
-                <Link
-                  prefetch="intent"
-                  to={`/?input=${
-                    type === "input" ? token.symbol : otherToken
-                  }&output=${type === "output" ? token.symbol : otherToken}`}
+              <li key={token.id}>
+                <div
                   className={twMerge(
-                    "flex items-center justify-between gap-3 px-6 py-5 transition duration-150 ease-in-out focus-within:ring-2 focus-within:ring-inset focus-within:ring-ruby-500",
                     isDisabled
                       ? "pointer-events-none opacity-20"
                       : "hover:bg-night-800/40",
+                    "relative flex items-center space-x-3 px-6 py-5 transition duration-150 ease-in-out focus-within:ring-2 focus-within:ring-inset focus-within:ring-ruby-500"
                   )}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0">
                     <TokenLogo
                       token={token}
-                      className="h-10 w-10 shrink-0 rounded-full"
+                      className="h-10 w-10 rounded-full"
                     />
-                    <div className="grow">
-                      <p className="truncate text-sm text-night-200">
-                        {token.symbol}
-                      </p>
-                      {token.name !== token.symbol ? (
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    {isDisabled ? (
+                      <div>
                         <p className="text-xs font-medium text-night-500">
                           {token.name}
                         </p>
-                      ) : null}
-                    </div>
+                        <p className="truncate text-sm text-night-200">
+                          {token.symbol}
+                        </p>
+                      </div>
+                    ) : (
+                      <Link
+                        prefetch="intent"
+                        to={`/?input=${
+                          type === "input" ? token.symbol : otherToken.symbol
+                        }&output=${
+                          type === "output" ? token.symbol : otherToken.symbol
+                        }`}
+                      >
+                        <span
+                          className="absolute inset-0"
+                          aria-hidden="true"
+                        ></span>
+                        <p className="text-xs font-medium text-night-500">
+                          {token.name}
+                        </p>
+                        <p className="truncate text-sm text-night-200">
+                          {token.symbol}
+                        </p>
+                      </Link>
+                    )}
                   </div>
-                </Link>
-                <a
-                  href={`${blockExplorer.url}/address/${token.id}`}
-                  title={`View ${token.symbol} on ${blockExplorer.name}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="absolute right-6 top-1/2 -translate-y-1/2 text-night-300 transition-colors hover:text-night-100"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <DocumentCheckIcon className="h-4 w-4" />
-                </a>
+                </div>
               </li>
             );
           })}
@@ -556,18 +680,16 @@ const TokenSelectionModal = ({
   );
 };
 
-export function ErrorBoundary() {
-  const error = useRouteError();
-
-  if (isRouteErrorResponse(error)) {
+export function CatchBoundary() {
+  const caught = useCatch();
+  if (caught.status === 404) {
     return (
       <div className="flex h-full flex-col items-center justify-center">
         <p className="text-[0.6rem] text-night-500 sm:text-base">
-          {error.data.message}
+          {caught.data}
         </p>
       </div>
     );
   }
-
-  throw new Error(`Unhandled error: ${error}`);
+  throw new Error(`Unhandled error: ${caught.status}`);
 }

@@ -5,3 +5,8 @@ export const truncateEthAddress = (address: string) => {
   if (!match) return address;
   return `${match[1]}…${match[2]}`;
 };
+
+export const createAddressExplorerUrl = (
+  blockExplorer: string,
+  address: string
+) => `${blockExplorer}/address/${address}`;
