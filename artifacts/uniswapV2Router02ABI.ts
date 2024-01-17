@@ -1,4 +1,4 @@
-[
+export const uniswapV2Router02ABI = [
   {
     "inputs": [
       { "internalType": "address", "name": "_factory", "type": "address" },
@@ -395,4 +395,4 @@
     "type": "function"
   },
   { "stateMutability": "payable", "type": "receive" }
-]
+] as const;

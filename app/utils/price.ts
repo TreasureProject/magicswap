@@ -1,5 +1,3 @@
-import type { AdvancedToken } from "~/types";
-
 export const LIQUIDITY_PROVIDER_FEE = 0.0225;
 export const COMMUNITY_GAME_FUND = 0.00375;
 export const COMMUNITY_ECO_FUND = 0.00375;
@@ -15,13 +13,13 @@ export const getApy = (volume: number, liquidity: number) =>
 export const getLpTokenCount = (
   tokenCount: number,
   tokenReserve: number,
-  lpTotalSupply: number
+  lpTotalSupply: number,
 ) => (tokenReserve > 0 ? (tokenCount / tokenReserve) * lpTotalSupply : 0);
 
 export const getTokenCount = (
   lpCount: number,
   tokenReserve: number,
-  lpTotalSupply: number
+  lpTotalSupply: number,
 ) => (lpTotalSupply > 0 ? (lpCount / lpTotalSupply) * tokenReserve : 0);
 
 export const fetchMagicPrice = async (): Promise<{
