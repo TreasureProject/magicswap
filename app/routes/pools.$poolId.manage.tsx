@@ -1,34 +1,43 @@
-import { Zero } from "@ethersproject/constants";
 import { Switch } from "@headlessui/react";
 import { CogIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import type { ShouldReloadFunction } from "@remix-run/react";
-import { useCatch, useLoaderData } from "@remix-run/react";
-import { Link, useParams, useSearchParams } from "@remix-run/react";
+import {
+  Link,
+  isRouteErrorResponse,
+  useLoaderData,
+  useParams,
+  useRouteError,
+  useSearchParams,
+} from "@remix-run/react";
 import { useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 import invariant from "tiny-invariant";
+import type { TransactionReceipt } from "viem";
 
 import { AdvancedSettingsPopoverContent } from "~/components/AdvancedSettingsPopoverContent";
 import { Button } from "~/components/Button";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/Popover";
+import { ToastContent } from "~/components/ToastContent";
 import TokenInput from "~/components/TokenInput";
+import { TransactionLink } from "~/components/TransactionLink";
 import { usePrice } from "~/context/priceContext";
 import { useUser } from "~/context/userContext";
+import { useAddLiquidity } from "~/hooks/useAddLiquidity";
 import { usePairApproval, useTokenApproval } from "~/hooks/useApproval";
-import { useAddLiquidity, useRemoveLiquidity } from "~/hooks/useLiquidity";
 import { usePair } from "~/hooks/usePair";
 import { useQuote } from "~/hooks/useQuote";
+import { useRemoveLiquidity } from "~/hooks/useRemoveLiquidity";
 import { useAddressBalance, useTokenBalance } from "~/hooks/useTokenBalance";
 import type { Pair } from "~/types";
 import { createMetaTags } from "~/utils/meta";
 import {
-  formatBigNumberOutput,
+  formatBigIntOutput,
   formatCurrency,
   formatUsdLong,
-  toBigNumber,
+  toBigInt,
   toNumber,
 } from "~/utils/number";
 import { getPairById } from "~/utils/pair.server";
@@ -44,7 +53,7 @@ const tabs = [
   // { name: "Rewards", query: "rewards" },
 ] as const;
 
-export const meta: MetaFunction = ({ data }: { data: LoaderData }) =>
+export const meta: MetaFunction<typeof loader> = ({ data }) =>
   createMetaTags(`${data.pair.name} - Manage | Magicswap`);
 
 export const loader: LoaderFunction = async ({ params: { poolId } }) => {
@@ -60,8 +69,6 @@ export const loader: LoaderFunction = async ({ params: { poolId } }) => {
 
   return json<LoaderData>({ pair });
 };
-
-export const unstable_shouldReload: ShouldReloadFunction = () => false;
 
 export default function Manage() {
   const params = useParams();
@@ -84,7 +91,7 @@ export default function Manage() {
                   isActive
                     ? "border-ruby-500 bg-night-500/20 text-white"
                     : "border-transparent text-night-500 hover:border-night-300 hover:text-night-700",
-                  "flex-1 whitespace-nowrap border-t-2 px-4 py-3 text-center text-xs font-medium sm:flex-none sm:px-8 sm:py-4 sm:text-left sm:text-sm"
+                  "flex-1 whitespace-nowrap border-t-2 px-4 py-3 text-center text-xs font-medium sm:flex-none sm:px-8 sm:py-4 sm:text-left sm:text-sm",
                 )}
                 aria-current={isActive ? "page" : undefined}
               >
@@ -123,79 +130,131 @@ const Liquidity = () => {
   const addAmount = useQuote(
     pair.token0,
     pair.token1,
-    toBigNumber(
-      addInput.value && addInput.value !== "." ? addInput.value : "0"
-    ),
-    addInput.isExactToken0
+    toBigInt(addInput.value && addInput.value !== "." ? addInput.value : "0"),
+    addInput.isExactToken0,
   );
 
   const removeAmount =
-    removeInput && removeInput !== "." ? toBigNumber(removeInput) : Zero;
+    removeInput && removeInput !== "." ? toBigInt(removeInput) : 0n;
   const removeEstimate = {
-    token0: removeAmount.gt(Zero)
-      ? getTokenCount(
-          toNumber(removeAmount),
-          pair.token0.reserve,
-          pair.totalSupply
-        )
-      : 0,
-    token1: removeAmount.gt(Zero)
-      ? getTokenCount(
-          toNumber(removeAmount),
-          pair.token1.reserve,
-          pair.totalSupply
-        )
-      : 0,
+    token0:
+      removeAmount > 0
+        ? getTokenCount(
+            toNumber(removeAmount),
+            pair.token0.reserve,
+            pair.totalSupply,
+          )
+        : 0,
+    token1:
+      removeAmount > 0
+        ? getTokenCount(
+            toNumber(removeAmount),
+            pair.token1.reserve,
+            pair.totalSupply,
+          )
+        : 0,
   };
 
   const { value: token0Balance, refetch: refetchPair0 } = useTokenBalance(
-    pair.token0
+    pair.token0,
   );
   const { value: token1Balance, refetch: refetchPair1 } = useTokenBalance(
-    pair.token1
+    pair.token1,
   );
   const { value: lpBalance, refetch: refetchLp } = useAddressBalance(pair.id);
-  const {
-    isApproved: isToken0Approved,
-    approve: approveToken0,
-    isLoading: isLoadingToken0,
-    isSuccess: isSuccessToken0,
-    refetch: refetchToken0ApprovalStatus,
-  } = useTokenApproval(pair.token0, addAmount.token0);
-  const {
-    isApproved: isToken1Approved,
-    approve: approveToken1,
-    isLoading: isLoadingToken1,
-    isSuccess: isSuccessToken1,
-    refetch: refetchToken1ApprovalStatus,
-  } = useTokenApproval(pair.token1, addAmount.token1);
-  const {
-    isApproved: isLpApproved,
-    approve: approveLp,
-    isLoading: isLoadingLp,
-    isSuccess: isSuccessLp,
-    refetch: refetchLpApprovalStatus,
-  } = usePairApproval(pair, removeAmount);
-  const {
-    addLiquidity,
-    isSuccess: isAddSuccess,
-    isLoading: isAddLoading,
-  } = useAddLiquidity();
-  const {
-    removeLiquidity,
-    isSuccess: isRemoveSuccess,
-    isLoading: isRemoveLoading,
-  } = useRemoveLiquidity();
-
-  const token0BalanceInsufficient = token0Balance.lt(addAmount.token0);
-  const token1BalanceInsufficient = token1Balance.lt(addAmount.token1);
-  const insufficientBalance =
-    token0BalanceInsufficient || token1BalanceInsufficient;
-  const lpBalanceInsufficient = lpBalance.lt(removeAmount);
 
   const refetchAll = useCallback(async () => {
     Promise.all([refetchPair0(), refetchPair1(), refetchLp()]);
   }, [refetchLp, refetchPair0, refetchPair1]);
+
+  const resetInputs = useCallback(() => {
+    setAddInput({ value: "", isExactToken0: false });
+    setRemoveInput("");
+    refetchAll();
+  }, [refetchAll]);
+
+  const {
+    isApproved: isToken0Approved,
+    approve: approveToken0,
+    isLoading: isLoadingToken0,
+    refetch: refetchToken0ApprovalStatus,
+  } = useTokenApproval({
+    token: pair.token0,
+    amount: addAmount.token0,
+    onSuccess: () => {
+      refetchTokensApprovalStatus();
+    },
+  });
+
+  const {
+    isApproved: isToken1Approved,
+    approve: approveToken1,
+    isLoading: isLoadingToken1,
+    refetch: refetchToken1ApprovalStatus,
+  } = useTokenApproval({
+    token: pair.token1,
+    amount: addAmount.token1,
+    onSuccess: () => {
+      refetchTokensApprovalStatus();
+    },
+  });
+
+  const {
+    isApproved: isLpApproved,
+    approve: approveLp,
+    isLoading: isLoadingLp,
+    refetch: refetchLpApprovalStatus,
+  } = usePairApproval({
+    pair,
+    amount: removeAmount,
+    onSuccess: () => {
+      refetchTokensApprovalStatus();
+    },
+  });
+
+  const { addLiquidity, isLoading: isAddLoading } = useAddLiquidity({
+    pair,
+    token0Amount: addAmount.token0,
+    token1Amount: addAmount.token1,
+    enabled: isToken0Approved && isToken1Approved,
+    onSuccess: useCallback(
+      (txReceipt: TransactionReceipt | undefined) => {
+        toast.success(
+          <ToastContent
+            title="Liquidity added"
+            message={<TransactionLink txHash={txReceipt?.transactionHash} />}
+          />,
+        );
+        resetInputs();
+      },
+      [resetInputs],
+    ),
+  });
+
+  const { removeLiquidity, isLoading: isRemoveLoading } = useRemoveLiquidity({
+    pair,
+    amount: removeAmount,
+    token0Amount: toBigInt(removeEstimate.token0, pair.token0.decimals),
+    token1Amount: toBigInt(removeEstimate.token1, pair.token1.decimals),
+    onSuccess: useCallback(
+      (txReceipt: TransactionReceipt | undefined) => {
+        toast.success(
+          <ToastContent
+            title="Liquidity removed"
+            message={<TransactionLink txHash={txReceipt?.transactionHash} />}
+          />,
+        );
+        resetInputs();
+      },
+      [resetInputs],
+    ),
+  });
+
+  const token0BalanceInsufficient = token0Balance < addAmount.token0;
+  const token1BalanceInsufficient = token1Balance < addAmount.token1;
+  const insufficientBalance =
+    token0BalanceInsufficient || token1BalanceInsufficient;
+  const lpBalanceInsufficient = lpBalance < removeAmount;
 
   const refetchTokensApprovalStatus = useCallback(async () => {
     Promise.all([
@@ -210,44 +269,8 @@ const Liquidity = () => {
   ]);
 
   useEffect(() => {
-    if (isSuccessToken0 || isSuccessToken1 || isSuccessLp) {
-      refetchTokensApprovalStatus();
-    }
-  }, [
-    isSuccessLp,
-    isSuccessToken0,
-    isSuccessToken1,
-    refetchTokensApprovalStatus,
-  ]);
-
-  const resetInputs = useCallback(() => {
-    setAddInput({ value: "", isExactToken0: false });
-    setRemoveInput("");
-    refetchAll();
-  }, [refetchAll]);
-
-  useEffect(() => {
-    if (isAddSuccess || isRemoveSuccess) {
-      resetInputs();
-    }
-  }, [isAddSuccess, isRemoveSuccess, resetInputs]);
-
-  useEffect(() => {
     resetInputs();
   }, [pair.id, resetInputs]);
-
-  const handleAddLiquidity = () => {
-    addLiquidity(pair, addAmount.token0, addAmount.token1);
-  };
-
-  const handleRemoveLiquidity = () => {
-    removeLiquidity(
-      pair,
-      removeAmount,
-      removeEstimate.token0,
-      removeEstimate.token1
-    );
-  };
 
   return (
     <div className="flex flex-1 items-center justify-center p-6 lg:p-8">
@@ -257,7 +280,7 @@ const Liquidity = () => {
             <span
               className={twMerge(
                 isAddLiquidity && "text-night-500",
-                "text-[0.6rem] font-bold uppercase sm:text-base"
+                "text-[0.6rem] font-bold uppercase sm:text-base",
               )}
             >
               Remove Liquidity
@@ -278,21 +301,21 @@ const Liquidity = () => {
                 aria-hidden="true"
                 className={twMerge(
                   isAddLiquidity ? "bg-ruby-900" : "bg-night-200",
-                  "pointer-events-none absolute mx-auto h-2.5 w-8 rounded-full transition-colors duration-200 ease-in-out"
+                  "pointer-events-none absolute mx-auto h-2.5 w-8 rounded-full transition-colors duration-200 ease-in-out",
                 )}
               />
               <span
                 aria-hidden="true"
                 className={twMerge(
                   isAddLiquidity ? "translate-x-5" : "translate-x-0",
-                  "pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full border border-ruby-700 bg-ruby-700 shadow ring-0 transition-transform duration-200 ease-in-out"
+                  "pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full border border-ruby-700 bg-ruby-700 shadow ring-0 transition-transform duration-200 ease-in-out",
                 )}
               />
             </Switch>
             <span
               className={twMerge(
                 !isAddLiquidity && "text-night-500",
-                "text-[0.6rem] font-bold uppercase sm:text-base"
+                "text-[0.6rem] font-bold uppercase sm:text-base",
               )}
             >
               Add Liquidity
@@ -321,10 +344,7 @@ const Liquidity = () => {
               value={
                 addInput.isExactToken0
                   ? addInput.value
-                  : formatBigNumberOutput(
-                      addAmount.token0,
-                      pair.token0.decimals
-                    )
+                  : formatBigIntOutput(addAmount.token0, pair.token0.decimals)
               }
               onChange={(value) => setAddInput({ value, isExactToken0: true })}
             />
@@ -338,10 +358,7 @@ const Liquidity = () => {
               balance={token1Balance}
               value={
                 addInput.isExactToken0
-                  ? formatBigNumberOutput(
-                      addAmount.token1,
-                      pair.token1.decimals
-                    )
+                  ? formatBigIntOutput(addAmount.token1, pair.token1.decimals)
                   : addInput.value
               }
               onChange={(value) => setAddInput({ value, isExactToken0: false })}
@@ -356,8 +373,8 @@ const Liquidity = () => {
                   getLpTokenCount(
                     toNumber(addAmount.token0),
                     pair.token0.reserve,
-                    pair.totalSupply
-                  )
+                    pair.totalSupply,
+                  ),
                 )}{" "}
                 {pair.name} Pool Tokens
               </p>
@@ -385,7 +402,7 @@ const Liquidity = () => {
                 <span className="text-night-200">
                   ≈{" "}
                   {formatUsdLong(
-                    removeEstimate.token0 * pair.token0.priceMagic * magicUsd
+                    removeEstimate.token0 * pair.token0.priceMagic * magicUsd,
                   )}
                 </span>
               </div>
@@ -396,7 +413,7 @@ const Liquidity = () => {
                 <span className="text-night-200">
                   ={" "}
                   {formatUsdLong(
-                    removeEstimate.token1 * pair.token1.priceMagic * magicUsd
+                    removeEstimate.token1 * pair.token1.priceMagic * magicUsd,
                   )}
                 </span>
               </div>
@@ -406,19 +423,23 @@ const Liquidity = () => {
 
         {isAddLiquidity ? (
           <>
-            {addAmount.token0.gt(Zero) &&
-              addAmount.token1.gt(Zero) &&
+            {addAmount.token0 > 0 &&
+              addAmount.token1 > 0 &&
               (!isToken0Approved || !isToken1Approved) &&
               !insufficientBalance &&
               isConnected && (
                 <Button
                   disabled={isLoadingToken0 || isLoadingToken1}
                   onClick={() =>
-                    isToken0Approved ? approveToken1() : approveToken0()
+                    isToken0Approved ? approveToken1?.() : approveToken0?.()
                   }
                 >
                   {isLoadingToken0 || isLoadingToken1
-                    ? "Approving Token..."
+                    ? `Approving ${
+                        isLoadingToken0
+                          ? pair.token0.symbol
+                          : pair.token1.symbol
+                      }...`
                     : `Approve ${
                         isToken0Approved
                           ? pair.token1.symbol
@@ -428,14 +449,14 @@ const Liquidity = () => {
               )}
             <Button
               disabled={
-                addAmount.token0.eq(Zero) ||
-                addAmount.token1.eq(Zero) ||
+                addAmount.token0 === 0n ||
+                addAmount.token1 === 0n ||
                 insufficientBalance ||
                 !isToken0Approved ||
                 !isToken1Approved ||
                 isAddLoading
               }
-              onClick={handleAddLiquidity}
+              onClick={() => addLiquidity?.()}
               requiresConnect
             >
               {isAddLoading ? (
@@ -450,7 +471,7 @@ const Liquidity = () => {
                 </>
               ) : (
                 <>
-                  {addAmount.token0.gt(Zero) && addAmount.token1.gt(Zero)
+                  {addAmount.token0 > 0 && addAmount.token1 > 0
                     ? "Add Liquidity"
                     : "Enter an Amount"}
                 </>
@@ -459,34 +480,34 @@ const Liquidity = () => {
           </>
         ) : (
           <>
-            {removeAmount.gt(Zero) &&
+            {removeAmount > 0 &&
               !isLpApproved &&
               !lpBalanceInsufficient &&
               isConnected && (
-                <Button disabled={isLoadingLp} onClick={() => approveLp()}>
+                <Button disabled={isLoadingLp} onClick={() => approveLp?.()}>
                   {isLoadingLp
-                    ? "Approving LP..."
+                    ? "Approving LP Token..."
                     : `Approve ${pair.name} LP Token`}
                 </Button>
               )}
             <Button
               disabled={
                 (isConnected &&
-                  (removeAmount.eq(Zero) ||
+                  (removeAmount === 0n ||
                     lpBalanceInsufficient ||
                     !isLpApproved)) ||
                 isRemoveLoading
               }
-              onClick={handleRemoveLiquidity}
+              onClick={() => removeLiquidity?.()}
               requiresConnect
             >
               {isRemoveLoading
                 ? "Removing Liquidity..."
                 : lpBalanceInsufficient
-                ? "Insufficient LP Token Balance"
-                : removeAmount.gt(Zero)
-                ? "Remove Liquidity"
-                : "Enter an Amount"}
+                  ? "Insufficient LP Token Balance"
+                  : removeAmount > 0
+                    ? "Remove Liquidity"
+                    : "Enter an Amount"}
             </Button>
           </>
         )}
@@ -577,10 +598,11 @@ const Liquidity = () => {
 //   );
 // };
 
-export function CatchBoundary() {
-  const caught = useCatch();
+export function ErrorBoundary() {
+  const error = useRouteError();
   const params = useParams();
-  if (caught.status === 404) {
+
+  if (isRouteErrorResponse(error) && error.status === 404) {
     return (
       <div className="flex h-full flex-col items-center justify-center">
         <p className="text-[0.6rem] text-night-500 sm:text-base">
@@ -589,5 +611,6 @@ export function CatchBoundary() {
       </div>
     );
   }
-  throw new Error(`Unhandled error: ${caught.status}`);
+
+  throw new Error(`Unhandled error: ${error}`);
 }
