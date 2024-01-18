@@ -14,12 +14,13 @@
   ],
   "license": "MIT",
   "sideEffects": false,
+  "type": "module",
   "scripts": {
     "dev": "remix vite:dev",
     "build": "remix vite:build",
     "deploy": "fly deploy --remote-only",
     "test": "vitest",
-    "start": "remix-serve build",
+    "start": "remix-serve ./build/server/index.js",
     "typecheck": "tsc",
     "codegen": "graphql-codegen -r dotenv/config",
     "lint": "prettier --write 'app/**/{*.ts,*.tsx}' && eslint --fix --no-error-on-unmatched-pattern 'app/**/{*.ts,*.tsx}'",
@@ -92,7 +93,7 @@
     "vitest": "^1.1.0"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "lint-staged": {
     "app/**/{*.ts,*.tsx}": "npm run lint"
