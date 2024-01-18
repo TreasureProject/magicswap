@@ -1,59 +1,49 @@
-# base node image
-FROM node:18-bullseye-slim as base
+# syntax = docker/dockerfile:1
 
-# Install openssl for Prisma
-RUN apt-get update && apt-get install -y openssl
+ARG NODE_VERSION=20.11.0
+FROM node:${NODE_VERSION}-slim as base
 
-# Install all node_modules, including dev dependencies
-FROM base as deps
+LABEL fly_launch_runtime="Remix"
 
-RUN mkdir /app
+# Remix app lives here
 WORKDIR /app
 
-ADD package.json package-lock.json ./
-RUN npm install --production=false
+# Set production environment
+ENV NODE_ENV="production"
 
-# Setup production node_modules
-FROM base as production-deps
-
-RUN mkdir /app
-WORKDIR /app
-
-COPY --from=deps /app/node_modules /app/node_modules
-ADD package.json package-lock.json ./
-RUN npm prune --production
-
-# Build the app
+# Throw-away build stage to reduce size of final image
 FROM base as build
 
-ENV NODE_ENV=production
+# Install packages needed to build node modules
+RUN apt-get update -qq && \
+    apt-get install -y build-essential pkg-config python-is-python3
 
-RUN mkdir /app
-WORKDIR /app
+# Install node modules
+COPY --link package.json ./
+COPY patches ./patches
 
-COPY --from=deps /app/node_modules /app/node_modules
+RUN npm install --include=dev
 
-ADD . .
-
-ARG MAGICSWAP_API_URL
-ENV MAGICSWAP_API_URL ${MAGICSWAP_API_URL}
+# Copy application code
+COPY --link . .
 
 RUN npm run codegen
 
-RUN npm run build
+# Build application
+RUN --mount=type=secret,id=dotenv,dst=env \
+    tr ' ' '\n' < env > .env && \
+    npm run build
 
-# Finally, build the production image with minimal footprint
+# Remove development dependencies
+RUN npm prune --omit=dev
+
+
+# Final stage for app image
 FROM base
 
-ENV NODE_ENV=production
+# Copy built application
+COPY --from=build /app /app
 
-RUN mkdir /app
-WORKDIR /app
-
-COPY --from=production-deps /app/node_modules /app/node_modules
-
-COPY --from=build /app/build /app/build
-COPY --from=build /app/public /app/public
-ADD . .
-
-CMD ["npm", "run", "start"]
+# Start the server by default, this can be overwritten at runtime
+EXPOSE 3000
+CMD [ "npm", "run", "start" ]
