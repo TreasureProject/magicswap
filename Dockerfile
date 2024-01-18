@@ -20,7 +20,6 @@ RUN apt-get update -qq && \
 
 # Install node modules
 COPY --link package.json ./
-COPY patches ./patches
 
 RUN npm install --include=dev
 
