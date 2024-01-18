@@ -1,37 +1,43 @@
-import type { BigNumber } from "@ethersproject/bignumber";
-import { Zero } from "@ethersproject/constants";
+import { uniswapV2Router02ABI } from "artifacts/uniswapV2Router02ABI";
+import { useCallback } from "react";
+import { useContractRead } from "wagmi";
 
-import UniswapV2Router02Abi from "../../artifacts/UniswapV2Router02.json";
-import { useContractAddress } from "./useContractAddress";
-import { useContractRead } from "./useContractRead";
-import { AppContract, REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
+import { useContractAddresses } from "./useContractAddresses";
+import { useInterval } from "./useInterval";
+import { REFETCH_INTERVAL_HIGH_PRIORITY } from "~/const";
 import type { PairToken } from "~/types";
-import { toBigNumber } from "~/utils/number";
+import { toBigInt } from "~/utils/number";
 
 export const useQuote = (
   token0: PairToken,
   token1: PairToken,
-  amount: BigNumber,
-  isExactToken0: boolean
+  amount: bigint,
+  isExactToken0: boolean,
 ) => {
-  const contractAddress = useContractAddress(AppContract.Router);
+  const enabled = amount > 0;
   const tokenIn = isExactToken0 ? token0 : token1;
   const tokenOut = isExactToken0 ? token1 : token0;
-  const { data = Zero } = useContractRead({
-    address: contractAddress,
-    abi: UniswapV2Router02Abi,
+  const { data = 0n, refetch } = useContractRead({
+    address: useContractAddresses().Router,
+    abi: uniswapV2Router02ABI,
     functionName: "quote",
-    enabled: amount.gt(Zero),
     args: [
       amount,
-      toBigNumber(tokenIn.reserve, tokenIn.decimals),
-      toBigNumber(tokenOut.reserve, tokenOut.decimals),
+      toBigInt(tokenIn.reserve, tokenIn.decimals),
+      toBigInt(tokenOut.reserve, tokenOut.decimals),
     ],
-    refetchInterval: REFETCH_INTERVAL_HIGH_PRIORITY,
+    enabled,
   });
-  const result = data as BigNumber;
+  useInterval(
+    useCallback(() => {
+      if (enabled) {
+        refetch();
+      }
+    }, [refetch, enabled]),
+    REFETCH_INTERVAL_HIGH_PRIORITY,
+  );
   return {
-    token0: isExactToken0 ? amount : result,
-    token1: isExactToken0 ? result : amount,
+    token0: isExactToken0 ? amount : data,
+    token1: isExactToken0 ? data : amount,
   };
 };

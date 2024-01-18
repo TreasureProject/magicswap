@@ -35,7 +35,7 @@ export const useSettings = () => {
 
   if (!context) {
     throw new Error(
-      "Must call `useSettings` within a `SettingsProvider` component."
+      "Must call `useSettings` within a `SettingsProvider` component.",
     );
   }
 
