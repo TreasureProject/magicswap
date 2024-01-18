@@ -26,16 +26,18 @@ RUN npm install --include=dev
 # Copy application code
 COPY --link . .
 
+# Create environment file
+RUN --mount=type=secret,id=dotenv,dst=env \
+    tr ' ' '\n' < env > .env
+
+# Generate code
 RUN npm run codegen
 
 # Build application
-RUN --mount=type=secret,id=dotenv,dst=env \
-    tr ' ' '\n' < env > .env && \
-    npm run build
+RUN npm run build
 
 # Remove development dependencies
 RUN npm prune --omit=dev
-
 
 # Final stage for app image
 FROM base

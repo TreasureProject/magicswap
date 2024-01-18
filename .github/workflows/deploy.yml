@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - develop
-  pull_request: {}
+  # pull_request: {}
 jobs:
   # typecheck:
   #   name: Check Types
@@ -31,7 +31,7 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     # needs: typecheck
-    if: ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.event_name == 'push' }}
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' }}
     steps:
       - name: Cancel previous runs
         uses: styfle/cancel-workflow-action@0.11.0
@@ -59,6 +59,7 @@ jobs:
     name: Post-Deployment Tasks
     runs-on: ubuntu-latest
     needs: deploy
+    if: ${{ github.ref == 'refs/heads/main' }}
     steps:
       - name: Purge Cloudflare Cache
         uses: jakejarvis/cloudflare-purge-action@master
