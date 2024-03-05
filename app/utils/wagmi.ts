@@ -15,7 +15,7 @@ import {
 } from "@rainbow-me/rainbowkit/wallets";
 import { arbitrum, arbitrumSepolia } from "viem/chains";
 import { configureChains, createConfig } from "wagmi";
-import { alchemyProvider } from "wagmi/providers/alchemy";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { publicProvider } from "wagmi/providers/public";
 
 const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID;
@@ -29,7 +29,11 @@ const { chains, publicClient } = configureChains(
       : []),
   ],
   [
-    alchemyProvider({ apiKey: import.meta.env.VITE_ALCHEMY_KEY }),
+    jsonRpcProvider({
+      rpc: (chain) => ({
+        http: `https://${chain.id}.rpc.thirdweb.com/${import.meta.env.VITE_THIRDWEB_CLIENT_ID}`,
+      }),
+    }),
     publicProvider(),
   ],
 );

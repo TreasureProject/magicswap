@@ -24,7 +24,7 @@
     "typecheck": "tsc",
     "codegen": "graphql-codegen -r dotenv/config",
     "lint": "prettier --write 'app/**/{*.ts,*.tsx}' && eslint --fix --no-error-on-unmatched-pattern 'app/**/{*.ts,*.tsx}'",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "dependencies": {
     "@blocto/rainbowkit-connector": "^0.2.4",
@@ -48,7 +48,7 @@
     "graphql": "^16.6.0",
     "graphql-request": "^6.1.0",
     "graphql-tag": "^2.12.6",
-    "isbot": "^4.4.0",
+    "isbot": "^5.0.0",
     "nprogress": "^0.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -79,9 +79,9 @@
     "@vitejs/plugin-react": "^4.0.0",
     "autoprefixer": "^10.4.16",
     "eslint": "^8.13.0",
-    "eslint-config-prettier": "^8.5.0",
-    "husky": "^8.0.1",
-    "jsdom": "^23.0.1",
+    "eslint-config-prettier": "^9.1.0",
+    "husky": "^9.0.11",
+    "jsdom": "^24.0.0",
     "lint-staged": "^15.2.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.1.1",
