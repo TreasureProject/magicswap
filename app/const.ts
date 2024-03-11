@@ -11,7 +11,7 @@ export const CONTRACT_ADDRESSES = {
     MagicSmolPair: "0xeba6af266b49faa76dc26eea589c7d227a597206",
   },
   [arbitrum.id]: {
-    Router: "0x23805449f91bb2d2054d9ba288fdc8f09b5eac79",
+    Router: "0xf3573bf4ca41b039bc596354870973d34fdb618b",
     MagicElmPair: "0x3e8fb78ec6fb60575967bb07ac64e5fa9f498a4a",
     MagicGflyPair: "0x088f2bd3667f385427d9289c28725d43d4b74ab4",
     MagicVeePair: "0x6210775833732f144058713c9b36de09afd1ca3b",

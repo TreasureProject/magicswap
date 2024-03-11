@@ -49,19 +49,19 @@ export const SwapRoutePanel = ({
         {lpFee > 0 && (
           <li className="flex items-center justify-between gap-4">
             Liquidity provider fee
-            <span>{formatPercent(lpFee)}</span>
+            <span>{formatPercent(lpFee, 0, 4)}</span>
           </li>
         )}
         {gameFundFee > 0 && (
           <li className="flex items-center justify-between gap-4">
             Community Gamification Fund fee
-            <span>{formatPercent(gameFundFee)}</span>
+            <span>{formatPercent(gameFundFee, 0, 4)}</span>
           </li>
         )}
         {ecoFundFee > 0 && (
           <li className="flex items-center justify-between gap-4">
             Community Ecosystem Fund fee
-            <span>{formatPercent(ecoFundFee)}</span>
+            <span>{formatPercent(ecoFundFee, 0, 4)}</span>
           </li>
         )}
       </ul>

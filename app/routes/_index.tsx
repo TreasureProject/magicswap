@@ -341,8 +341,8 @@ const ConfirmSwapModal = ({
     isLoading,
   } = useSwap({
     path,
-    amountIn: amountIn,
-    amountOut: amountOut,
+    amountIn,
+    amountOut,
     isExactOut,
     enabled: isApproved,
     onSuccess,
