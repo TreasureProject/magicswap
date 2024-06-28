@@ -1,17 +1,11 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import { getPairs } from "~/utils/pair.server";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const host =
-    request.headers.get("X-Forwarded-Host") ?? request.headers.get("host");
-
+export const loader = async () => {
   try {
-    const url = new URL("/", `http://${host}`);
-    await fetch(url.toString(), { method: "HEAD" }).then((r) => {
-      if (!r.ok) return Promise.reject(r);
-    });
+    await getPairs();
     return new Response("OK");
-  } catch (error: unknown) {
-    console.log("healthcheck ❌", { error });
+  } catch (err) {
+    console.error("Healthcheck failed:", err);
     return new Response("ERROR", { status: 500 });
   }
 };
