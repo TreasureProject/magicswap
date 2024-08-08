@@ -229,6 +229,19 @@ export default function App() {
                         </div>
                       </div>
                     </div>
+                    <div className="flex h-10 items-center bg-[#FACE60] px-4 text-xs text-black sm:justify-center sm:text-base">
+                      <p>
+                        Looking for Magicswap v2 and NFT pools?{" "}
+                        <a
+                          href="https://v2.magicswap.lol/swap"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline"
+                        >
+                          Click here
+                        </a>
+                      </p>
+                    </div>
                     <div className="relative overflow-hidden">
                       <div className="relative m-auto mb-24 flex min-h-[calc(100vh-64px)] flex-col p-8 pt-0 sm:pt-8 xl:max-w-6xl 2xl:max-w-7xl">
                         <Outlet />
